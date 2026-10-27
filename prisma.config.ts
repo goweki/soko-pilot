@@ -8,9 +8,5 @@ export default definePrismaConfig({
     db: {
       connection: process.env["DATABASE_URL"]!,
     },
-    migrations: {
-      path: "src/lib/prisma/migrations",
-      seed: "tsx src/lib/prisma/seed",
-    },
   }),
 });

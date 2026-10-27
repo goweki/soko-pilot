@@ -27,6 +27,7 @@ import { messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { DemoReadiness } from "@/lib/demo-readiness";
 import type { DemoAssistantConfig } from "@/lib/assistant-config";
+import { getPrivacyPolicyContent } from "@/lib/privacy-policy-content";
 
 type DashboardSection = "dashboard" | "conversations" | "products" | "settings";
 type PublicRoute = "home" | "privacy" | "recovery";
@@ -1128,53 +1129,51 @@ export function SettingsClient({
 }
 
 export function PrivacyClient({ locale }: { locale: Locale }) {
-  const text = messages[locale];
-  const points = [
-    text.privacyPointData,
-    text.privacyPointControl,
-    text.privacyPointClear,
-  ];
+  const policy = getPrivacyPolicyContent(locale);
 
   return (
     <ProductShell locale={locale} route="privacy">
-      <section className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-5 py-16 sm:px-8 lg:px-12">
+      <article className="mx-auto w-full max-w-4xl flex-1 px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
         <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
           <ShieldCheck className="size-6" aria-hidden="true" />
         </span>
-        <p className="mt-7 text-[10px] font-semibold tracking-[0.18em] text-primary">
-          {text.privacy}
+        <p className="mt-7 text-sm font-medium text-muted-foreground">
+          {policy.updatedLabel}: October 27, 2026
         </p>
         <h1 className="mt-3 max-w-3xl font-heading text-4xl leading-tight tracking-tight sm:text-5xl">
-          {text.privacyTitle}
+          {policy.title}
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground">
-          {text.privacyDescription}
+        <p className="mt-6 max-w-3xl text-base leading-7 text-muted-foreground">
+          {policy.introduction}
         </p>
-        <div className="mt-9 grid gap-3 md:grid-cols-3">
-          {points.map((point, index) => (
-            <article
-              key={point}
-              className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm"
-            >
-              <span className="grid size-9 place-items-center rounded-xl bg-muted text-primary">
-                {index === 0 && (
-                  <LockKeyhole className="size-4" aria-hidden="true" />
-                )}
-                {index === 1 && (
-                  <ShieldCheck className="size-4" aria-hidden="true" />
-                )}
-                {index === 2 && (
-                  <CircleHelp className="size-4" aria-hidden="true" />
-                )}
-              </span>
-              <p className="mt-4 text-sm leading-6">{point}</p>
-            </article>
+        <div className="mt-12 space-y-10">
+          {policy.sections.map((section) => (
+            <section key={section.title} className="space-y-3">
+              <h2 className="font-heading text-2xl tracking-tight">
+                {section.title}
+              </h2>
+              {section.paragraphs.map((paragraph) => (
+                <p
+                  key={paragraph}
+                  className="text-sm leading-7 text-muted-foreground"
+                >
+                  {paragraph}
+                </p>
+              ))}
+              {section.list && (
+                <ul className="list-disc space-y-2 pl-6 text-sm leading-7 text-muted-foreground">
+                  {section.list.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </section>
           ))}
         </div>
-        <p className="mt-6 text-xs text-muted-foreground">
-          {text.securityNote}
+        <p className="mt-12 rounded-2xl border border-border/70 bg-muted/40 p-5 text-xs leading-6 text-muted-foreground">
+          {policy.draftNotice}
         </p>
-      </section>
+      </article>
     </ProductShell>
   );
 }

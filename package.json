@@ -16,7 +16,7 @@
     "test:ci": "vitest run",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
-    "prepare": "husky",
+    "prepare": "husky install || true",
     "lint": "eslint . --ext .ts,.tsx --fix",
     "lint:check": "eslint . --ext .ts,.tsx",
     "prettier": "prettier --write .",

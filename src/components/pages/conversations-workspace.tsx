@@ -1,0 +1,208 @@
+"use client";
+
+import { useActionState } from "react";
+import { updateConversationHandoff, type ConversationActionState } from "@/app/actions/conversations";
+import { sendWhatsAppManualReply, type WhatsAppReplyState } from "@/app/actions/whatsapp-replies";
+import { Button } from "@/components/ui/button";
+import type { ConversationsReadResult, DemoConversation } from "@/lib/conversations";
+import type { Locale } from "@/lib/i18n";
+import { messages } from "@/lib/i18n";
+
+function ConversationControl({
+  conversation,
+  locale,
+}: {
+  conversation: DemoConversation;
+  locale: Locale;
+}) {
+  const text = messages[locale];
+  const [state, action, pending] = useActionState(updateConversationHandoff, null);
+  const feedback = getActionFeedback(state, locale);
+
+  return (
+    <div className="flex flex-col items-start gap-2 sm:items-end">
+      {conversation.status === "open" && !conversation.optedOut && (
+        <form action={action}>
+          <input type="hidden" name="locale" value={locale} />
+          <input type="hidden" name="conversationId" value={conversation.id} />
+          <input type="hidden" name="operation" value="handoff" />
+          <Button size="sm" disabled={pending}>
+            {pending ? text.saving : text.handoff}
+          </Button>
+        </form>
+      )}
+      {feedback && (
+        <p className="max-w-52 text-xs text-destructive sm:text-right" role="alert">
+          {feedback}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ManualReplyForm({
+  conversation,
+  locale,
+}: {
+  conversation: DemoConversation;
+  locale: Locale;
+}) {
+  const text = messages[locale];
+  const [state, action, pending] = useActionState(sendWhatsAppManualReply, null);
+  const error = getReplyFeedback(state, locale);
+  return (
+    <div className="mt-4 border-t border-border/70 pt-4">
+      <form action={action} className="flex flex-col gap-2 sm:flex-row">
+        <input type="hidden" name="locale" value={locale} />
+        <input type="hidden" name="conversationId" value={conversation.id} />
+        <label className="sr-only" htmlFor={`reply-${conversation.id}`}>
+          {text.manualReply}
+        </label>
+        <textarea
+          className="min-h-10 flex-1 resize-y rounded-xl border border-input bg-background px-3 py-2 text-sm"
+          id={`reply-${conversation.id}`}
+          maxLength={4096}
+          name="body"
+          placeholder={text.manualReply}
+          required
+        />
+        <Button className="self-end" disabled={pending} size="sm" type="submit">
+          {pending ? text.sending : text.sendReply}
+        </Button>
+      </form>
+      {state?.status === "success" && (
+        <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-300" role="status">
+          {text.replySent}
+        </p>
+      )}
+      {error && (
+        <p className="mt-2 text-xs text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function getActionFeedback(state: ConversationActionState, locale: Locale) {
+  if (!state || state.status === "success") return null;
+  const text = messages[locale];
+  if (state.reason === "database-not-configured") return text.databaseNotConfigured;
+  if (state.reason === "writes-not-approved") return text.databaseWritesNotApproved;
+  if (state.reason === "not-authorized") return text.demoAccessExpired;
+  if (state.reason === "not-found") return text.conversationNotFound;
+  if (state.reason === "invalid-input") return text.invalidConversationAction;
+  return text.storageUnavailable;
+}
+
+function getReplyFeedback(state: WhatsAppReplyState, locale: Locale) {
+  if (!state || state.status === "success") return null;
+  const text = messages[locale];
+  if (state.reason === "not-authorized") return text.demoAccessExpired;
+  if (state.reason === "writes-not-approved") return text.databaseWritesNotApproved;
+  if (state.reason === "not-configured") return text.whatsappReplyNotConfigured;
+  if (state.reason === "not-found") return text.conversationNotFound;
+  if (state.reason === "not-handed-off") return text.replyRequiresHandoff;
+  if (state.reason === "customer-opted-out") return text.customerOptedOut;
+  if (state.reason === "provider-failed") return text.whatsappProviderFailed;
+  if (state.reason === "persist-failed") return text.whatsappSentNotSaved;
+  return text.invalidConversationAction;
+}
+
+export function ConversationsWorkspace({
+  locale,
+  result,
+}: {
+  locale: Locale;
+  result: ConversationsReadResult;
+}) {
+  const text = messages[locale];
+  const errorMessage =
+    result.ok
+      ? null
+      : result.error === "database-not-configured"
+        ? text.databaseNotConfigured
+        : result.error === "merchant-not-seeded"
+          ? text.demoDataNotSeeded
+          : text.storageUnavailable;
+
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">{text.conversations}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{text.inboxSourceNote}</p>
+        </div>
+        {result.ok && (
+          <span className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+            {result.conversations.length}
+          </span>
+        )}
+      </div>
+      {errorMessage ? (
+        <p
+          className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 text-sm leading-6 text-amber-900 dark:text-amber-100"
+          role="status"
+        >
+          {errorMessage}
+        </p>
+      ) : result.ok && result.conversations.length > 0 ? (
+        <div className="space-y-3">
+          {result.conversations.map((conversation) => (
+            <article key={conversation.id} className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-semibold">{conversation.customerName ?? text.customer}</h3>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs ${
+                        conversation.automationPaused
+                          ? "bg-amber-500/10 text-amber-800 dark:text-amber-200"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {conversation.automationPaused ? text.handoffActive : text.assistantUnavailable}
+                    </span>
+                    {conversation.optedOut && (
+                      <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs text-destructive">
+                        {text.customerOptedOut}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{text.latestMessage}: </span>
+                    {conversation.latestMessage ?? text.noConversationMessages}
+                  </p>
+                  <time
+                    className="mt-2 block text-xs text-muted-foreground"
+                    dateTime={conversation.updatedAt}
+                  >
+                    {new Intl.DateTimeFormat(locale, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(new Date(conversation.updatedAt))}
+                  </time>
+                </div>
+                <div className="sm:shrink-0">
+                  <ConversationControl conversation={conversation} locale={locale} />
+                </div>
+              </div>
+              {conversation.status === "handoff" && !conversation.optedOut && (
+                <div className="w-full">
+                  <ManualReplyForm conversation={conversation} locale={locale} />
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-border bg-card/70 px-6 py-12 text-center">
+          <h3 className="font-semibold">{text.conversationEmptyTitle}</h3>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
+            {text.conversationsUnavailable}
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}

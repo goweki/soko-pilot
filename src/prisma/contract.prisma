@@ -1,0 +1,467 @@
+// use prisma-8
+enum merchant_status {
+  @@type("pg/text@1")
+
+  active = "active"
+  suspended = "suspended"
+}
+
+enum subscription_status {
+  @@type("pg/text@1")
+
+  trialing = "trialing"
+  active = "active"
+  past_due = "past_due"
+  canceled = "canceled"
+  expired = "expired"
+}
+
+enum plan_feature {
+  @@type("pg/text@1")
+
+  ai_chatbot = "ai_chatbot"
+}
+
+enum product_status {
+  @@type("pg/text@1")
+
+  draft = "draft"
+  active = "active"
+  archived = "archived"
+}
+
+enum whatsapp_connection_status {
+  @@type("pg/text@1")
+
+  connected = "connected"
+  disconnected = "disconnected"
+  needs_reauthorization = "needs_reauthorization"
+}
+
+enum assistant_tool_key {
+  @@type("pg/text@1")
+
+  search_catalogue = "search_catalogue"
+  create_pending_order = "create_pending_order"
+  get_customer_order = "get_customer_order"
+}
+
+enum conversation_status {
+  @@type("pg/text@1")
+
+  open = "open"
+  handoff = "handoff"
+  closed = "closed"
+}
+
+enum message_direction {
+  @@type("pg/text@1")
+
+  inbound = "inbound"
+  outbound = "outbound"
+  internal = "internal"
+}
+
+enum message_content_type {
+  @@type("pg/text@1")
+
+  text = "text"
+  image = "image"
+  audio = "audio"
+  video = "video"
+  document = "document"
+  sticker = "sticker"
+  unknown = "unknown"
+}
+
+enum message_status {
+  @@type("pg/text@1")
+
+  received = "received"
+  queued = "queued"
+  sent = "sent"
+  delivered = "delivered"
+  read = "read"
+  failed = "failed"
+}
+
+enum webhook_event_status {
+  @@type("pg/text@1")
+
+  received = "received"
+  processing = "processing"
+  processed = "processed"
+  failed = "failed"
+}
+
+enum assistant_run_status {
+  @@type("pg/text@1")
+
+  started = "started"
+  succeeded = "succeeded"
+  failed = "failed"
+  canceled = "canceled"
+}
+
+enum tool_execution_status {
+  @@type("pg/text@1")
+
+  proposed = "proposed"
+  completed = "completed"
+  denied = "denied"
+  failed = "failed"
+}
+
+enum order_status {
+  @@type("pg/text@1")
+
+  pending = "pending"
+  canceled = "canceled"
+}
+
+enum order_payment_status {
+  @@type("pg/text@1")
+
+  unpaid = "unpaid"
+}
+
+model User {
+  id              String             @id @onCreate(uuid(7))
+  email           String             @unique
+  name            String?
+  emailVerifiedAt TimestamptzString?
+  isActive        Boolean            @default(true)
+  createdAt       TimestamptzString  @default(now())
+  updatedAt       TimestamptzString  @default(now()) @onUpdate(now())
+  merchant        Merchant?
+}
+
+model Merchant {
+  id                  String               @id @onCreate(uuid(7))
+  ownerId             String               @unique
+  businessName        String
+  status              merchant_status      @default(active)
+  defaultCurrency     String               @default("KES")
+  defaultLanguage     String               @default("en")
+  timeZone            String               @default("Africa/Nairobi")
+  createdAt           TimestamptzString    @default(now())
+  updatedAt           TimestamptzString    @default(now()) @onUpdate(now())
+
+  owner               User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  subscriptions       Subscription[]
+  assistant           AssistantConfig?
+  whatsappConnections WhatsAppConnection[]
+  customers           Customer[]
+  products            Product[]
+  conversations       Conversation[]
+  orders              Order[]
+
+  @@index([status])
+}
+
+model Plan {
+  id                String            @id @onCreate(uuid(7))
+  code              String            @unique
+  name              String
+  isActive          Boolean           @default(true)
+  monthlyPriceMinor Int               @default(0)
+  currency          String            @default("KES")
+  createdAt         TimestamptzString @default(now())
+  updatedAt         TimestamptzString @default(now()) @onUpdate(now())
+
+  entitlements      PlanEntitlement[]
+  subscriptions     Subscription[]
+}
+
+model PlanEntitlement {
+  id        String            @id @onCreate(uuid(7))
+  planId    String
+  feature   plan_feature
+  isEnabled Boolean           @default(false)
+  createdAt TimestamptzString @default(now())
+  updatedAt TimestamptzString @default(now()) @onUpdate(now())
+
+  plan      Plan              @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, feature])
+}
+
+model Subscription {
+  id                String              @id @onCreate(uuid(7))
+  merchantId        String
+  planId            String
+  status            subscription_status
+  periodStartsAt    TimestamptzString
+  periodEndsAt      TimestamptzString
+  cancelAtPeriodEnd Boolean             @default(false)
+  canceledAt        TimestamptzString?
+  createdAt         TimestamptzString   @default(now())
+  updatedAt         TimestamptzString   @default(now()) @onUpdate(now())
+
+  merchant          Merchant            @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  plan              Plan                @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([merchantId, status])
+  @@index([merchantId, periodEndsAt])
+}
+
+model AssistantConfig {
+  id                 String            @id @onCreate(uuid(7))
+  merchantId         String            @unique
+  isActive           Boolean           @default(false)
+  modelProvider      String            @default("meta")
+  modelName          String
+  language           String            @default("en")
+  systemInstructions String?
+  businessRules      String?
+  handoffMessage     String?
+  createdAt          TimestamptzString @default(now())
+  updatedAt          TimestamptzString @default(now()) @onUpdate(now())
+
+  merchant           Merchant          @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  tools              AssistantTool[]
+}
+
+model AssistantTool {
+  id          String             @id @onCreate(uuid(7))
+  assistantId String
+  tool        assistant_tool_key
+  isEnabled   Boolean            @default(false)
+  createdAt   TimestamptzString  @default(now())
+  updatedAt   TimestamptzString  @default(now()) @onUpdate(now())
+
+  assistant   AssistantConfig    @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+
+  @@unique([assistantId, tool])
+}
+
+model WhatsAppConnection {
+  id                    String                     @id @onCreate(uuid(7))
+  merchantId            String
+  wabaId                String
+  phoneNumberId         String                     @unique
+  displayPhoneNumber    String?
+  businessProfileName   String?
+  status                whatsapp_connection_status @default(disconnected)
+  accessTokenCiphertext String
+  verifyTokenHash       String
+  tokenExpiresAt        TimestamptzString?
+  connectedAt           TimestamptzString?
+  lastWebhookAt         TimestamptzString?
+  createdAt             TimestamptzString          @default(now())
+  updatedAt             TimestamptzString          @default(now()) @onUpdate(now())
+
+  merchant              Merchant                   @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  conversations         Conversation[]
+  messages              Message[]
+  webhookEvents         WebhookEvent[]
+
+  @@unique([merchantId, wabaId])
+  @@index([merchantId, status])
+}
+
+model Customer {
+  id            String             @id @onCreate(uuid(7))
+  merchantId    String
+  waId          String
+  phoneNumber   String?
+  displayName   String?
+  optedOutAt    TimestamptzString?
+  createdAt     TimestamptzString  @default(now())
+  updatedAt     TimestamptzString  @default(now()) @onUpdate(now())
+
+  merchant      Merchant           @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+  orders        Order[]
+
+  @@unique([merchantId, waId])
+  @@index([merchantId, phoneNumber])
+}
+
+model Product {
+  id          String            @id @onCreate(uuid(7))
+  merchantId  String
+  name        String
+  description String?
+  category    String?
+  status      product_status    @default(draft)
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now()) @onUpdate(now())
+
+  merchant    Merchant          @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  variants    ProductVariant[]
+
+  @@index([merchantId, status])
+  @@index([merchantId, category])
+}
+
+model ProductVariant {
+  id                String            @id @onCreate(uuid(7))
+  productId         String
+  sku               String
+  label             String?
+  size              String?
+  color             String?
+  priceMinor        Int
+  currency          String            @default("KES")
+  stockQuantity     Int               @default(0)
+  lowStockThreshold Int?
+  isActive          Boolean           @default(true)
+  createdAt         TimestamptzString @default(now())
+  updatedAt         TimestamptzString @default(now()) @onUpdate(now())
+
+  product           Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems        OrderItem[]
+
+  @@unique([productId, sku])
+  @@index([productId, isActive])
+  @@check(expression: sql`"priceMinor" >= 0`, name: "variant_price_nonnegative")
+  @@check(expression: sql`"stockQuantity" >= 0`, name: "variant_stock_nonnegative")
+}
+
+model Conversation {
+  id                   String              @id @onCreate(uuid(7))
+  merchantId           String
+  customerId           String
+  whatsappConnectionId String
+  status               conversation_status @default(open)
+  automationPausedAt   TimestamptzString?
+  lastMessageAt        TimestamptzString?
+  createdAt            TimestamptzString   @default(now())
+  updatedAt            TimestamptzString   @default(now()) @onUpdate(now())
+
+  merchant             Merchant            @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer             Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  whatsappConnection   WhatsAppConnection  @relation(fields: [whatsappConnectionId], references: [id], onDelete: Restrict)
+  messages             Message[]
+  assistantRuns        AssistantRun[]
+  orders               Order[]
+
+  @@index([merchantId, status, lastMessageAt])
+  @@index([customerId, createdAt])
+}
+
+model Message {
+  id                   String               @id @onCreate(uuid(7))
+  conversationId       String
+  whatsappConnectionId String
+  direction            message_direction
+  contentType          message_content_type @default(text)
+  status               message_status       @default(received)
+  body                 String?
+  mediaId              String?
+  providerMessageId    String?
+  sentAt               TimestamptzString?
+  deliveredAt          TimestamptzString?
+  readAt               TimestamptzString?
+  failedAt             TimestamptzString?
+  createdAt            TimestamptzString    @default(now())
+
+  conversation         Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  whatsappConnection   WhatsAppConnection   @relation(fields: [whatsappConnectionId], references: [id], onDelete: Restrict)
+  confirmedOrders      Order[]              @relation("OrderConfirmation")
+
+  @@unique([whatsappConnectionId, providerMessageId])
+  @@index([conversationId, createdAt])
+  @@index([conversationId, direction, createdAt])
+}
+
+model WebhookEvent {
+  id                   String               @id @onCreate(uuid(7))
+  whatsappConnectionId String
+  deduplicationKey     String
+  status               webhook_event_status @default(received)
+  payloadHash          String?
+  attemptCount         Int                  @default(0)
+  lastErrorCode        String?
+  receivedAt           TimestamptzString    @default(now())
+  processedAt          TimestamptzString?
+  updatedAt            TimestamptzString    @default(now()) @onUpdate(now())
+
+  whatsappConnection   WhatsAppConnection   @relation(fields: [whatsappConnectionId], references: [id], onDelete: Cascade)
+
+  @@unique([whatsappConnectionId, deduplicationKey])
+  @@index([status, receivedAt])
+}
+
+model AssistantRun {
+  id             String                   @id @onCreate(uuid(7))
+  conversationId String
+  provider       String
+  model          String
+  usedFallback   Boolean                  @default(false)
+  status         assistant_run_status     @default(started)
+  errorCode      String?
+  startedAt      TimestamptzString        @default(now())
+  completedAt    TimestamptzString?
+
+  conversation   Conversation             @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  toolCalls      AssistantToolExecution[]
+
+  @@index([conversationId, startedAt])
+  @@index([provider, model, startedAt])
+}
+
+model AssistantToolExecution {
+  id             String                @id @onCreate(uuid(7))
+  assistantRunId String
+  tool           assistant_tool_key
+  status         tool_execution_status @default(proposed)
+  durationMs     Int?
+  errorCode      String?
+  createdAt      TimestamptzString     @default(now())
+
+  assistantRun   AssistantRun          @relation(fields: [assistantRunId], references: [id], onDelete: Cascade)
+
+  @@index([assistantRunId, createdAt])
+}
+
+model Order {
+  id                    String               @id @onCreate(uuid(7))
+  merchantId            String
+  customerId            String
+  conversationId        String?
+  confirmationMessageId String               @unique
+  idempotencyKey        String
+  status                order_status         @default(pending)
+  paymentStatus         order_payment_status @default(unpaid)
+  currency              String
+  subtotalMinor         Int
+  totalMinor            Int
+  confirmedAt           TimestamptzString
+  createdAt             TimestamptzString    @default(now())
+  updatedAt             TimestamptzString    @default(now()) @onUpdate(now())
+
+  merchant              Merchant             @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer              Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  conversation          Conversation?        @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  confirmationMessage   Message              @relation("OrderConfirmation", fields: [confirmationMessageId], references: [id], onDelete: Restrict)
+  items                 OrderItem[]
+
+  @@unique([merchantId, idempotencyKey])
+  @@index([merchantId, status, createdAt])
+  @@index([customerId, createdAt])
+  @@check(expression: sql`"subtotalMinor" >= 0`, name: "order_subtotal_nonnegative")
+  @@check(expression: sql`"totalMinor" >= 0`, name: "order_total_nonnegative")
+}
+
+model OrderItem {
+  id               String            @id @onCreate(uuid(7))
+  orderId          String
+  productVariantId String?
+  productName      String
+  variantLabel     String?
+  sku              String?
+  unitPriceMinor   Int
+  quantity         Int
+  lineTotalMinor   Int
+  createdAt        TimestamptzString @default(now())
+
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productVariant   ProductVariant?   @relation(fields: [productVariantId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@check(expression: sql`"unitPriceMinor" >= 0`, name: "order_item_price_nonnegative")
+  @@check(expression: sql`"quantity" > 0`, name: "order_item_quantity_positive")
+  @@check(expression: sql`"lineTotalMinor" >= 0`, name: "order_item_total_nonnegative")
+}

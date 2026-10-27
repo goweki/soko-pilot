@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import type { DemoReadiness } from "@/lib/demo-readiness";
 import type { DemoAssistantConfig } from "@/lib/assistant-config";
 import { getPrivacyPolicyContent } from "@/lib/privacy-policy-content";
+import { Navbar } from "../ui/navbar";
 
 type DashboardSection = "dashboard" | "conversations" | "products" | "settings";
 type PublicRoute = "home" | "privacy" | "recovery";
@@ -89,66 +90,19 @@ function ProductShell({
 
   return (
     <main lang={locale} className="min-h-screen overflow-hidden bg-background">
-      <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
-        <Link
-          className="group flex items-center gap-2.5"
-          href={`/${locale}`}
-          aria-label={text.brand}
-        >
-          <span className="grid size-10 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:-rotate-3">
-            <Store className="size-5" aria-hidden="true" />
-          </span>
-          <span className="text-lg font-semibold tracking-tight">
-            {text.brand}
-          </span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <nav
-            aria-label={text.navigationLabel}
-            className="flex items-center gap-1"
-          >
-            <Link
-              href={publicHref("en", route)}
-              lang="en"
-              aria-label={text.switchToEnglish}
-              aria-current={locale === "en" ? "page" : undefined}
-              className={cn(
-                "rounded-full px-3 py-2 text-sm transition-colors hover:bg-muted",
-                locale === "en"
-                  ? "font-medium text-foreground"
-                  : "text-muted-foreground",
-              )}
-            >
-              EN
-            </Link>
-            <Link
-              href={publicHref("sw", route)}
-              lang="sw"
-              aria-label={text.switchToSwahili}
-              aria-current={locale === "sw" ? "page" : undefined}
-              className={cn(
-                "rounded-full px-3 py-2 text-sm transition-colors hover:bg-muted",
-                locale === "sw"
-                  ? "font-medium text-foreground"
-                  : "text-muted-foreground",
-              )}
-            >
-              SW
-            </Link>
-          </nav>
-          <ThemeToggle locale={locale} variant="ghost" />
-          <Link
-            href={`/${locale}/sign-in`}
-            className={cn(
-              buttonVariants({ size: "sm" }),
-              "ml-1 rounded-full px-4",
-            )}
-          >
-            {text.signIn}
-            <ArrowUpRight aria-hidden="true" />
-          </Link>
-        </div>
-      </header>
+      <Navbar
+        locale={locale}
+        route={route}
+        text={{
+          brand: text.brand,
+          navigationLabel: text.navigationLabel,
+          switchToEnglish: text.switchToEnglish,
+          switchToSwahili: text.switchToSwahili,
+        }}
+        publicHref={publicHref}
+        cta={{ text: text.signIn, href: `/${locale}/sign-in` }}
+      />
+
       {children}
     </main>
   );

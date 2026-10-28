@@ -488,6 +488,8 @@ export function ProductStoryClient({
         .slice(0, 3)
     : [];
 
+  console.log(catalogue);
+
   return (
     <ProductShell locale={locale} route="privacy">
       <section className="relative mx-auto grid w-full max-w-7xl items-center gap-12 px-5 pb-20 pt-12 sm:px-8 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-12 lg:pb-28">

@@ -2,7 +2,7 @@ import { db } from "../../prisma/db";
 import {
   DEMO_MERCHANT_ID,
   demoDatabaseWritesEnabled,
-} from "../demo-tenant";
+} from "../../lib/demo-tenant";
 
 const demoOwnerId = "sokopilot-demo-owner";
 

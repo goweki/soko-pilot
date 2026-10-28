@@ -3,8 +3,8 @@ import { db } from "../../prisma/db";
 import {
   DEMO_MERCHANT_ID,
   demoDatabaseWritesEnabled,
-} from "../demo-tenant";
-import { encryptWhatsAppToken } from "../whatsapp-token";
+} from "../../lib/demo-tenant";
+import { encryptWhatsAppToken } from "../../lib/whatsapp-token";
 
 async function connectDemoWhatsApp() {
   const wabaId = process.env.META_WABA_ID?.trim();

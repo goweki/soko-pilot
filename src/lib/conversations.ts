@@ -1,7 +1,10 @@
 import "server-only";
 
 import { db } from "@/prisma/db";
-import { DEMO_MERCHANT_ID, demoDatabaseWritesEnabled } from "@/lib/demo-tenant";
+import {
+  getDemoMerchantId,
+  demoDatabaseWritesEnabled,
+} from "@/lib/demo-tenant";
 
 export type DemoConversation = {
   id: string;
@@ -43,9 +46,11 @@ export async function listDemoConversations(): Promise<ConversationsReadResult> 
     return { ok: false, error: "database-not-configured" };
   }
 
+  const demoMerchantId = getDemoMerchantId();
+
   try {
     const merchant = await db.orm.public.Merchant.first({
-      id: DEMO_MERCHANT_ID,
+      id: demoMerchantId,
     });
     if (!merchant) {
       return { ok: false, error: "merchant-not-seeded" };
@@ -106,6 +111,7 @@ export async function setDemoConversationHandoff(conversationId: string) {
   if (!process.env.DATABASE_URL?.trim()) {
     return { ok: false as const, error: "database-not-configured" as const };
   }
+  const demoMerchantId = getDemoMerchantId();
   if (!demoDatabaseWritesEnabled()) {
     return { ok: false as const, error: "writes-not-approved" as const };
   }
@@ -113,7 +119,7 @@ export async function setDemoConversationHandoff(conversationId: string) {
   try {
     const conversation = await db.orm.public.Conversation.where({
       id: conversationId,
-      merchantId: DEMO_MERCHANT_ID,
+      merchantId: demoMerchantId,
     }).first();
     if (!conversation) {
       return { ok: false as const, error: "not-found" as const };
@@ -121,7 +127,7 @@ export async function setDemoConversationHandoff(conversationId: string) {
 
     await db.orm.public.Conversation.where({
       id: conversation.id,
-      merchantId: DEMO_MERCHANT_ID,
+      merchantId: demoMerchantId,
     }).update({
       status: "handoff",
       automationPausedAt: new Date().toISOString(),

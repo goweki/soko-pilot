@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { hasDemoAccess } from "@/lib/demo-gate";
-import { DEMO_MERCHANT_ID, demoDatabaseWritesEnabled } from "@/lib/demo-tenant";
+import {
+  getDemoMerchantId,
+  demoDatabaseWritesEnabled,
+} from "@/lib/demo-tenant";
 import { isLocale } from "@/lib/i18n";
 import { db } from "@/prisma/db";
 import { isMetaModelConfigured } from "@/lib/meta-model-protocol";
@@ -29,6 +32,7 @@ export async function setAssistantAutomation(
   _previousState: AssistantActionState,
   formData: FormData,
 ): Promise<AssistantActionState> {
+  const demoMerchantId = getDemoMerchantId();
   const locale = formData.get("locale");
   const operation = formData.get("operation");
   if (
@@ -60,13 +64,13 @@ export async function setAssistantAutomation(
   try {
     const assistant = await db.orm.public.AssistantConfig.include(
       "tools",
-    ).first({ merchantId: DEMO_MERCHANT_ID });
+    ).first({ merchantId: demoMerchantId });
     if (!assistant) {
       return { status: "error", reason: "assistant-not-seeded" };
     }
     if (operation === "enable") {
       const connection = await db.orm.public.WhatsAppConnection.first({
-        merchantId: DEMO_MERCHANT_ID,
+        merchantId: demoMerchantId,
         status: "connected",
       });
       const graphVersion = process.env.META_GRAPH_API_VERSION?.trim() ?? "";
@@ -102,7 +106,7 @@ export async function setAssistantAutomation(
 
     await db.orm.public.AssistantConfig.where({
       id: assistant.id,
-      merchantId: DEMO_MERCHANT_ID,
+      merchantId: demoMerchantId,
     }).update({
       isActive: operation === "enable",
       ...(operation === "enable"

@@ -2,7 +2,7 @@ import "server-only";
 
 import { db } from "@/prisma/db";
 import { searchDemoCatalogue } from "@/lib/catalogue";
-import { DEMO_MERCHANT_ID } from "@/lib/demo-tenant";
+import { getDemoMerchantId } from "@/lib/demo-tenant";
 import { decryptWhatsAppToken } from "@/lib/whatsapp-token";
 import {
   getMetaChatCompletionsEndpoint,
@@ -306,6 +306,7 @@ async function markRunFailed(
   conversationId: string,
   errorCode: string,
 ) {
+  const demoMerchantId = getDemoMerchantId();
   const completedAt = new Date().toISOString();
   try {
     await db.transaction(async (tx) => {
@@ -316,7 +317,7 @@ async function markRunFailed(
       });
       await tx.orm.public.Conversation.where({
         id: conversationId,
-        merchantId: DEMO_MERCHANT_ID,
+        merchantId: demoMerchantId,
       }).update({ status: "handoff" });
     });
   } catch (error) {
@@ -340,6 +341,7 @@ export async function processMetaAssistantReply(
   inboundMessageId: string,
 ) {
   if (!process.env.DATABASE_URL?.trim()) return;
+  const demoMerchantId = getDemoMerchantId();
   const configuredModel = (() => {
     try {
       return getConfiguredModel();
@@ -360,7 +362,7 @@ export async function processMetaAssistantReply(
           .orderBy((message) => message.createdAt.desc())
           .limit(MAX_CONTEXT_MESSAGES),
       )
-      .where({ id: conversationId, merchantId: DEMO_MERCHANT_ID })
+      .where({ id: conversationId, merchantId: demoMerchantId })
       .first();
     if (!conversation) return;
 
@@ -518,7 +520,7 @@ export async function processMetaAssistantReply(
     }
 
     const latest = await db.orm.public.Conversation.include("customer")
-      .where({ id: conversation.id, merchantId: DEMO_MERCHANT_ID })
+      .where({ id: conversation.id, merchantId: demoMerchantId })
       .first();
     if (
       !latest ||
@@ -550,7 +552,7 @@ export async function processMetaAssistantReply(
       });
       const resumedConversation = await tx.orm.public.Conversation.where({
         id: conversation.id,
-        merchantId: DEMO_MERCHANT_ID,
+        merchantId: demoMerchantId,
         status: "handoff",
         automationPausedAt: latest.automationPausedAt,
         lastMessageAt: latest.lastMessageAt,

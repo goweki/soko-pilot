@@ -1,7 +1,10 @@
 import "server-only";
 
 import { db } from "@/prisma/db";
-import { DEMO_MERCHANT_ID, demoDatabaseWritesEnabled } from "@/lib/demo-tenant";
+import {
+  getDemoMerchantId,
+  demoDatabaseWritesEnabled,
+} from "@/lib/demo-tenant";
 
 export type CatalogueVariant = {
   id: string;
@@ -38,9 +41,11 @@ export async function listDemoCatalogue(): Promise<CatalogueReadResult> {
     return { ok: false, error: "database-not-configured" };
   }
 
+  const demoMerchantId = getDemoMerchantId();
+
   try {
     const merchant = await db.orm.public.Merchant.first({
-      id: DEMO_MERCHANT_ID,
+      id: demoMerchantId,
     });
     if (!merchant) {
       return { ok: false, error: "merchant-not-seeded" };
@@ -134,13 +139,14 @@ export async function createDemoProduct(input: {
   if (!process.env.DATABASE_URL?.trim()) {
     return { ok: false as const, error: "database-not-configured" as const };
   }
+  const demoMerchantId = getDemoMerchantId();
   if (!demoDatabaseWritesEnabled()) {
     return { ok: false as const, error: "writes-not-approved" as const };
   }
 
   try {
     const merchant = await db.orm.public.Merchant.first({
-      id: DEMO_MERCHANT_ID,
+      id: demoMerchantId,
     });
     if (!merchant) {
       return { ok: false as const, error: "merchant-not-seeded" as const };
@@ -185,6 +191,7 @@ export async function updateDemoVariantStock(
   if (!process.env.DATABASE_URL?.trim()) {
     return { ok: false as const, error: "database-not-configured" as const };
   }
+  const demoMerchantId = getDemoMerchantId();
   if (!demoDatabaseWritesEnabled()) {
     return { ok: false as const, error: "writes-not-approved" as const };
   }
@@ -194,7 +201,7 @@ export async function updateDemoVariantStock(
       { id: variantId },
     );
 
-    if (!variant || variant.product.merchantId !== DEMO_MERCHANT_ID) {
+    if (!variant || variant.product.merchantId !== demoMerchantId) {
       return { ok: false as const, error: "not-found" as const };
     }
 

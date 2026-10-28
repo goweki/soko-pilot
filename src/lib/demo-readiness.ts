@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/prisma/db";
-import { DEMO_MERCHANT_ID } from "@/lib/demo-tenant";
+import { getDemoMerchantId } from "@/lib/demo-tenant";
 import { isDemoGateConfigured } from "@/lib/demo-gate";
 import { isMetaModelConfigured } from "@/lib/meta-model-protocol";
 
@@ -15,10 +15,11 @@ export type DemoReadiness = {
 export async function getDemoReadiness(): Promise<DemoReadiness> {
   let database = false;
   let whatsapp = false;
+  const demoMerchantId = getDemoMerchantId();
   if (process.env.DATABASE_URL?.trim()) {
     try {
       const merchant = await db.orm.public.Merchant.first({
-        id: DEMO_MERCHANT_ID,
+        id: demoMerchantId,
       });
       database = Boolean(merchant);
       if (merchant) {

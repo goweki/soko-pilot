@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/prisma/db";
-import { DEMO_MERCHANT_ID } from "@/lib/demo-tenant";
+import { getDemoMerchantId } from "@/lib/demo-tenant";
 
 export type DemoAssistantConfig =
   | {
@@ -23,9 +23,10 @@ export async function getDemoAssistantConfig(): Promise<DemoAssistantConfig> {
   if (!process.env.DATABASE_URL?.trim()) {
     return { ok: false, error: "database-not-configured" };
   }
+  const demoMerchantId = getDemoMerchantId();
   try {
     const merchant = await db.orm.public.Merchant.first({
-      id: DEMO_MERCHANT_ID,
+      id: demoMerchantId,
     });
     if (!merchant) return { ok: false, error: "merchant-not-seeded" };
     const assistant = await db.orm.public.AssistantConfig.include("tools")

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { hasDemoAccess } from "@/lib/demo-gate";
 import { db } from "@/prisma/db";
 import {
-  DEMO_MERCHANT_ID,
+  getDemoMerchantId,
   demoDatabaseWritesEnabled,
 } from "@/lib/demo-tenant";
 import { isLocale, type Locale } from "@/lib/i18n";
@@ -37,6 +37,7 @@ export async function sendWhatsAppManualReply(
 ): Promise<WhatsAppReplyState> {
   const localeValue = formData.get("locale");
   const conversationId = formData.get("conversationId");
+  const demoMerchantId = getDemoMerchantId();
   const bodyValue = formData.get("body");
   if (
     typeof localeValue !== "string" ||
@@ -69,10 +70,9 @@ export async function sendWhatsAppManualReply(
 
   let conversation;
   try {
-    conversation = await db.orm.public.Conversation
-      .include("customer")
+    conversation = await db.orm.public.Conversation.include("customer")
       .include("whatsappConnection")
-      .where({ id: conversationId, merchantId: DEMO_MERCHANT_ID })
+      .where({ id: conversationId, merchantId: demoMerchantId })
       .first();
   } catch (error) {
     console.error(
@@ -135,7 +135,9 @@ export async function sendWhatsAppManualReply(
     const firstMessage = Array.isArray(messages) ? messages[0] : null;
     const id = isRecord(firstMessage) ? firstMessage.id : null;
     if (typeof id !== "string" || id.length === 0) {
-      console.error("[whatsapp-reply] Meta accepted a response without a message id.");
+      console.error(
+        "[whatsapp-reply] Meta accepted a response without a message id.",
+      );
       return { status: "error", reason: "provider-failed" };
     }
     providerMessageId = id;
@@ -160,9 +162,10 @@ export async function sendWhatsAppManualReply(
         providerMessageId,
         sentAt,
       });
-      await tx.orm.public.Conversation
-        .where({ id: conversation.id, merchantId: DEMO_MERCHANT_ID })
-        .update({ lastMessageAt: sentAt });
+      await tx.orm.public.Conversation.where({
+        id: conversation.id,
+        merchantId: demoMerchantId,
+      }).update({ lastMessageAt: sentAt });
     });
   } catch (error) {
     console.error(

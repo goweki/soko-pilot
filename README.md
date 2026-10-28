@@ -116,7 +116,7 @@ For live AI replies, add the three Meta model variables above and the WhatsApp t
 | `/{lang}/settings?tab=assistant`  | Model/WhatsApp readiness and assistant enable/pause control        |
 | `/api/webhooks/whatsapp`          | Meta webhook verification and signed inbound event handling        |
 
-Built with Next.js 16, React 19, TypeScript, Tailwind CSS, PostgreSQL, and Prisma 8's contract-first API. The canonical data contract is [`src/prisma/contract.prisma`](src/prisma/contract.prisma); synthetic seed data is in [`src/lib/prisma/seed.ts`](src/lib/prisma/seed.ts).
+Built with Next.js 16, React 19, TypeScript, Tailwind CSS, PostgreSQL, and Prisma 8's contract-first API. `src/prisma/contract.prisma` is the single source schema; its emitted `contract.json` and `contract.d.ts` plus the runtime client in `src/prisma/db.ts` stay alongside it. `src/lib/prisma/` contains database setup scripts such as the synthetic seed and WhatsApp connection helper, not a second schema or client.
 
 ## Validation
 

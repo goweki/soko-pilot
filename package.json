@@ -22,19 +22,13 @@
     "type-check": "tsc --noEmit",
     "pre-commit": "lint-staged",
     "db:seed": "tsx src/lib/prisma/seed",
-    "db:backup": "tsx src/lib/prisma/scripts/backup",
-    "db:restore": "tsx src/lib/prisma/scripts/restore -f",
-    "db:reset": "prisma migrate reset && prisma db seed",
-    "db:mirror": "npx tsx src/lib/prisma/scripts/restore_live_to_local",
     "contract:emit": "prisma contract emit",
-    "db:seed-demo": "tsx src/lib/prisma/seed.ts",
-    "db:connect-demo-whatsapp": "tsx src/lib/prisma/connect-demo-whatsapp.ts"
+    "db:seed-demo": "tsx src/prisma/scripts/seed.ts",
+    "db:connect-demo-whatsapp": "tsx src/prisma/scripts/connect-demo-whatsapp.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@next/env": "16.4.3",
-    "@prisma/adapter-pg": "^7.10.1",
-    "@prisma/client": "^7.10.1",
     "@prisma/orm-postgres": "^8.0.0-rc.20",
     "@remixicon/react": "^4.9.0",
     "@tailwindcss/postcss": "^4.3.3",

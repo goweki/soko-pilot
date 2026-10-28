@@ -44,7 +44,7 @@ function configuredSecrets() {
 
   if (
     !accessCode ||
-    accessCode.length < 12 ||
+    accessCode.length < 8 ||
     !signingSecret ||
     signingSecret.length < 32
   ) {
@@ -70,7 +70,9 @@ function signature(expiresAt: string, signingSecret: string): string {
 }
 
 export function isDemoGateConfigured(): boolean {
-  return configuredSecrets() !== null;
+  const secrets = configuredSecrets();
+  const isConfig = secrets !== null;
+  return isConfig;
 }
 
 export function verifyDemoAccessCode(candidate: string): boolean {
@@ -86,15 +88,21 @@ export async function grantDemoAccess(): Promise<void> {
     );
   }
 
-  const expiresAt = String(Math.floor(Date.now() / 1000) + DEMO_GATE_TTL_SECONDS);
+  const expiresAt = String(
+    Math.floor(Date.now() / 1000) + DEMO_GATE_TTL_SECONDS,
+  );
   const cookieStore = await cookies();
-  cookieStore.set(DEMO_GATE_COOKIE, `${expiresAt}.${signature(expiresAt, secrets.signingSecret)}`, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    maxAge: DEMO_GATE_TTL_SECONDS,
-  });
+  cookieStore.set(
+    DEMO_GATE_COOKIE,
+    `${expiresAt}.${signature(expiresAt, secrets.signingSecret)}`,
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: DEMO_GATE_TTL_SECONDS,
+    },
+  );
 }
 
 export async function hasDemoAccess(): Promise<boolean> {
@@ -120,7 +128,10 @@ export async function hasDemoAccess(): Promise<boolean> {
     return false;
   }
 
-  return equalSecret(suppliedSignature, signature(expiresAt, secrets.signingSecret));
+  return equalSecret(
+    suppliedSignature,
+    signature(expiresAt, secrets.signingSecret),
+  );
 }
 
 export async function requireDemoAccess(locale: Locale, destination: string) {

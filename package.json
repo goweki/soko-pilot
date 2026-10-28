@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "db:migrate": "npx prisma contract emit && npx prisma migration plan && npx prisma db migrate --advance-ref db",
     "dev:http": "npx prisma contract emit && next dev",
     "dev": "npx prisma contract emit && next dev --experimental-https",
     "prebuild": "prisma contract emit",
@@ -21,10 +20,11 @@
     "prettier:check": "prettier --check .",
     "type-check": "tsc --noEmit",
     "pre-commit": "lint-staged",
-    "db:seed": "tsx src/lib/prisma/seed",
     "contract:emit": "prisma contract emit",
-    "db:seed-demo": "tsx src/prisma/scripts/seed.ts",
-    "db:connect-demo-whatsapp": "tsx src/prisma/scripts/connect-demo-whatsapp.ts"
+    "db:migrate": "npx prisma contract emit && npx prisma migration plan && npx prisma db migrate --advance-ref db",
+    "db:migrate-min": "npx prisma db migrate --advance-ref db",
+    "db:seed": "tsx src/prisma/scripts/seed",
+    "db:reset": "tsx src/prisma/scripts/reset-demo && tsx src/prisma/scripts/connect-demo-whatsapp "
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

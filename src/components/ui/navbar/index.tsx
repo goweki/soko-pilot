@@ -1,22 +1,16 @@
 import Link from "next/link";
-import { Store, ArrowUpRight } from "lucide-react"; // Or your preferred icon set
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "cn";
-import { buttonVariants } from "@/components/ui/button"; // Adjust path if needed
+import { buttonVariants } from "@/components/ui/button";
 
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navbar/navigation-menu"; // Path to your navigation components
 import ThemeToggle from "../toggle-theme";
 import Image from "next/image";
 
+type PublicRoute = "home" | "privacy" | "recovery" | "sign-in";
+
 interface HeaderProps {
   locale: "en" | "sw";
-  route: string;
+  route: PublicRoute;
   cta?: {
     text: string;
     href: string;
@@ -27,7 +21,7 @@ interface HeaderProps {
     switchToEnglish: string;
     switchToSwahili: string;
   };
-  publicHref: (lang: "en" | "sw", route: any) => string;
+  publicHref: (lang: "en" | "sw", route: PublicRoute) => string;
 }
 
 // function defaultNav(){

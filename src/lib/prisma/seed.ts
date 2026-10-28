@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { db } from "../../prisma/db";
 import {
   DEMO_MERCHANT_ID,

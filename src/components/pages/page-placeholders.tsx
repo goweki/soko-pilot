@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useActionState } from "react";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -20,6 +21,10 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { lockDemoAccess } from "@/app/actions/demo-gate";
+import {
+  setAssistantAutomation,
+  type AssistantActionState,
+} from "@/app/actions/assistant";
 import { Button, buttonVariants } from "@/components/ui/button";
 import ThemeToggle from "@/components/ui/toggle-theme";
 import type { Locale } from "@/lib/i18n";
@@ -27,11 +32,12 @@ import { messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { DemoReadiness } from "@/lib/demo-readiness";
 import type { DemoAssistantConfig } from "@/lib/assistant-config";
+import type { CatalogueReadResult } from "@/lib/catalogue";
 import { getPrivacyPolicyContent } from "@/lib/privacy-policy-content";
 import { Navbar } from "../ui/navbar";
 
 type DashboardSection = "dashboard" | "conversations" | "products" | "settings";
-type PublicRoute = "home" | "privacy" | "recovery";
+type PublicRoute = "home" | "privacy" | "recovery" | "sign-in";
 
 function dashboardHref(locale: Locale, section: DashboardSection): string {
   if (section === "settings") {
@@ -113,12 +119,14 @@ function DashboardShell({
   section,
   title,
   description,
+  workspaceName,
   children,
 }: {
   locale: Locale;
   section: DashboardSection;
   title: string;
   description: string;
+  workspaceName?: string | null;
   children: React.ReactNode;
 }) {
   const text = messages[locale];
@@ -146,7 +154,7 @@ function DashboardShell({
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-semibold">
-                  {text.workspaceName}
+                  {workspaceName || text.workspaceName}
                 </span>
                 <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                   {text.workspaceType}
@@ -277,7 +285,7 @@ function DashboardShell({
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{title}</p>
                   <p className="hidden truncate text-xs text-muted-foreground sm:block">
-                    {text.workspaceName}
+                    {workspaceName || text.workspaceName}
                   </p>
                 </div>
               </div>
@@ -466,8 +474,19 @@ function EmptyState({
   );
 }
 
-export function ProductStoryClient({ locale }: { locale: Locale }) {
+export function ProductStoryClient({
+  locale,
+  catalogue,
+}: {
+  locale: Locale;
+  catalogue: CatalogueReadResult;
+}) {
   const text = messages[locale];
+  const previewProducts = catalogue.ok
+    ? catalogue.products
+        .filter((product) => product.status === "active")
+        .slice(0, 3)
+    : [];
 
   return (
     <ProductShell locale={locale} route="privacy">
@@ -531,42 +550,79 @@ export function ProductStoryClient({ locale }: { locale: Locale }) {
             <div className="flex items-center justify-between border-b border-border/70 px-5 py-4">
               <div className="flex items-center gap-3">
                 <span className="grid size-10 place-items-center rounded-2xl bg-primary/10 text-primary">
-                  <MessageCircle className="size-5" aria-hidden="true" />
+                  <Package className="size-5" aria-hidden="true" />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold">{text.previewTitle}</p>
+                  <p className="text-sm font-semibold">
+                    {text.catalogueProducts}
+                  </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {text.demoWorkspace}
+                    {text.catalogueSourceNote}
                   </p>
                 </div>
               </div>
-              <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-amber-800 dark:text-amber-200">
-                {text.previewBadge}
-              </span>
-            </div>
-            <div className="space-y-5 bg-muted/35 px-5 py-7 sm:px-7">
-              <div className="flex justify-end">
-                <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-sm leading-6 text-primary-foreground shadow-sm">
-                  {text.previewQuestion}
-                </div>
-              </div>
-              <div className="flex items-end gap-2.5">
-                <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-card text-primary shadow-sm">
-                  <Sparkles className="size-4" aria-hidden="true" />
+              {catalogue.ok && (
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-medium text-muted-foreground">
+                  {previewProducts.length}
                 </span>
-                <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-border/70 bg-card px-4 py-3 shadow-sm">
-                  <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
-                    {text.previewReplyLabel}
-                  </p>
-                  <p className="text-sm leading-6 text-foreground/85">
-                    {text.previewReply}
-                  </p>
-                </div>
-              </div>
+              )}
+            </div>
+            <div className="min-h-56 space-y-3 bg-muted/35 px-5 py-5 sm:px-7">
+              {catalogue.ok && previewProducts.length > 0 ? (
+                previewProducts.map((product) => {
+                  const variant = product.variants.find(
+                    (item) => item.isActive,
+                  );
+                  return (
+                    <div
+                      key={product.id}
+                      className="rounded-xl border border-border/70 bg-card p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-sm font-semibold">
+                            {product.name}
+                          </h3>
+                          {product.category && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {product.category}
+                            </p>
+                          )}
+                        </div>
+                        {variant && (
+                          <span className="text-sm font-semibold">
+                            {new Intl.NumberFormat(locale, {
+                              style: "currency",
+                              currency: variant.currency,
+                            }).format(variant.priceMinor / 100)}
+                          </span>
+                        )}
+                      </div>
+                      {variant && (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          {[variant.label, variant.size, variant.color]
+                            .filter(Boolean)
+                            .join(" · ")}{" "}
+                          ·{" "}
+                          {variant.stockQuantity > 0
+                            ? text.inStock
+                            : text.outOfStock}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="py-12 text-center text-sm text-muted-foreground">
+                  {catalogue.ok
+                    ? text.noProductsYet
+                    : text.catalogueUnavailable}
+                </p>
+              )}
             </div>
             <div className="flex items-center justify-between gap-3 border-t border-border/70 px-5 py-4">
               <p className="text-[10px] leading-4 text-muted-foreground">
-                {text.previewFootnote}
+                {text.catalogueSourceNote}
               </p>
               <span className="inline-flex shrink-0 items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
                 <ShieldCheck
@@ -652,6 +708,7 @@ export function DashboardClient({
   name: string | null;
   snapshot: {
     productCount: number | null;
+    workspaceName: string | null;
     openConversationCount: number | null;
     handoffCount: number | null;
     recentConversations: {
@@ -670,6 +727,7 @@ export function DashboardClient({
       section="dashboard"
       title={title}
       description={text.overviewIntro}
+      workspaceName={snapshot.workspaceName}
     >
       <section
         aria-label={text.overviewEyebrow}
@@ -923,6 +981,8 @@ export function SettingsClient({
   assistantConfig: DemoAssistantConfig;
 }) {
   const text = messages[locale];
+  const [assistantActionState, assistantAction, assistantPending] =
+    useActionState(setAssistantAutomation, null);
   const setupItems = [
     {
       icon: MessageCircle,
@@ -950,6 +1010,7 @@ export function SettingsClient({
       section="settings"
       title={text.settings}
       description={text.setupIntro}
+      workspaceName={assistantConfig.ok ? assistantConfig.merchantName : null}
     >
       <section className="mb-6 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.08] via-card to-card p-5 shadow-sm sm:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -1044,8 +1105,47 @@ export function SettingsClient({
                 : text.storageUnavailable}
           </p>
         )}
+        {assistantConfig.ok && (
+          <form action={assistantAction} className="mt-4">
+            <input type="hidden" name="locale" value={locale} />
+            <input
+              type="hidden"
+              name="operation"
+              value={assistantConfig.isActive ? "pause" : "enable"}
+            />
+            <Button
+              disabled={
+                assistantPending ||
+                (!assistantConfig.isActive &&
+                  (!readiness.metaModel || !readiness.whatsapp))
+              }
+              size="sm"
+              type="submit"
+            >
+              {assistantPending
+                ? text.saving
+                : assistantConfig.isActive
+                  ? text.pauseAssistant
+                  : text.enableAssistant}
+            </Button>
+          </form>
+        )}
+        {assistantActionState && (
+          <p
+            className={`mt-3 text-xs leading-5 ${assistantActionState.status === "success" ? "text-emerald-700 dark:text-emerald-300" : "text-destructive"}`}
+            role={
+              assistantActionState.status === "success" ? "status" : "alert"
+            }
+          >
+            {getAssistantActionMessage(assistantActionState, locale)}
+          </p>
+        )}
         <p className="mt-3 text-xs leading-5 text-amber-800 dark:text-amber-200">
-          {text.modelPathUnavailable}
+          {!readiness.metaModel
+            ? text.modelPathUnavailable
+            : assistantConfig.ok && assistantConfig.isActive
+              ? text.assistantAutomationLive
+              : text.assistantAutomationPaused}
         </p>
       </section>
       <section className="mt-5 rounded-2xl border border-border/70 bg-card/70 p-5">
@@ -1080,6 +1180,35 @@ export function SettingsClient({
       </section>
     </DashboardShell>
   );
+}
+
+function getAssistantActionMessage(
+  state: AssistantActionState,
+  locale: Locale,
+) {
+  if (!state) return "";
+  const text = messages[locale];
+  if (state.status === "success") return text.assistantAutomationUpdated;
+  switch (state.reason) {
+    case "not-authorized":
+      return text.demoAccessExpired;
+    case "writes-not-approved":
+      return text.databaseWritesNotApproved;
+    case "database-not-configured":
+      return text.databaseNotConfigured;
+    case "model-not-configured":
+      return text.modelPathUnavailable;
+    case "whatsapp-not-configured":
+      return text.whatsappReplyNotConfigured;
+    case "assistant-not-seeded":
+      return text.demoDataNotSeeded;
+    case "catalogue-search-required":
+      return text.assistantCatalogueToolRequired;
+    case "write-tools-must-stay-disabled":
+      return text.assistantWriteToolsDisabled;
+    default:
+      return text.storageUnavailable;
+  }
 }
 
 export function PrivacyClient({ locale }: { locale: Locale }) {

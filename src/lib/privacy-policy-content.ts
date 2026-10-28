@@ -33,14 +33,14 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
         title: "How information is used",
         paragraphs: [
           "Information is used to provide the merchant dashboard, display catalogue and conversation records, verify and deduplicate inbound WhatsApp webhooks, support merchant handoff, and send a manual reply when that feature has been configured and authorized. It may also be used to protect, maintain, and troubleshoot the service.",
-          "Automated AI-model inference and assistant-generated replies are not implemented in the current version. If those capabilities are added, this notice should be updated before they are enabled.",
+          "When an operator enables the configured Meta assistant, eligible WhatsApp message text and bounded recent conversation context are sent to the selected Meta model. The assistant may use a server-side, read-only catalogue search. Model runs, replies, and tool executions are recorded in the deployment database. Do not enable this feature until its provider configuration and applicable privacy notices have been reviewed.",
         ],
       },
       {
         title: "WhatsApp and other service providers",
         paragraphs: [
           "If a deployment connects a WhatsApp Business number, messages travel through Meta/WhatsApp services. The merchant and Meta/WhatsApp may process information under their own privacy terms. The deployment also relies on the hosting and database providers selected by its operator; those providers may process information to run the service.",
-          "The exact providers, locations, and settings depend on the deployment. The SokoPilot demo is not currently configured with a live model provider.",
+          "The exact providers, locations, and settings depend on the deployment. If the assistant is enabled, conversation context is also sent to the Meta Model API using the model configured by the deployment operator. Review Meta's terms and data practices before enabling it.",
         ],
       },
       {
@@ -104,14 +104,14 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
         title: "Jinsi taarifa zinavyotumika",
         paragraphs: [
           "Taarifa hutumika kutoa dashibodi ya mfanyabiashara, kuonyesha katalogi na rekodi za mazungumzo, kuthibitisha na kuondoa nakala za webhook zinazoingia za WhatsApp, kusaidia kukabidhi mazungumzo kwa mfanyabiashara, na kutuma jibu la mkono ikiwa kipengele hicho kimesanidiwa na kuidhinishwa. Zinaweza pia kutumika kulinda, kudumisha na kutatua matatizo ya huduma.",
-          "Uendeshaji wa modeli ya AI kiotomatiki na majibu yanayotengenezwa na msaidizi hayajatekelezwa katika toleo la sasa. Vipengele hivyo vikiongezwa, notisi hii inapaswa kusasishwa kabla ya kuwashwa.",
+          "Mwendeshaji akiwasha msaidizi wa Meta aliyesanidiwa, maandishi ya ujumbe unaostahili na sehemu ndogo ya muktadha wa hivi karibuni wa mazungumzo hutumwa kwa modeli ya Meta iliyochaguliwa. Msaidizi anaweza kutafuta katalogi kwa njia ya kusoma pekee. Uendeshaji wa modeli, majibu na utekelezaji wa zana huhifadhiwa kwenye hifadhidata ya mfumo. Usikiwashe kipengele hiki kabla ya kukagua usanidi wa mtoa huduma na notisi za faragha zinazohusika.",
         ],
       },
       {
         title: "WhatsApp na watoa huduma wengine",
         paragraphs: [
           "Mfumo ukiunganisha nambari ya WhatsApp Business, ujumbe hupitia huduma za Meta/WhatsApp. Mfanyabiashara na Meta/WhatsApp wanaweza kushughulikia taarifa kulingana na masharti yao ya faragha. Mfumo pia hutegemea watoa huduma wa seva na hifadhidata waliochaguliwa na mwendeshaji; watoa huduma hao wanaweza kushughulikia taarifa ili kuendesha huduma.",
-          "Watoa huduma, maeneo na mipangilio hutegemea mfumo husika. Onyesho la SokoPilot kwa sasa halijaunganishwa na mtoa huduma wa modeli ya AI.",
+          "Watoa huduma, maeneo na mipangilio hutegemea mfumo husika. Msaidizi akiwashwa, muktadha wa mazungumzo pia hutumwa kwa Meta Model API kwa kutumia modeli iliyosanidiwa na mwendeshaji. Kagua masharti na utunzaji wa data wa Meta kabla ya kuiwasha.",
         ],
       },
       {

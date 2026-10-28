@@ -1,10 +1,19 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateConversationHandoff, type ConversationActionState } from "@/app/actions/conversations";
-import { sendWhatsAppManualReply, type WhatsAppReplyState } from "@/app/actions/whatsapp-replies";
+import {
+  updateConversationHandoff,
+  type ConversationActionState,
+} from "@/app/actions/conversations";
+import {
+  sendWhatsAppManualReply,
+  type WhatsAppReplyState,
+} from "@/app/actions/whatsapp-replies";
 import { Button } from "@/components/ui/button";
-import type { ConversationsReadResult, DemoConversation } from "@/lib/conversations";
+import type {
+  ConversationsReadResult,
+  DemoConversation,
+} from "@/lib/conversations";
 import type { Locale } from "@/lib/i18n";
 import { messages } from "@/lib/i18n";
 
@@ -16,7 +25,10 @@ function ConversationControl({
   locale: Locale;
 }) {
   const text = messages[locale];
-  const [state, action, pending] = useActionState(updateConversationHandoff, null);
+  const [state, action, pending] = useActionState(
+    updateConversationHandoff,
+    null,
+  );
   const feedback = getActionFeedback(state, locale);
 
   return (
@@ -32,7 +44,10 @@ function ConversationControl({
         </form>
       )}
       {feedback && (
-        <p className="max-w-52 text-xs text-destructive sm:text-right" role="alert">
+        <p
+          className="max-w-52 text-xs text-destructive sm:text-right"
+          role="alert"
+        >
           {feedback}
         </p>
       )}
@@ -48,7 +63,10 @@ function ManualReplyForm({
   locale: Locale;
 }) {
   const text = messages[locale];
-  const [state, action, pending] = useActionState(sendWhatsAppManualReply, null);
+  const [state, action, pending] = useActionState(
+    sendWhatsAppManualReply,
+    null,
+  );
   const error = getReplyFeedback(state, locale);
   return (
     <div className="mt-4 border-t border-border/70 pt-4">
@@ -71,7 +89,10 @@ function ManualReplyForm({
         </Button>
       </form>
       {state?.status === "success" && (
-        <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-300" role="status">
+        <p
+          className="mt-2 text-xs text-emerald-700 dark:text-emerald-300"
+          role="status"
+        >
           {text.replySent}
         </p>
       )}
@@ -87,8 +108,10 @@ function ManualReplyForm({
 function getActionFeedback(state: ConversationActionState, locale: Locale) {
   if (!state || state.status === "success") return null;
   const text = messages[locale];
-  if (state.reason === "database-not-configured") return text.databaseNotConfigured;
-  if (state.reason === "writes-not-approved") return text.databaseWritesNotApproved;
+  if (state.reason === "database-not-configured")
+    return text.databaseNotConfigured;
+  if (state.reason === "writes-not-approved")
+    return text.databaseWritesNotApproved;
   if (state.reason === "not-authorized") return text.demoAccessExpired;
   if (state.reason === "not-found") return text.conversationNotFound;
   if (state.reason === "invalid-input") return text.invalidConversationAction;
@@ -99,7 +122,8 @@ function getReplyFeedback(state: WhatsAppReplyState, locale: Locale) {
   if (!state || state.status === "success") return null;
   const text = messages[locale];
   if (state.reason === "not-authorized") return text.demoAccessExpired;
-  if (state.reason === "writes-not-approved") return text.databaseWritesNotApproved;
+  if (state.reason === "writes-not-approved")
+    return text.databaseWritesNotApproved;
   if (state.reason === "not-configured") return text.whatsappReplyNotConfigured;
   if (state.reason === "not-found") return text.conversationNotFound;
   if (state.reason === "not-handed-off") return text.replyRequiresHandoff;
@@ -117,21 +141,24 @@ export function ConversationsWorkspace({
   result: ConversationsReadResult;
 }) {
   const text = messages[locale];
-  const errorMessage =
-    result.ok
-      ? null
-      : result.error === "database-not-configured"
-        ? text.databaseNotConfigured
-        : result.error === "merchant-not-seeded"
-          ? text.demoDataNotSeeded
-          : text.storageUnavailable;
+  const errorMessage = result.ok
+    ? null
+    : result.error === "database-not-configured"
+      ? text.databaseNotConfigured
+      : result.error === "merchant-not-seeded"
+        ? text.demoDataNotSeeded
+        : text.storageUnavailable;
 
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">{text.conversations}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{text.inboxSourceNote}</p>
+          <h2 className="text-lg font-semibold tracking-tight">
+            {text.conversations}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {text.inboxSourceNote}
+          </p>
         </div>
         {result.ok && (
           <span className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
@@ -149,11 +176,16 @@ export function ConversationsWorkspace({
       ) : result.ok && result.conversations.length > 0 ? (
         <div className="space-y-3">
           {result.conversations.map((conversation) => (
-            <article key={conversation.id} className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+            <article
+              key={conversation.id}
+              className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm"
+            >
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold">{conversation.customerName ?? text.customer}</h3>
+                    <h3 className="font-semibold">
+                      {conversation.customerName ?? text.customer}
+                    </h3>
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs ${
                         conversation.automationPaused
@@ -161,7 +193,9 @@ export function ConversationsWorkspace({
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {conversation.automationPaused ? text.handoffActive : text.assistantUnavailable}
+                      {conversation.automationPaused
+                        ? text.handoffActive
+                        : text.assistantUnavailable}
                     </span>
                     {conversation.optedOut && (
                       <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs text-destructive">
@@ -170,9 +204,24 @@ export function ConversationsWorkspace({
                     )}
                   </div>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">{text.latestMessage}: </span>
+                    <span className="font-medium text-foreground">
+                      {text.latestMessage}:{" "}
+                    </span>
                     {conversation.latestMessage ?? text.noConversationMessages}
                   </p>
+                  {conversation.latestAssistantRun && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        {text.latestAssistantRun}:
+                      </span>
+                      {conversation.latestAssistantRun.provider} ·{" "}
+                      {conversation.latestAssistantRun.model} ·{" "}
+                      {getAssistantRunStatusLabel(
+                        conversation.latestAssistantRun.status,
+                        locale,
+                      )}
+                    </p>
+                  )}
                   <time
                     className="mt-2 block text-xs text-muted-foreground"
                     dateTime={conversation.updatedAt}
@@ -184,12 +233,48 @@ export function ConversationsWorkspace({
                   </time>
                 </div>
                 <div className="sm:shrink-0">
-                  <ConversationControl conversation={conversation} locale={locale} />
+                  <ConversationControl
+                    conversation={conversation}
+                    locale={locale}
+                  />
                 </div>
               </div>
+              {conversation.messages.length > 0 && (
+                <ol
+                  className="mt-4 max-h-96 space-y-2 overflow-y-auto rounded-xl bg-muted/35 p-3"
+                  aria-label={text.conversationHistory}
+                >
+                  {conversation.messages.map((message) => (
+                    <li
+                      key={message.id}
+                      className={`flex ${message.direction === "outbound" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[90%] rounded-2xl px-3 py-2 text-sm ${message.direction === "outbound" ? "bg-primary text-primary-foreground" : "bg-card"}`}
+                      >
+                        <p className="whitespace-pre-wrap break-words">
+                          {message.body ?? `[${message.contentType}]`}
+                        </p>
+                        <time
+                          className="mt-1 block text-[10px] opacity-70"
+                          dateTime={message.createdAt}
+                        >
+                          {new Intl.DateTimeFormat(locale, {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          }).format(new Date(message.createdAt))}
+                        </time>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
               {conversation.status === "handoff" && !conversation.optedOut && (
                 <div className="w-full">
-                  <ManualReplyForm conversation={conversation} locale={locale} />
+                  <ManualReplyForm
+                    conversation={conversation}
+                    locale={locale}
+                  />
                 </div>
               )}
             </article>
@@ -205,4 +290,21 @@ export function ConversationsWorkspace({
       )}
     </section>
   );
+}
+
+function getAssistantRunStatusLabel(
+  status: NonNullable<DemoConversation["latestAssistantRun"]>["status"],
+  locale: Locale,
+) {
+  const text = messages[locale];
+  switch (status) {
+    case "started":
+      return text.assistantRunStarted;
+    case "succeeded":
+      return text.assistantRunSucceeded;
+    case "failed":
+      return text.assistantRunFailed;
+    case "canceled":
+      return text.assistantRunCanceled;
+  }
 }

@@ -3,10 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { hasDemoAccess } from "@/lib/demo-gate";
 import { isLocale, type Locale } from "@/lib/i18n";
-import {
-  createDemoProduct,
-  updateDemoVariantStock,
-} from "@/lib/catalogue";
+import { createDemoProduct, updateDemoVariantStock } from "@/lib/catalogue";
+import { parsePriceMinor, parseStockQuantity } from "@/lib/catalogue-input";
 
 export type CatalogueActionState =
   | { status: "success"; operation: "created" | "stock-updated" }
@@ -17,7 +15,6 @@ export type CatalogueActionState =
         | "not-authorized"
         | "database-not-configured"
         | "merchant-not-seeded"
-        | "writes-not-approved"
         | "writes-not-approved"
         | "not-found"
         | "storage-unavailable";
@@ -35,7 +32,8 @@ export async function createCatalogueProduct(
 ): Promise<CatalogueActionState> {
   const locale = getLocale(formData);
   if (!locale) return { status: "error", reason: "invalid-input" };
-  if (!(await hasDemoAccess())) return { status: "error", reason: "not-authorized" };
+  if (!(await hasDemoAccess()))
+    return { status: "error", reason: "not-authorized" };
 
   const name = formData.get("name");
   const description = formData.get("description");
@@ -46,18 +44,18 @@ export async function createCatalogueProduct(
   const price = formData.get("price");
   const currency = formData.get("currency");
   const stock = formData.get("stock");
+  const priceMinor = typeof price === "string" ? parsePriceMinor(price) : null;
+  const stockQuantity =
+    typeof stock === "string" ? parseStockQuantity(stock) : null;
 
   if (
     typeof name !== "string" ||
     name.trim().length < 2 ||
     name.trim().length > 120 ||
-    typeof price !== "string" ||
-    !/^\d{1,8}(?:\.\d{1,2})?$/.test(price) ||
-    Number(price) < 0 ||
+    priceMinor === null ||
     typeof currency !== "string" ||
     !/^[A-Z]{3}$/.test(currency) ||
-    typeof stock !== "string" ||
-    !/^\d{1,6}$/.test(stock) ||
+    stockQuantity === null ||
     [description, category, label, size, color].some(
       (value) => value !== null && typeof value !== "string",
     )
@@ -65,11 +63,6 @@ export async function createCatalogueProduct(
     return { status: "error", reason: "invalid-input" };
   }
 
-  const priceMinor = Math.round(Number(price) * 100);
-  const stockQuantity = Number(stock);
-  if (!Number.isSafeInteger(priceMinor) || !Number.isSafeInteger(stockQuantity)) {
-    return { status: "error", reason: "invalid-input" };
-  }
   try {
     new Intl.NumberFormat("en", { style: "currency", currency }).format(0);
   } catch {
@@ -78,15 +71,24 @@ export async function createCatalogueProduct(
 
   const result = await createDemoProduct({
     name: name.trim(),
-    description: typeof description === "string" && description.trim()
-      ? description.trim().slice(0, 1000)
-      : null,
-    category: typeof category === "string" && category.trim()
-      ? category.trim().slice(0, 80)
-      : null,
-    label: typeof label === "string" && label.trim() ? label.trim().slice(0, 80) : null,
-    size: typeof size === "string" && size.trim() ? size.trim().slice(0, 40) : null,
-    color: typeof color === "string" && color.trim() ? color.trim().slice(0, 60) : null,
+    description:
+      typeof description === "string" && description.trim()
+        ? description.trim().slice(0, 1000)
+        : null,
+    category:
+      typeof category === "string" && category.trim()
+        ? category.trim().slice(0, 80)
+        : null,
+    label:
+      typeof label === "string" && label.trim()
+        ? label.trim().slice(0, 80)
+        : null,
+    size:
+      typeof size === "string" && size.trim() ? size.trim().slice(0, 40) : null,
+    color:
+      typeof color === "string" && color.trim()
+        ? color.trim().slice(0, 60)
+        : null,
     priceMinor,
     currency,
     stockQuantity,
@@ -104,20 +106,22 @@ export async function updateCatalogueStock(
 ): Promise<CatalogueActionState> {
   const locale = getLocale(formData);
   if (!locale) return { status: "error", reason: "invalid-input" };
-  if (!(await hasDemoAccess())) return { status: "error", reason: "not-authorized" };
+  if (!(await hasDemoAccess()))
+    return { status: "error", reason: "not-authorized" };
 
   const variantId = formData.get("variantId");
   const stock = formData.get("stock");
+  const stockQuantity =
+    typeof stock === "string" ? parseStockQuantity(stock) : null;
   if (
     typeof variantId !== "string" ||
     !/^[a-zA-Z0-9_-]{1,128}$/.test(variantId) ||
-    typeof stock !== "string" ||
-    !/^\d{1,6}$/.test(stock)
+    stockQuantity === null
   ) {
     return { status: "error", reason: "invalid-input" };
   }
 
-  const result = await updateDemoVariantStock(variantId, Number(stock));
+  const result = await updateDemoVariantStock(variantId, stockQuantity);
   if (!result.ok) return { status: "error", reason: result.error };
   revalidatePath(`/${locale}/dashboard/products`);
   revalidatePath(`/${locale}/dashboard`);

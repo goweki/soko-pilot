@@ -3,6 +3,7 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { db } from "@/prisma/db";
 import { demoDatabaseWritesEnabled } from "@/lib/demo-tenant";
+import { processMetaAssistantReply } from "@/lib/meta-assistant";
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
 
@@ -34,6 +35,11 @@ export type WebhookProcessResult =
         | "storage-unavailable";
     };
 
+type PersistMessageResult =
+  | { kind: "accepted"; conversationId: string; automationEligible: boolean }
+  | { kind: "duplicate" }
+  | { kind: "connection-not-found" };
+
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -42,7 +48,9 @@ function getString(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
-function getContentType(type: string): "text" | "image" | "audio" | "video" | "document" | "sticker" | "unknown" {
+function getContentType(
+  type: string,
+): "text" | "image" | "audio" | "video" | "document" | "sticker" | "unknown" {
   switch (type) {
     case "text":
     case "image":
@@ -87,8 +95,11 @@ function parseChanges(payload: unknown): IncomingChange[] | null {
       }
 
       const messages: InboundMessage[] = [];
-      if (value.messages !== undefined && !Array.isArray(value.messages)) return null;
-      for (const message of Array.isArray(value.messages) ? value.messages : []) {
+      if (value.messages !== undefined && !Array.isArray(value.messages))
+        return null;
+      for (const message of Array.isArray(value.messages)
+        ? value.messages
+        : []) {
         if (!isRecord(message)) return null;
         const id = getString(message.id);
         const from = getString(message.from);
@@ -117,20 +128,20 @@ async function persistMessage(
   phoneNumberId: string,
   message: InboundMessage,
   payloadHash: string,
-): Promise<"accepted" | "duplicate" | "connection-not-found"> {
-  const connection = await db.orm.public.WhatsAppConnection.first({ phoneNumberId });
+): Promise<PersistMessageResult> {
+  const connection = await db.orm.public.WhatsAppConnection.first({
+    phoneNumberId,
+  });
   if (!connection || connection.status !== "connected") {
-    return "connection-not-found";
+    return { kind: "connection-not-found" };
   }
 
   return db.transaction(async (tx) => {
-    const alreadyHandled = await tx.orm.public.WebhookEvent
-      .where({
-        whatsappConnectionId: connection.id,
-        deduplicationKey: message.id,
-      })
-      .first();
-    if (alreadyHandled) return "duplicate";
+    const alreadyHandled = await tx.orm.public.WebhookEvent.where({
+      whatsappConnectionId: connection.id,
+      deduplicationKey: message.id,
+    }).first();
+    if (alreadyHandled) return { kind: "duplicate" };
 
     await tx.orm.public.WebhookEvent.create({
       whatsappConnectionId: connection.id,
@@ -140,9 +151,10 @@ async function persistMessage(
       attemptCount: 1,
     });
 
-    const existingCustomer = await tx.orm.public.Customer
-      .where({ merchantId: connection.merchantId, waId: message.from })
-      .first();
+    const existingCustomer = await tx.orm.public.Customer.where({
+      merchantId: connection.merchantId,
+      waId: message.from,
+    }).first();
     const customer = existingCustomer
       ? existingCustomer
       : await tx.orm.public.Customer.create({
@@ -153,27 +165,42 @@ async function persistMessage(
         });
 
     const now = new Date().toISOString();
-    if (
+    const customerOptedOut = Boolean(
       message.body &&
-      /^(?:stop|stop all|unsubscribe)$/i.test(message.body.trim())
+      /^(?:stop|stop all|unsubscribe)$/i.test(message.body.trim()),
+    );
+    if (customerOptedOut) {
+      await tx.orm.public.Customer.where({
+        id: customer.id,
+        merchantId: connection.merchantId,
+      }).update({ optedOutAt: now });
+    } else if (
+      existingCustomer &&
+      message.displayName &&
+      !existingCustomer.displayName
     ) {
-      await tx.orm.public.Customer
-        .where({ id: customer.id, merchantId: connection.merchantId })
-        .update({ optedOutAt: now });
-    } else if (existingCustomer && message.displayName && !existingCustomer.displayName) {
-      await tx.orm.public.Customer
-        .where({ id: customer.id, merchantId: connection.merchantId })
-        .update({ displayName: message.displayName });
+      await tx.orm.public.Customer.where({
+        id: customer.id,
+        merchantId: connection.merchantId,
+      }).update({ displayName: message.displayName });
     }
 
-    const existingConversation = await tx.orm.public.Conversation
-      .where({
-        merchantId: connection.merchantId,
-        customerId: customer.id,
-        whatsappConnectionId: connection.id,
-      })
+    const existingConversation = await tx.orm.public.Conversation.where({
+      merchantId: connection.merchantId,
+      customerId: customer.id,
+      whatsappConnectionId: connection.id,
+    })
       .orderBy((conversation) => conversation.updatedAt.desc())
       .first();
+    const automationEligible = Boolean(
+      message.type === "text" &&
+      message.body?.trim() &&
+      !customerOptedOut &&
+      !customer.optedOutAt &&
+      (!existingConversation ||
+        (existingConversation.status === "open" &&
+          existingConversation.automationPausedAt === null)),
+    );
     const conversation = existingConversation
       ? existingConversation
       : await tx.orm.public.Conversation.create({
@@ -195,25 +222,29 @@ async function persistMessage(
       providerMessageId: message.id,
     });
 
-    await tx.orm.public.Conversation
-      .where({ id: conversation.id, merchantId: connection.merchantId })
-      .update({
-        status: "handoff",
-        automationPausedAt: now,
-        lastMessageAt: now,
-      });
+    await tx.orm.public.Conversation.where({
+      id: conversation.id,
+      merchantId: connection.merchantId,
+    }).update({
+      status: "handoff",
+      automationPausedAt: now,
+      lastMessageAt: now,
+    });
 
-    await tx.orm.public.WebhookEvent
-      .where({
-        whatsappConnectionId: connection.id,
-        deduplicationKey: message.id,
-      })
-      .update({ status: "processed", processedAt: now });
-    await tx.orm.public.WhatsAppConnection
-      .where({ id: connection.id, merchantId: connection.merchantId })
-      .update({ lastWebhookAt: now });
+    await tx.orm.public.WebhookEvent.where({
+      whatsappConnectionId: connection.id,
+      deduplicationKey: message.id,
+    }).update({ status: "processed", processedAt: now });
+    await tx.orm.public.WhatsAppConnection.where({
+      id: connection.id,
+      merchantId: connection.merchantId,
+    }).update({ lastWebhookAt: now });
 
-    return "accepted";
+    return {
+      kind: "accepted",
+      conversationId: conversation.id,
+      automationEligible,
+    };
   });
 }
 
@@ -247,12 +278,22 @@ export async function processWhatsAppWebhook(
   try {
     for (const change of changes) {
       for (const message of change.messages) {
-        const result = await persistMessage(change.phoneNumberId, message, payloadHash);
-        if (result === "connection-not-found") {
+        const result = await persistMessage(
+          change.phoneNumberId,
+          message,
+          payloadHash,
+        );
+        if (result.kind === "connection-not-found") {
           return { ok: false, error: "connection-not-found" };
         }
-        if (result === "duplicate") duplicates += 1;
-        else accepted += 1;
+        if (result.kind === "duplicate") {
+          duplicates += 1;
+        } else {
+          accepted += 1;
+          if (result.automationEligible) {
+            await processMetaAssistantReply(result.conversationId, message.id);
+          }
+        }
       }
     }
   } catch (error) {

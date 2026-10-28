@@ -1,3 +1,7 @@
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
+
 export const DEMO_MERCHANT_ID =
   process.env.DEMO_MERCHANT_ID?.trim() || "sokopilot-demo-merchant";
 

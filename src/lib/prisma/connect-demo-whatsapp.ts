@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { createHash } from "node:crypto";
 import { db } from "../../prisma/db";
 import {

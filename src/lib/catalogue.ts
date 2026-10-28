@@ -1,10 +1,7 @@
 import "server-only";
 
 import { db } from "@/prisma/db";
-import {
-  DEMO_MERCHANT_ID,
-  demoDatabaseWritesEnabled,
-} from "@/lib/demo-tenant";
+import { DEMO_MERCHANT_ID, demoDatabaseWritesEnabled } from "@/lib/demo-tenant";
 
 export type CatalogueVariant = {
   id: string;
@@ -27,10 +24,13 @@ export type CatalogueProduct = {
 };
 
 export type CatalogueReadResult =
-  | { ok: true; products: CatalogueProduct[] }
+  | { ok: true; merchantName: string; products: CatalogueProduct[] }
   | {
       ok: false;
-      error: "database-not-configured" | "merchant-not-seeded" | "storage-unavailable";
+      error:
+        | "database-not-configured"
+        | "merchant-not-seeded"
+        | "storage-unavailable";
     };
 
 export async function listDemoCatalogue(): Promise<CatalogueReadResult> {
@@ -39,19 +39,21 @@ export async function listDemoCatalogue(): Promise<CatalogueReadResult> {
   }
 
   try {
-    const merchant = await db.orm.public.Merchant.first({ id: DEMO_MERCHANT_ID });
+    const merchant = await db.orm.public.Merchant.first({
+      id: DEMO_MERCHANT_ID,
+    });
     if (!merchant) {
       return { ok: false, error: "merchant-not-seeded" };
     }
 
-    const products = await db.orm.public.Product
-      .include("variants")
+    const products = await db.orm.public.Product.include("variants")
       .where({ merchantId: merchant.id })
       .orderBy((product) => product.name.asc())
       .all();
 
     return {
       ok: true,
+      merchantName: merchant.businessName,
       products: products.map((product) => ({
         id: product.id,
         name: product.name,
@@ -92,7 +94,9 @@ export async function searchDemoCatalogue(query: string) {
   const products = result.products
     .filter((product) => product.status === "active")
     .map((product) => {
-      const activeVariants = product.variants.filter((variant) => variant.isActive);
+      const activeVariants = product.variants.filter(
+        (variant) => variant.isActive,
+      );
       const searchableText = [
         product.name,
         product.description ?? "",
@@ -135,7 +139,9 @@ export async function createDemoProduct(input: {
   }
 
   try {
-    const merchant = await db.orm.public.Merchant.first({ id: DEMO_MERCHANT_ID });
+    const merchant = await db.orm.public.Merchant.first({
+      id: DEMO_MERCHANT_ID,
+    });
     if (!merchant) {
       return { ok: false as const, error: "merchant-not-seeded" as const };
     }
@@ -172,7 +178,10 @@ export async function createDemoProduct(input: {
   }
 }
 
-export async function updateDemoVariantStock(variantId: string, stockQuantity: number) {
+export async function updateDemoVariantStock(
+  variantId: string,
+  stockQuantity: number,
+) {
   if (!process.env.DATABASE_URL?.trim()) {
     return { ok: false as const, error: "database-not-configured" as const };
   }
@@ -181,17 +190,18 @@ export async function updateDemoVariantStock(variantId: string, stockQuantity: n
   }
 
   try {
-    const variant = await db.orm.public.ProductVariant
-      .include("product")
-      .first({ id: variantId });
+    const variant = await db.orm.public.ProductVariant.include("product").first(
+      { id: variantId },
+    );
 
     if (!variant || variant.product.merchantId !== DEMO_MERCHANT_ID) {
       return { ok: false as const, error: "not-found" as const };
     }
 
-    await db.orm.public.ProductVariant
-      .where({ id: variant.id, productId: variant.productId })
-      .update({ stockQuantity });
+    await db.orm.public.ProductVariant.where({
+      id: variant.id,
+      productId: variant.productId,
+    }).update({ stockQuantity });
 
     return { ok: true as const };
   } catch (error) {

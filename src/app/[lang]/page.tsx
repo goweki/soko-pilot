@@ -1,6 +1,8 @@
 import { Suspense } from "react";
+import { io } from "next/cache";
 import { ProductStoryClient } from "@/components/pages/page-placeholders";
 import { requireLocale } from "@/lib/i18n";
+import { listDemoCatalogue } from "@/lib/catalogue";
 
 export default function ProductStoryPage({
   params,
@@ -20,5 +22,8 @@ async function ProductStoryContent({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  return <ProductStoryClient locale={requireLocale(lang)} />;
+  const locale = requireLocale(lang);
+  await io();
+  const catalogue = await listDemoCatalogue();
+  return <ProductStoryClient locale={locale} catalogue={catalogue} />;
 }

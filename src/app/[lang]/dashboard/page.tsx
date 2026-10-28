@@ -6,7 +6,9 @@ import { listDemoCatalogue } from "@/lib/catalogue";
 import { listDemoConversations } from "@/lib/conversations";
 import { requireLocale } from "@/lib/i18n";
 
-export default function DashboardPage({ params }: {
+export default function DashboardPage({
+  params,
+}: {
   params: Promise<{ lang: string }>;
 }) {
   return (
@@ -16,7 +18,9 @@ export default function DashboardPage({ params }: {
   );
 }
 
-async function ProtectedDashboard({ params }: {
+async function ProtectedDashboard({
+  params,
+}: {
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
@@ -32,12 +36,17 @@ async function ProtectedDashboard({ params }: {
       locale={locale}
       name={null}
       snapshot={{
+        workspaceName: catalogue.ok ? catalogue.merchantName : null,
         productCount: catalogue.ok ? catalogue.products.length : null,
         openConversationCount: inbox.ok
-          ? inbox.conversations.filter((conversation) => conversation.status !== "closed").length
+          ? inbox.conversations.filter(
+              (conversation) => conversation.status !== "closed",
+            ).length
           : null,
         handoffCount: inbox.ok
-          ? inbox.conversations.filter((conversation) => conversation.automationPaused).length
+          ? inbox.conversations.filter(
+              (conversation) => conversation.automationPaused,
+            ).length
           : null,
         recentConversations: inbox.ok
           ? inbox.conversations.slice(0, 3).map((conversation) => ({

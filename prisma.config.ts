@@ -1,6 +1,8 @@
-import "dotenv/config";
+import { loadEnvConfig } from "@next/env";
 import { definePrismaConfig } from "@prisma/cli-engine";
 import { defineConfig as ormConfig } from "@prisma/orm-postgres/config";
+
+loadEnvConfig(process.cwd());
 
 export default definePrismaConfig({
   orm: ormConfig({

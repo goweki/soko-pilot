@@ -19,9 +19,9 @@ export function requireLocale(value: string): Locale {
 export const messages = {
   en: {
     brand: "SokoPilot",
-    tagline: "Every customer question, met with a better answer.",
+    tagline: "Every product detail. Every customer conversation. One place.",
     intro:
-      "A thoughtful WhatsApp sales assistant for fashion and beauty merchants. Help customers find the right product with answers grounded in your catalogue—and keep your team in control.",
+      "A clear view of products and WhatsApp conversations for fashion and beauty merchants. Keep prices and stock current, bring every customer question into one inbox, and keep your team in control.",
     signIn: "Open the demo",
     signInTitle: "Welcome to SokoPilot",
     signInDescription:
@@ -43,12 +43,12 @@ export const messages = {
     dashboardDescription:
       "A clear view of your customer conversations and product catalogue.",
     conversationsDescription:
-      "A shared place for customer questions, helpful answers, and moments that need your attention.",
+      "A shared inbox for customer questions, team replies, and conversations that need your attention.",
     productsDescription:
-      "Keep product details in one place so recommendations can stay accurate and up to date.",
+      "Keep prices, variants, and stock current so every customer answer starts from reliable product facts.",
     addProduct: "Add a product",
     addProductDescription:
-      "Save catalogue facts here. Recommendations should use current product and variant data only.",
+      "Save product facts in the database so your team can answer from current catalogue records.",
     productName: "Product name",
     category: "Category",
     variantLabel: "Variant label",
@@ -64,22 +64,26 @@ export const messages = {
     productCreated: "Product saved to the catalogue.",
     stockUpdated: "Stock quantity updated.",
     invalidProductInput: "Check the product details and try again.",
-    productNotFound: "That product variant could not be found in this workspace.",
+    productNotFound:
+      "That product variant could not be found in this workspace.",
     databaseNotConfigured:
-      "The demo database is not configured. Set DATABASE_URL for the approved development database.",
+      "The demo database is not configured. Set DATABASE_URL for the configured demo database.",
     demoDataNotSeeded:
       "The synthetic demo workspace has not been seeded. Follow the setup runbook for the dedicated demo database.",
     databaseWritesNotApproved:
       "Database writes are disabled until you explicitly approve a dedicated demo database.",
-    demoAccessExpired: "Your demo access expired. Please unlock the demo again.",
+    demoAccessExpired:
+      "Your demo access expired. Please unlock the demo again.",
     storageUnavailable:
       "The demo catalogue could not be loaded or saved. Check the database setup and server logs.",
     catalogueProducts: "Catalogue products",
+    catalogueUnavailable:
+      "Live catalogue preview is unavailable until the database is configured.",
     productActive: "Active",
     productDraft: "Draft",
     productArchived: "Archived",
     catalogueSourceNote:
-      "Values below are read from the demo database and are the source for catalogue recommendations.",
+      "Values below are read from the configured demo database.",
     noVariants: "No variants have been added to this product.",
     defaultVariant: "Standard",
     noVariantDetails: "No size or color specified",
@@ -93,6 +97,7 @@ export const messages = {
     assistantActive: "Assistant active",
     customer: "Customer",
     latestMessage: "Latest message",
+    conversationHistory: "Conversation history",
     noConversationMessages: "No message content was stored.",
     databaseSetupNeeded: "Database setup needed",
     webhookSetupNeeded: "WhatsApp webhook setup needed",
@@ -104,15 +109,33 @@ export const messages = {
     assistantEnabled: "Assistant enabled",
     assistantDisabled: "Assistant paused",
     assistantConfiguration: "Current assistant configuration",
+    latestAssistantRun: "Latest assistant run",
+    assistantRunStarted: "running",
+    assistantRunSucceeded: "answered",
+    assistantRunFailed: "handed off",
+    assistantRunCanceled: "stopped",
     assistantStatus: "Status",
     modelIdentifier: "Configured model identifier",
     enabledTools: "Enabled tools",
     modelPathUnavailable:
-      "The Meta model request path is not implemented; assistant automation remains disabled.",
+      "Set META_MODEL_API_URL, META_MODEL_NAME, and META_MODEL_API_KEY to enable the Meta Model API.",
+    assistantAutomationLive:
+      "Live Meta replies are enabled. Catalogue facts must come from the database search; failures remain in merchant handoff.",
+    assistantAutomationPaused:
+      "Meta is configured. Automation stays paused until you enable it here.",
+    enableAssistant: "Enable live assistant",
+    pauseAssistant: "Pause assistant",
+    assistantAutomationUpdated: "Assistant setting saved.",
+    assistantCatalogueToolRequired:
+      "Enable the database catalogue search tool before activating replies.",
+    assistantWriteToolsDisabled:
+      "Disable order tools before activating replies. Order creation is out of scope.",
     inboxSourceNote:
-      "Inbound messages are stored after webhook verification. Automation remains paused because the Meta model request path is not implemented.",
-    conversationNotFound: "That conversation could not be found in this demo workspace.",
-    invalidConversationAction: "This conversation action is invalid. Refresh and try again.",
+      "Inbound messages are stored after webhook verification. When enabled, Meta replies use the saved catalogue and failures return the conversation to merchant handoff.",
+    conversationNotFound:
+      "That conversation could not be found in this demo workspace.",
+    invalidConversationAction:
+      "This conversation action is invalid. Refresh and try again.",
     demoReadiness: "Demo readiness",
     customerOptedOut: "Customer opted out",
     assistantUnavailable: "Assistant not connected",
@@ -126,7 +149,8 @@ export const messages = {
       "WhatsApp did not confirm the reply. Check provider status before trying again.",
     whatsappSentNotSaved:
       "WhatsApp accepted the reply, but it could not be saved here. Check the conversation before retrying.",
-    replyRequiresHandoff: "Take over the conversation before sending a manual reply.",
+    replyRequiresHandoff:
+      "Take over the conversation before sending a manual reply.",
     settingsDescription:
       "Connect your channels and choose how your assistant supports your customers.",
     privacyDescription:
@@ -138,11 +162,11 @@ export const messages = {
     demoWorkspace: "Demo workspace",
     navWorkspace: "WORKSPACE",
     navManage: "MANAGE",
-    workspaceName: "Atelier Nia",
+    workspaceName: "Demo workspace",
     workspaceType: "Fashion & beauty",
-    statusNotConnected: "Not connected",
+    statusNotConnected: "Private demo",
     workspacePreview: "Preview workspace",
-    previewNote: "Sample workspace · no live customer data",
+    previewNote: "Demo records are stored in the configured database.",
     overviewEyebrow: "YOUR SHOP, AT A GLANCE",
     overviewTitle: "A little more room to focus on your customers.",
     overviewIntro:
@@ -162,26 +186,26 @@ export const messages = {
     quickActionsTitle: "Make this workspace yours",
     quickActionProducts: "Prepare your catalogue",
     quickActionProductsBody:
-      "Add accurate prices, variants, and stock before your assistant makes recommendations.",
-    quickActionAssistant: "Set up your assistant",
+      "Add accurate prices, variants, and stock so your team can answer with confidence.",
+    quickActionAssistant: "Review assistant readiness",
     quickActionAssistantBody:
-      "Choose the tools it can use and when it should bring you into the conversation.",
+      "Automation is disabled until the Meta request path and safety checks are complete.",
     viewCatalogue: "View catalogue",
     configureAssistant: "Configure assistant",
     connectedChannel: "CHANNEL",
     catalogueStatus: "CATALOGUE",
     noProductsYet: "Ready for your first product",
     noProductsBody:
-      "Your product catalogue will appear here once connected. Keep prices and stock up to date for grounded recommendations.",
+      "Your catalogue appears here after its first product is saved. Keep prices, variants, and stock current for accurate customer replies.",
     productsEmptyLabel: "Catalogue preview",
     conversationEmptyLabel: "Your inbox",
     conversationEmptyTitle: "A quieter inbox starts here",
     conversationEmptyBody:
-      "Once WhatsApp is connected, customer messages and assistant replies will appear in this space.",
+      "Once WhatsApp is connected, verified customer messages will appear here for your team to review and answer.",
     conversationEmptyHint: "Your inbox is currently disconnected.",
     setupTitle: "A considered setup, before the first reply.",
     setupIntro:
-      "Connect your customer channel and choose the boundaries your assistant should follow.",
+      "Review channel connection, assistant status, and safety boundaries before a live demo.",
     setupChannelTitle: "WhatsApp Business",
     setupChannelBody:
       "Connect a test number to receive customer questions and send replies.",
@@ -203,19 +227,13 @@ export const messages = {
     recoveryAction:
       "Reach out to the person who invited you and ask for the shared demo code.",
     previewStrip: "A clearer way to care for every customer",
-    featureGrounded: "Answers grounded in your catalogue",
+    featureGrounded: "Product facts in one catalogue",
     featureControl: "Your team stays in control",
     featureBilingual: "Made for English and Swahili",
     featureLabel: "A better kind of busy",
-    featureTitle: "More helpful replies. More time for the work only you can do.",
+    featureTitle: "A reliable source for every product conversation.",
     featureBody:
-      "Give your team a thoughtful starting point for product questions, without handing over the customer relationship.",
-    previewTitle: "A customer asks",
-    previewQuestion: "“Do you have this in a smaller size?”",
-    previewReply:
-      "“I can help with that. Which style are you looking at? I’ll check the available sizes for you.”",
-    previewReplyLabel: "A helpful first reply",
-    previewFootnote: "Illustrative conversation · not a live customer",
+      "Keep product, variant, price, and stock details together, then bring every customer conversation to a person who can help.",
     getStarted: "Explore the private demo",
     learnMore: "How it works",
     footerTagline: "Thoughtful commerce, one conversation at a time.",
@@ -228,9 +246,9 @@ export const messages = {
   },
   sw: {
     brand: "SokoPilot",
-    tagline: "Kila swali la mteja, lijibiwe kwa umakini zaidi.",
+    tagline: "Taarifa za bidhaa. Mazungumzo ya wateja. Sehemu moja.",
     intro:
-      "Msaidizi wa mauzo wa WhatsApp kwa wafanyabiashara wa mitindo na urembo. Wasaidie wateja kupata bidhaa sahihi kwa majibu yanayotegemea katalogi yako—na timu yako ibaki na udhibiti.",
+      "Muhtasari wa bidhaa na mazungumzo ya WhatsApp kwa wafanyabiashara wa mitindo na urembo. Sasisha bei na stoku, leta maswali kwenye kikasha kimoja, na uache timu yako iwe na udhibiti.",
     signIn: "Fungua onyesho",
     signInTitle: "Karibu SokoPilot",
     signInDescription:
@@ -252,12 +270,12 @@ export const messages = {
     dashboardDescription:
       "Muhtasari wa mazungumzo ya wateja na katalogi ya bidhaa zako.",
     conversationsDescription:
-      "Mahali pamoja pa maswali ya wateja, majibu yenye msaada, na mambo yanayohitaji uangalizi wako.",
+      "Kikasha kimoja cha maswali ya wateja, majibu ya timu, na mazungumzo yanayohitaji uangalizi.",
     productsDescription:
-      "Weka maelezo ya bidhaa pamoja ili mapendekezo yawe sahihi na ya sasa.",
+      "Sasisha bei, matoleo na stoku ili kila jibu lianze na taarifa sahihi za bidhaa.",
     addProduct: "Ongeza bidhaa",
     addProductDescription:
-      "Hifadhi ukweli wa katalogi hapa. Mapendekezo yatumie tu taarifa za sasa za bidhaa na matoleo.",
+      "Hifadhi taarifa za bidhaa kwenye hifadhidata ili timu ijibu kwa kutumia rekodi za sasa.",
     productName: "Jina la bidhaa",
     category: "Aina",
     variantLabel: "Jina la toleo",
@@ -273,22 +291,26 @@ export const messages = {
     productCreated: "Bidhaa imehifadhiwa kwenye katalogi.",
     stockUpdated: "Idadi ya stoku imesasishwa.",
     invalidProductInput: "Kagua maelezo ya bidhaa kisha ujaribu tena.",
-    productNotFound: "Toleo hilo la bidhaa halijapatikana katika eneo hili la kazi.",
+    productNotFound:
+      "Toleo hilo la bidhaa halijapatikana katika eneo hili la kazi.",
     databaseNotConfigured:
-      "Hifadhidata ya onyesho haijawekwa. Weka DATABASE_URL ya hifadhidata ya maendeleo iliyoidhinishwa.",
+      "Hifadhidata ya onyesho haijawekwa. Weka DATABASE_URL ya hifadhidata ya onyesho iliyosanidiwa.",
     demoDataNotSeeded:
       "Eneo la mfano halijaandaliwa. Fuata mwongozo wa usanidi wa hifadhidata maalum ya onyesho.",
     databaseWritesNotApproved:
       "Uandishi kwenye hifadhidata umezimwa hadi uidhinishe wazi hifadhidata maalum ya onyesho.",
-    demoAccessExpired: "Muda wa ufikiaji wa onyesho umeisha. Fungua onyesho tena.",
+    demoAccessExpired:
+      "Muda wa ufikiaji wa onyesho umeisha. Fungua onyesho tena.",
     storageUnavailable:
       "Katalogi ya onyesho haikuweza kusomwa au kuhifadhiwa. Kagua usanidi wa hifadhidata na kumbukumbu za seva.",
     catalogueProducts: "Bidhaa za katalogi",
+    catalogueUnavailable:
+      "Onyesho la katalogi halipatikani hadi hifadhidata isanidiwe.",
     productActive: "Inatumika",
     productDraft: "Rasimu",
     productArchived: "Imehifadhiwa",
     catalogueSourceNote:
-      "Taarifa hapa zinasomwa kutoka hifadhidata ya onyesho na ndizo chanzo cha mapendekezo.",
+      "Taarifa hapa zinasomwa kutoka hifadhidata ya onyesho iliyosanidiwa.",
     noVariants: "Hakuna matoleo yaliyoongezwa kwa bidhaa hii.",
     defaultVariant: "Kawaida",
     noVariantDetails: "Hakuna saizi au rangi iliyobainishwa",
@@ -302,6 +324,7 @@ export const messages = {
     assistantActive: "Msaidizi anafanya kazi",
     customer: "Mteja",
     latestMessage: "Ujumbe wa karibuni",
+    conversationHistory: "Historia ya mazungumzo",
     noConversationMessages: "Maudhui ya ujumbe hayakuhifadhiwa.",
     databaseSetupNeeded: "Hifadhidata inahitaji usanidi",
     webhookSetupNeeded: "Webhook ya WhatsApp inahitaji usanidi",
@@ -313,15 +336,33 @@ export const messages = {
     assistantEnabled: "Msaidizi amewashwa",
     assistantDisabled: "Msaidizi amesimamishwa",
     assistantConfiguration: "Mipangilio ya sasa ya msaidizi",
+    latestAssistantRun: "Jaribio la mwisho la msaidizi",
+    assistantRunStarted: "linaendelea",
+    assistantRunSucceeded: "limejibu",
+    assistantRunFailed: "limekabidhiwa kwa mfanyabiashara",
+    assistantRunCanceled: "limesimamishwa",
     assistantStatus: "Hali",
     modelIdentifier: "Kitambulisho cha modeli kilichosanidiwa",
     enabledTools: "Zana zilizowashwa",
     modelPathUnavailable:
-      "Njia ya mwito wa modeli ya Meta haijatekelezwa; uendeshaji wa msaidizi umezimwa.",
+      "Weka META_MODEL_API_URL, META_MODEL_NAME na META_MODEL_API_KEY ili kutumia Meta Model API.",
+    assistantAutomationLive:
+      "Majibu ya Meta yamewashwa. Taarifa za bidhaa lazima zitoke kwenye utafutaji wa hifadhidata; hitilafu hurudisha mazungumzo kwa mfanyabiashara.",
+    assistantAutomationPaused:
+      "Meta imesanidiwa. Uendeshaji wa kiotomatiki umesimamishwa hadi uuwashe hapa.",
+    enableAssistant: "Washa msaidizi wa moja kwa moja",
+    pauseAssistant: "Simamisha msaidizi",
+    assistantAutomationUpdated: "Mipangilio ya msaidizi imehifadhiwa.",
+    assistantCatalogueToolRequired:
+      "Washa utafutaji wa katalogi kwenye hifadhidata kabla ya kuwasha majibu.",
+    assistantWriteToolsDisabled:
+      "Zima zana za maagizo kabla ya kuwasha majibu. Kuunda maagizo hakujajumuishwa.",
     inboxSourceNote:
-      "Ujumbe unaoingia huhifadhiwa baada ya uthibitishaji wa webhook. Msaidizi amesimamishwa kwa sababu njia ya mwito wa modeli ya Meta bado haijatekelezwa.",
-    conversationNotFound: "Mazungumzo hayo hayakupatikana katika eneo hili la onyesho.",
-    invalidConversationAction: "Kitendo hiki cha mazungumzo si sahihi. Onyesha upya kisha ujaribu tena.",
+      "Ujumbe unaoingia huhifadhiwa baada ya uthibitishaji wa webhook. Ukiwashwa, Meta hutumia katalogi iliyohifadhiwa; hitilafu hurudisha mazungumzo kwa mfanyabiashara.",
+    conversationNotFound:
+      "Mazungumzo hayo hayakupatikana katika eneo hili la onyesho.",
+    invalidConversationAction:
+      "Kitendo hiki cha mazungumzo si sahihi. Onyesha upya kisha ujaribu tena.",
     demoReadiness: "Utayari wa onyesho",
     customerOptedOut: "Mteja amejiondoa",
     assistantUnavailable: "Msaidizi hajaunganishwa",
@@ -347,11 +388,12 @@ export const messages = {
     demoWorkspace: "Eneo la onyesho",
     navWorkspace: "ENEO LA KAZI",
     navManage: "USIMAMIZI",
-    workspaceName: "Atelier Nia",
+    workspaceName: "Eneo la onyesho",
     workspaceType: "Mitindo na urembo",
-    statusNotConnected: "Haijaunganishwa",
+    statusNotConnected: "Onyesho la faragha",
     workspacePreview: "Eneo la onyesho",
-    previewNote: "Eneo la mfano · hakuna data halisi ya wateja",
+    previewNote:
+      "Rekodi za onyesho huhifadhiwa kwenye hifadhidata iliyosanidiwa.",
     overviewEyebrow: "MUHTASARI WA DUKA LAKO",
     overviewTitle: "Pata nafasi zaidi ya kuwajali wateja wako.",
     overviewIntro:
@@ -371,26 +413,26 @@ export const messages = {
     quickActionsTitle: "Fanya eneo hili liwe lako",
     quickActionProducts: "Andaa katalogi yako",
     quickActionProductsBody:
-      "Ongeza bei, matoleo na stoku sahihi kabla ya msaidizi kutoa mapendekezo.",
-    quickActionAssistant: "Sanidi msaidizi wako",
+      "Ongeza bei, matoleo na stoku sahihi ili timu ijibu kwa uhakika.",
+    quickActionAssistant: "Kagua utayari wa msaidizi",
     quickActionAssistantBody:
-      "Chagua zana anazoweza kutumia na wakati wa kukupa mazungumzo.",
+      "Uendeshaji wa kiotomatiki umezimwa hadi njia ya Meta na ukaguzi wa usalama vikamilike.",
     viewCatalogue: "Tazama katalogi",
     configureAssistant: "Sanidi msaidizi",
     connectedChannel: "NJIA YA MAWASILIANO",
     catalogueStatus: "KATALOGI",
     noProductsYet: "Tayari kwa bidhaa yako ya kwanza",
     noProductsBody:
-      "Katalogi yako itaonekana hapa ikiunganishwa. Weka bei na stoku za sasa ili mapendekezo yawe sahihi.",
+      "Katalogi itaonekana baada ya bidhaa ya kwanza kuhifadhiwa. Sasisha bei, matoleo na stoku kwa majibu sahihi.",
     productsEmptyLabel: "Onyesho la katalogi",
     conversationEmptyLabel: "Kikasha chako",
     conversationEmptyTitle: "Kikasha tulivu kinaanzia hapa",
     conversationEmptyBody:
-      "Baada ya kuunganisha WhatsApp, ujumbe wa wateja na majibu ya msaidizi yataonekana hapa.",
+      "Baada ya kuunganisha WhatsApp, ujumbe wa wateja uliothibitishwa utaonekana hapa ili timu ikague na kujibu.",
     conversationEmptyHint: "Kikasha chako hakijaunganishwa kwa sasa.",
     setupTitle: "Usanidi makini kabla ya jibu la kwanza.",
     setupIntro:
-      "Unganisha njia ya mawasiliano na uchague mipaka ambayo msaidizi anapaswa kufuata.",
+      "Kagua muunganisho wa njia, hali ya msaidizi na mipaka ya usalama kabla ya onyesho la moja kwa moja.",
     setupChannelTitle: "WhatsApp Business",
     setupChannelBody:
       "Unganisha nambari ya majaribio ili kupokea maswali na kutuma majibu.",
@@ -412,20 +454,13 @@ export const messages = {
     recoveryAction:
       "Wasiliana na aliyekualika na uombe msimbo wa pamoja wa onyesho.",
     previewStrip: "Njia yenye umakini zaidi ya kumjali kila mteja",
-    featureGrounded: "Majibu yanayotegemea katalogi yako",
+    featureGrounded: "Taarifa za bidhaa kwenye katalogi moja",
     featureControl: "Timu yako inaendelea kuwa na udhibiti",
     featureBilingual: "Imeundwa kwa Kiingereza na Kiswahili",
     featureLabel: "Biashara yenye utulivu zaidi",
-    featureTitle:
-      "Majibu yenye msaada zaidi. Muda zaidi kwa kazi zinazohitaji wewe.",
+    featureTitle: "Chanzo cha kuaminika kwa kila mazungumzo ya bidhaa.",
     featureBody:
-      "Ipe timu yako mwanzo mzuri wa kujibu maswali ya bidhaa bila kupoteza uhusiano na mteja.",
-    previewTitle: "Mteja anauliza",
-    previewQuestion: "“Je, mnayo hii ya saizi ndogo?”",
-    previewReply:
-      "“Naweza kusaidia. Unatafuta mtindo gani? Nitakukagua saizi zilizopo.”",
-    previewReplyLabel: "Jibu la kwanza lenye msaada",
-    previewFootnote: "Mfano wa mazungumzo · si mteja halisi",
+      "Weka bidhaa, matoleo, bei na stoku pamoja, kisha peleka kila mazungumzo kwa mtu anayeweza kusaidia.",
     getStarted: "Chunguza onyesho la faragha",
     learnMore: "Jinsi inavyofanya kazi",
     footerTagline: "Biashara yenye umakini, mazungumzo moja baada ya jingine.",

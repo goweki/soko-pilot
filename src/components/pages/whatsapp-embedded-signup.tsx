@@ -66,7 +66,9 @@ export function WhatsAppEmbeddedSignup({
   const [authorizationCode, setAuthorizationCode] = useState<string | null>(
     null,
   );
-  const [signupSession, setSignupSession] = useState<SignupSession | null>(null);
+  const [signupSession, setSignupSession] = useState<SignupSession | null>(
+    null,
+  );
   const [state, setState] = useState<SignupUiState>({ status: "idle" });
   const processing = useRef(false);
 
@@ -169,18 +171,20 @@ export function WhatsAppEmbeddedSignup({
       wabaId: signupSession.wabaId,
       phoneNumberId: signupSession.phoneNumberId,
       registrationPin,
-    }).then((result) => {
-      setState(result);
-      setAuthorizationCode(null);
-      setSignupSession(null);
-      setRegistrationPin("");
-      if (result?.status === "success") router.refresh();
-    }).catch(() => {
-      setState({ status: "failed" });
-      setAuthorizationCode(null);
-      setSignupSession(null);
-      setRegistrationPin("");
-    });
+    })
+      .then((result) => {
+        setState(result);
+        setAuthorizationCode(null);
+        setSignupSession(null);
+        setRegistrationPin("");
+        if (result?.status === "success") router.refresh();
+      })
+      .catch(() => {
+        setState({ status: "failed" });
+        setAuthorizationCode(null);
+        setSignupSession(null);
+        setRegistrationPin("");
+      });
   }, [authorizationCode, locale, registrationPin, router, signupSession]);
 
   function startSignup() {
@@ -228,7 +232,10 @@ export function WhatsAppEmbeddedSignup({
 
       {config ? (
         <div className="mt-5 max-w-xl">
-          <label className="block text-sm font-medium" htmlFor="wa-registration-pin">
+          <label
+            className="block text-sm font-medium"
+            htmlFor="wa-registration-pin"
+          >
             {text.whatsappSignupPinLabel}
           </label>
           <input
@@ -239,7 +246,9 @@ export function WhatsAppEmbeddedSignup({
             maxLength={6}
             disabled={state.status === "loading"}
             onChange={(event) =>
-              setRegistrationPin(event.target.value.replace(/\D/g, "").slice(0, 6))
+              setRegistrationPin(
+                event.target.value.replace(/\D/g, "").slice(0, 6),
+              )
             }
             pattern="[0-9]{6}"
             type="password"
@@ -250,7 +259,11 @@ export function WhatsAppEmbeddedSignup({
           </p>
           <Button
             className="mt-4"
-            disabled={!sdkReady || registrationPin.length !== 6 || state?.status === "loading"}
+            disabled={
+              !sdkReady ||
+              registrationPin.length !== 6 ||
+              state?.status === "loading"
+            }
             onClick={startSignup}
             size="sm"
             type="button"
@@ -270,7 +283,9 @@ export function WhatsAppEmbeddedSignup({
 
       {connectedNumbers.length > 0 && (
         <div className="mt-5 max-w-2xl rounded-xl bg-muted/50 p-3">
-          <h3 className="text-xs font-semibold">{text.whatsappConnectedNumbers}</h3>
+          <h3 className="text-xs font-semibold">
+            {text.whatsappConnectedNumbers}
+          </h3>
           <ul className="mt-2 space-y-1.5">
             {connectedNumbers.map((number) => (
               <li
@@ -323,7 +338,10 @@ function getSignupMessage(
       success: true,
     };
   }
-  if (state.reason === "number-already-linked" || state.reason === "waba-already-linked") {
+  if (
+    state.reason === "number-already-linked" ||
+    state.reason === "waba-already-linked"
+  ) {
     return { text: text.whatsappSignupAlreadyLinked, success: false };
   }
   if (state.reason === "not-configured") {

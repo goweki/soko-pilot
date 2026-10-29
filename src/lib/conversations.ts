@@ -140,9 +140,8 @@ export async function listDemoConversations(): Promise<ConversationsReadResult> 
             ? conversation.automationPausedAt
             : null,
         optedOut: conversation.customer.optedOutAt !== null,
-        isPresentationFixture: conversation.customer.waId.startsWith(
-          "demo-presentation-",
-        ),
+        isPresentationFixture:
+          conversation.customer.waId.startsWith("demo-presentation-"),
         latestAssistantRun: conversation.assistantRuns[0]
           ? {
               provider: conversation.assistantRuns[0].provider,

@@ -6,6 +6,8 @@ import {
   demoDatabaseWritesEnabled,
 } from "@/lib/demo-tenant";
 
+const FAILED_HANDOFF_TIMEOUT_MS = 10 * 60 * 1000;
+
 export type DemoConversation = {
   id: string;
   customerName: string | null;
@@ -13,6 +15,7 @@ export type DemoConversation = {
   updatedAt: string;
   status: "open" | "handoff" | "closed";
   automationPaused: boolean;
+  handoffAt: string | null;
   optedOut: boolean;
   latestAssistantRun: {
     provider: string;
@@ -68,16 +71,73 @@ export async function listDemoConversations(): Promise<ConversationsReadResult> 
       .limit(100)
       .all();
 
+    const currentTime = Date.now();
+    const recoveredConversations = await Promise.all(
+      conversations.map(async (conversation) => {
+        const latestRun = conversation.assistantRuns[0];
+        const pauseMarkerMatchesLastMessage = Boolean(
+          conversation.automationPausedAt &&
+          conversation.lastMessageAt &&
+          conversation.automationPausedAt === conversation.lastMessageAt,
+        );
+        const lastMessageAge = conversation.lastMessageAt
+          ? currentTime - new Date(conversation.lastMessageAt).getTime()
+          : 0;
+        if (
+          !demoDatabaseWritesEnabled() ||
+          conversation.status !== "handoff" ||
+          !pauseMarkerMatchesLastMessage ||
+          latestRun?.status !== "failed" ||
+          lastMessageAge < FAILED_HANDOFF_TIMEOUT_MS
+        ) {
+          return conversation;
+        }
+
+        try {
+          const updated = await db.orm.public.Conversation.where({
+            id: conversation.id,
+            merchantId: merchant.id,
+            status: "handoff",
+            automationPausedAt: conversation.automationPausedAt,
+            lastMessageAt: conversation.lastMessageAt,
+          }).update({
+            status: "open",
+            automationPausedAt: null,
+          });
+          if (!updated) return conversation;
+          console.info("[conversations] Recovered stale assistant handoff.", {
+            conversationId: conversation.id,
+            failedRunId: latestRun.id,
+          });
+          return {
+            ...conversation,
+            status: "open" as const,
+            automationPausedAt: null,
+          };
+        } catch (error) {
+          console.error(
+            "[conversations] Could not recover stale assistant handoff.",
+            error instanceof Error ? error.name : "UnknownError",
+          );
+          return conversation;
+        }
+      }),
+    );
+
     return {
       ok: true,
       merchantName: merchant.businessName,
-      conversations: conversations.map((conversation) => ({
+      conversations: recoveredConversations.map((conversation) => ({
         id: conversation.id,
         customerName: conversation.customer.displayName,
         latestMessage: conversation.messages[0]?.body ?? null,
         updatedAt: conversation.updatedAt,
         status: conversation.status,
         automationPaused: conversation.automationPausedAt !== null,
+        handoffAt:
+          conversation.status === "handoff"
+            ? conversation.automationPausedAt
+            : null,
         optedOut: conversation.customer.optedOutAt !== null,
         latestAssistantRun: conversation.assistantRuns[0]
           ? {
@@ -137,6 +197,35 @@ export async function setDemoConversationHandoff(conversationId: string) {
   } catch (error) {
     console.error(
       "[conversations] Handoff update failed.",
+      error instanceof Error ? error.name : "UnknownError",
+    );
+    return { ok: false as const, error: "storage-unavailable" as const };
+  }
+}
+
+export async function resumeDemoConversationAutomation(conversationId: string) {
+  if (!process.env.DATABASE_URL?.trim()) {
+    return { ok: false as const, error: "database-not-configured" as const };
+  }
+  const demoMerchantId = getDemoMerchantId();
+  if (!demoDatabaseWritesEnabled()) {
+    return { ok: false as const, error: "writes-not-approved" as const };
+  }
+
+  try {
+    const updated = await db.orm.public.Conversation.where({
+      id: conversationId,
+      merchantId: demoMerchantId,
+      status: "handoff",
+    }).update({
+      status: "open",
+      automationPausedAt: null,
+    });
+    if (!updated) return { ok: false as const, error: "not-found" as const };
+    return { ok: true as const };
+  } catch (error) {
+    console.error(
+      "[conversations] Resume automation failed.",
       error instanceof Error ? error.name : "UnknownError",
     );
     return { ok: false as const, error: "storage-unavailable" as const };

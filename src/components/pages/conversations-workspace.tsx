@@ -34,13 +34,29 @@ function ConversationControl({
 
   return (
     <div className="flex flex-col items-start gap-2 sm:items-end">
-      {conversation.status === "open" && !conversation.optedOut && (
+      {(conversation.status === "open" ||
+        conversation.status === "handoff") && (
         <form action={action}>
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="conversationId" value={conversation.id} />
-          <input type="hidden" name="operation" value="handoff" />
-          <Button size="sm" disabled={pending}>
-            {pending ? text.saving : text.handoff}
+          <input
+            type="hidden"
+            name="operation"
+            value={conversation.status === "handoff" ? "resume" : "handoff"}
+          />
+          <Button
+            size="sm"
+            variant={conversation.status === "handoff" ? "outline" : "default"}
+            disabled={
+              pending ||
+              (conversation.status === "open" && conversation.optedOut)
+            }
+          >
+            {pending
+              ? text.saving
+              : conversation.status === "handoff"
+                ? text.resumeAutomation
+                : text.handoff}
           </Button>
         </form>
       )}
@@ -216,6 +232,18 @@ export function ConversationsWorkspace({
                         </span>
                       )}
                     </div>
+                    {conversation.status === "handoff" &&
+                      conversation.handoffAt && (
+                        <p className="mt-1.5 text-xs text-amber-800 dark:text-amber-200">
+                          {text.handoffSince}{" "}
+                          <time dateTime={conversation.handoffAt}>
+                            {new Intl.DateTimeFormat(locale, {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            }).format(new Date(conversation.handoffAt))}
+                          </time>
+                        </p>
+                      )}
                     <p className="mt-2 text-sm text-muted-foreground">
                       <span className="font-medium text-foreground">
                         {text.latestMessage}:{" "}

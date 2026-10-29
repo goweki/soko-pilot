@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { hasDemoAccess } from "@/lib/demo-gate";
 import { isLocale, type Locale } from "@/lib/i18n";
-import { setDemoConversationHandoff } from "@/lib/conversations";
+import {
+  resumeDemoConversationAutomation,
+  setDemoConversationHandoff,
+} from "@/lib/conversations";
 
 export type ConversationActionState =
   | { status: "success" }
@@ -32,7 +35,7 @@ export async function updateConversationHandoff(
     !isLocale(localeValue) ||
     typeof conversationId !== "string" ||
     !/^[a-zA-Z0-9_-]{1,128}$/.test(conversationId) ||
-    operationValue !== "handoff"
+    (operationValue !== "handoff" && operationValue !== "resume")
   ) {
     return { status: "error", reason: "invalid-input" };
   }
@@ -41,7 +44,10 @@ export async function updateConversationHandoff(
     return { status: "error", reason: "not-authorized" };
   }
 
-  const result = await setDemoConversationHandoff(conversationId);
+  const result =
+    operationValue === "handoff"
+      ? await setDemoConversationHandoff(conversationId)
+      : await resumeDemoConversationAutomation(conversationId);
   if (!result.ok) return { status: "error", reason: result.error };
   revalidatePath(`/${locale}/dashboard/conversations`);
   revalidatePath(`/${locale}/dashboard`);

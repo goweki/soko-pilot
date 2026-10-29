@@ -182,6 +182,21 @@ export const messages = {
       "The catalogue lookup is unavailable. Check the database and catalogue search configuration.",
     assistantTestFailed:
       "The assistant preview could not complete. Check the model configuration and try again.",
+    assistantTestErrorTitle: "The test could not finish",
+    assistantTestOutputLimit:
+      "The model used its reply limit before finishing. Try a shorter customer message or a simpler question. If this keeps happening, ask the demo administrator to increase the model output limit.",
+    assistantTestModelUnavailable:
+      "The model service timed out or is temporarily unavailable. Wait a moment and try again. If it continues, ask the demo administrator to check provider status and the server logs.",
+    assistantTestCredentialsRejected:
+      "The model provider rejected its credentials or model setting. Ask the demo administrator to verify META_MODEL_API_KEY and META_MODEL_NAME.",
+    assistantTestRateLimited:
+      "The model provider is limiting requests or has reached its usage quota. Wait and try again; if it continues, ask the demo administrator to check the provider quota.",
+    assistantTestInvalidModelResponse:
+      "The model provider returned a response this app could not use. Retry once. If it keeps happening, ask the demo administrator to verify that the selected model supports chat completions and tool calls.",
+    assistantTestToolIssue:
+      "The model could not complete a catalogue or handoff step. Try a simpler customer question. If it continues, ask the demo administrator to check the assistant tool configuration and server logs.",
+    assistantTestUnexpected:
+      "The preview stopped unexpectedly. Try again. If it happens again, ask the demo administrator to check the server logs for this time.",
     privacyDescription:
       "Your customers' conversations should be handled with care. SokoPilot is designed to use conversation and catalogue data only to support the merchant's customer service.",
     recoveryDescription:
@@ -436,6 +451,21 @@ export const messages = {
       "Utafutaji wa katalogi haupatikani. Kagua hifadhidata na usanidi wa utafutaji wa katalogi.",
     assistantTestFailed:
       "Jaribio la msaidizi halikukamilika. Kagua usanidi wa modeli kisha ujaribu tena.",
+    assistantTestErrorTitle: "Jaribio halikukamilika",
+    assistantTestOutputLimit:
+      "Modeli ilifikia kikomo cha jibu kabla ya kumaliza. Jaribu ujumbe mfupi au swali rahisi zaidi. Ikiendelea, mwombe msimamizi wa onyesho aongeze kikomo cha matokeo ya modeli.",
+    assistantTestModelUnavailable:
+      "Huduma ya modeli imechelewa au haipatikani kwa sasa. Subiri kidogo kisha ujaribu tena. Ikiendelea, mwombe msimamizi wa onyesho akague hali ya huduma na kumbukumbu za seva.",
+    assistantTestCredentialsRejected:
+      "Mtoa huduma wa modeli amekataa taarifa za kuingia au usanidi wa modeli. Mwombe msimamizi wa onyesho athibitishe META_MODEL_API_KEY na META_MODEL_NAME.",
+    assistantTestRateLimited:
+      "Mtoa huduma wa modeli anapunguza maombi au kikomo cha matumizi kimefikiwa. Subiri kisha ujaribu tena; ikiendelea, mwombe msimamizi akague kikomo cha matumizi.",
+    assistantTestInvalidModelResponse:
+      "Mtoa huduma wa modeli ametoa jibu ambalo programu haiwezi kutumia. Jaribu tena. Ikiendelea, mwombe msimamizi athibitishe kuwa modeli iliyochaguliwa inasaidia chat completions na tool calls.",
+    assistantTestToolIssue:
+      "Modeli haikuweza kukamilisha hatua ya kutafuta katalogi au kukabidhi mazungumzo. Jaribu swali rahisi zaidi. Ikiendelea, mwombe msimamizi akague zana za msaidizi na kumbukumbu za seva.",
+    assistantTestUnexpected:
+      "Jaribio limesimama bila kutarajiwa. Jaribu tena. Likitokea tena, mwombe msimamizi akague kumbukumbu za seva za wakati huu.",
     privacyDescription:
       "Mazungumzo ya wateja wako yanapaswa kushughulikiwa kwa uangalifu. SokoPilot imeundwa kutumia data ya mazungumzo na katalogi kusaidia huduma kwa wateja pekee.",
     recoveryDescription:

@@ -14,7 +14,7 @@ const MODEL_PROVIDER = "meta";
 const MAX_TOOL_ROUNDS = 2;
 const MAX_CONTEXT_MESSAGES = 16;
 const MAX_REPLY_LENGTH = 4096;
-const MAX_COMPLETION_TOKENS = 600;
+const MAX_COMPLETION_TOKENS = 1200;
 
 class AssistantFailure extends Error {
   constructor(
@@ -282,8 +282,36 @@ export type AssistantPreviewResult =
         | "assistant-not-seeded"
         | "model-not-configured"
         | "catalogue-unavailable"
+        | "response-too-long"
+        | "model-unavailable"
+        | "model-credentials-rejected"
+        | "model-rate-limited"
+        | "model-invalid-response"
+        | "assistant-tool-issue"
         | "preview-failed";
     };
+
+type PreviewFailure = Extract<AssistantPreviewResult, { ok: false }>["error"];
+
+function classifyPreviewFailure(error: unknown): PreviewFailure {
+  if (!(error instanceof AssistantFailure)) return "preview-failed";
+  if (error.code === "MODEL_REQUEST_FAILED") {
+    return "model-unavailable";
+  }
+  if (error.code === "MODEL_HTTP_401" || error.code === "MODEL_HTTP_403") {
+    return "model-credentials-rejected";
+  }
+  if (error.code === "MODEL_HTTP_429") return "model-rate-limited";
+  if (/^MODEL_HTTP_5\d\d$/.test(error.code)) return "model-unavailable";
+  if (error.code.startsWith("MODEL_HTTP_")) return "model-invalid-response";
+  if (
+    error.code === "MODEL_INVALID_RESPONSE" ||
+    error.code === "MODEL_ID_MISMATCH"
+  ) {
+    return "model-invalid-response";
+  }
+  return "preview-failed";
+}
 
 /** Runs a private prompt preview without creating conversation/run records or sending WhatsApp messages. */
 export async function previewMetaAssistantReply(
@@ -298,7 +326,15 @@ export async function previewMetaAssistantReply(
       code,
       ...details,
     });
-    return { ok: false, error: "preview-failed" };
+    const error: PreviewFailure =
+      code === "MODEL_REPLY_INVALID_LENGTH" ||
+      (code === "MODEL_EMPTY_OR_INCOMPLETE_REPLY" &&
+        details?.finishReason === "length")
+        ? "response-too-long"
+        : code.includes("TOOL") || code.includes("CATALOGUE_TOOL")
+          ? "assistant-tool-issue"
+          : "model-invalid-response";
+    return { ok: false, error };
   };
 
   if (!process.env.DATABASE_URL?.trim()) {
@@ -329,9 +365,10 @@ export async function previewMetaAssistantReply(
       shopInstructionsOverride ?? assistant.systemInstructions,
     );
     const availableTools = makeTools();
+    let retriedForOutputLimit = false;
 
     for (let round = 0; round <= MAX_TOOL_ROUNDS; round += 1) {
-      const completion = await requestCompletion(
+      let completion = await requestCompletion(
         configuredModel.endpoint,
         configuredModel.apiKey,
         configuredModel.model,
@@ -339,11 +376,34 @@ export async function previewMetaAssistantReply(
         availableTools,
       );
 
+      if (completion.finishReason === "length" && !retriedForOutputLimit) {
+        retriedForOutputLimit = true;
+        console.warn("[meta-assistant] Retrying truncated prompt preview.", {
+          round,
+        });
+        if (completion.content?.trim() && !completion.toolCalls.length) {
+          messages.push({ role: "assistant", content: completion.content });
+        }
+        messages.push({
+          role: "developer",
+          content:
+            "Your previous preview response reached its output limit. Continue with a concise answer of at most two short sentences, following all catalogue accuracy and handoff rules. Use a tool only if it is needed to obey those rules.",
+        });
+        completion = await requestCompletion(
+          configuredModel.endpoint,
+          configuredModel.apiKey,
+          configuredModel.model,
+          messages,
+          availableTools,
+        );
+      }
+
       if (!completion.toolCalls.length) {
         if (completion.finishReason !== "stop" || !completion.content?.trim()) {
           return failPreview("MODEL_EMPTY_OR_INCOMPLETE_REPLY", {
             finishReason: completion.finishReason,
             hasContent: Boolean(completion.content?.trim()),
+            retriedForOutputLimit,
           });
         }
         const reply = completion.content.trim();
@@ -430,7 +490,7 @@ export async function previewMetaAssistantReply(
           ? { name: error.name, message: safeDiagnostic(error.message) }
           : { name: "UnknownError" },
     );
-    return { ok: false, error: "preview-failed" };
+    return { ok: false, error: classifyPreviewFailure(error) };
   }
 }
 

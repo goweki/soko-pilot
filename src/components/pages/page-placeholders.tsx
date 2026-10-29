@@ -1288,9 +1288,17 @@ export function SettingsClient({
           </div>
         )}
         {previewState?.status === "error" && (
-          <p className="mt-4 max-w-3xl text-sm text-destructive" role="alert">
-            {getAssistantPreviewMessage(previewState, locale)}
-          </p>
+          <div
+            className="mt-5 max-w-3xl rounded-xl border border-destructive/20 bg-destructive/5 p-4"
+            role="alert"
+          >
+            <p className="text-sm font-semibold text-destructive">
+              {getAssistantPreviewMessage(previewState, locale).title}
+            </p>
+            <p className="mt-1.5 text-sm leading-6 text-foreground/80">
+              {getAssistantPreviewMessage(previewState, locale).description}
+            </p>
+          </div>
         )}
       </section>
       <section className="mt-5 rounded-2xl border border-border/70 bg-card/70 p-5">
@@ -1363,22 +1371,41 @@ function getAssistantPreviewMessage(
   locale: Locale,
 ) {
   const text = messages[locale];
-  switch (state.reason) {
-    case "invalid-input":
-      return text.invalidAssistantTestMessage;
-    case "not-authorized":
-      return text.demoAccessExpired;
-    case "database-not-configured":
-      return text.databaseNotConfigured;
-    case "assistant-not-seeded":
-      return text.demoDataNotSeeded;
-    case "model-not-configured":
-      return text.modelPathUnavailable;
-    case "catalogue-unavailable":
-      return text.assistantTestCatalogueUnavailable;
-    case "preview-failed":
-      return text.assistantTestFailed;
-  }
+  const description = (() => {
+    switch (state.reason) {
+      case "invalid-input":
+        return text.invalidAssistantTestMessage;
+      case "not-authorized":
+        return text.demoAccessExpired;
+      case "database-not-configured":
+        return text.databaseNotConfigured;
+      case "assistant-not-seeded":
+        return text.demoDataNotSeeded;
+      case "model-not-configured":
+        return text.modelPathUnavailable;
+      case "catalogue-unavailable":
+        return text.assistantTestCatalogueUnavailable;
+      case "response-too-long":
+        return text.assistantTestOutputLimit;
+      case "model-unavailable":
+        return text.assistantTestModelUnavailable;
+      case "model-credentials-rejected":
+        return text.assistantTestCredentialsRejected;
+      case "model-rate-limited":
+        return text.assistantTestRateLimited;
+      case "model-invalid-response":
+        return text.assistantTestInvalidModelResponse;
+      case "assistant-tool-issue":
+        return text.assistantTestToolIssue;
+      case "preview-failed":
+        return text.assistantTestUnexpected;
+    }
+  })();
+
+  return {
+    title: text.assistantTestErrorTitle,
+    description,
+  };
 }
 
 export function PrivacyClient({ locale }: { locale: Locale }) {

@@ -40,6 +40,12 @@ export type AssistantPreviewState =
         | "assistant-not-seeded"
         | "model-not-configured"
         | "catalogue-unavailable"
+        | "response-too-long"
+        | "model-unavailable"
+        | "model-credentials-rejected"
+        | "model-rate-limited"
+        | "model-invalid-response"
+        | "assistant-tool-issue"
         | "preview-failed";
     }
   | null;

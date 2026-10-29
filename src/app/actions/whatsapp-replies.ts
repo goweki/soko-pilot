@@ -14,6 +14,12 @@ export type WhatsAppReplyState =
   | { status: "success" }
   | {
       status: "error";
+      reason: "provider-failed";
+      providerCode?: string;
+      providerMessage?: string;
+    }
+  | {
+      status: "error";
       reason:
         | "invalid-input"
         | "not-authorized"
@@ -22,13 +28,58 @@ export type WhatsAppReplyState =
         | "not-found"
         | "not-handed-off"
         | "customer-opted-out"
-        | "provider-failed"
         | "persist-failed";
     }
   | null;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function safeProviderText(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  return value
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/\b(?:sk|key|token)[-_][A-Za-z0-9_-]{12,}\b/gi, "[redacted]")
+    .slice(0, 500);
+}
+
+type MetaSendError = {
+  providerCode?: string;
+  providerSubcode?: string;
+  providerType?: string;
+  providerTitle?: string;
+  providerMessage?: string;
+  traceId?: string;
+};
+
+async function readMetaSendError(response: Response): Promise<MetaSendError> {
+  try {
+    const payload: unknown = await response.json();
+    const error =
+      isRecord(payload) && isRecord(payload.error) ? payload.error : null;
+    if (!error) return {};
+    const rawCode = error.code;
+    return {
+      providerCode:
+        typeof rawCode === "string" || typeof rawCode === "number"
+          ? String(rawCode).slice(0, 40)
+          : undefined,
+      providerSubcode:
+        typeof error.error_subcode === "string" ||
+        typeof error.error_subcode === "number"
+          ? String(error.error_subcode).slice(0, 40)
+          : undefined,
+      providerType: safeProviderText(error.type),
+      providerTitle: safeProviderText(error.error_user_title),
+      providerMessage:
+        safeProviderText(error.error_user_msg) ??
+        safeProviderText(error.message),
+      traceId: safeProviderText(error.fbtrace_id),
+    };
+  } catch {
+    return {};
+  }
 }
 
 export async function sendWhatsAppManualReply(
@@ -127,8 +178,18 @@ export async function sendWhatsAppManualReply(
       },
     );
     if (!response.ok) {
-      console.error("[whatsapp-reply] Meta send failed.", response.status);
-      return { status: "error", reason: "provider-failed" };
+      const providerError = await readMetaSendError(response);
+      console.error("[whatsapp-reply] Meta send failed.", {
+        httpStatus: response.status,
+        ...providerError,
+      });
+      return {
+        status: "error",
+        reason: "provider-failed",
+        providerCode: providerError.providerCode,
+        providerMessage:
+          providerError.providerMessage ?? providerError.providerTitle,
+      };
     }
     const payload: unknown = await response.json();
     const messages = isRecord(payload) ? payload.messages : null;

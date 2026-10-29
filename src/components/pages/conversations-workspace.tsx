@@ -129,7 +129,17 @@ function getReplyFeedback(state: WhatsAppReplyState, locale: Locale) {
   if (state.reason === "not-found") return text.conversationNotFound;
   if (state.reason === "not-handed-off") return text.replyRequiresHandoff;
   if (state.reason === "customer-opted-out") return text.customerOptedOut;
-  if (state.reason === "provider-failed") return text.whatsappProviderFailed;
+  if (state.reason === "provider-failed") {
+    const providerDetails = [
+      state.providerCode ? `Meta ${state.providerCode}` : null,
+      state.providerMessage,
+    ]
+      .filter(Boolean)
+      .join(": ");
+    return providerDetails
+      ? `${text.whatsappProviderFailed} ${providerDetails}`
+      : text.whatsappProviderFailed;
+  }
   if (state.reason === "persist-failed") return text.whatsappSentNotSaved;
   return text.invalidConversationAction;
 }

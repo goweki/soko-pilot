@@ -224,17 +224,18 @@ export function ConversationsWorkspace({
                       <h3 className="font-semibold">
                         {conversation.customerName ?? text.customer}
                       </h3>
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs ${
-                          conversation.automationPaused
-                            ? "bg-amber-500/10 text-amber-800 dark:text-amber-200"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {conversation.automationPaused
-                          ? text.handoffActive
-                          : text.assistantUnavailable}
+                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                        {conversation.status === "handoff"
+                          ? text.conversationHandoff
+                          : conversation.status === "closed"
+                            ? text.conversationClosed
+                            : text.conversationOpen}
                       </span>
+                      {conversation.automationPaused && (
+                        <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs text-amber-800 dark:text-amber-200">
+                          {text.handoffActive}
+                        </span>
+                      )}
                       {conversation.optedOut && (
                         <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs text-destructive">
                           {text.customerOptedOut}
@@ -320,8 +321,14 @@ export function ConversationsWorkspace({
                     ))}
                   </ol>
                 )}
+                {conversation.isPresentationFixture && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {text.presentationFixtureNote}
+                  </p>
+                )}
                 {conversation.status === "handoff" &&
-                  !conversation.optedOut && (
+                  !conversation.optedOut &&
+                  !conversation.isPresentationFixture && (
                     <div className="w-full">
                       <ManualReplyForm
                         conversation={conversation}

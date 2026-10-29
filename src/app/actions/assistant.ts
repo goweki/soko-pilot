@@ -125,13 +125,18 @@ export async function setAssistantAutomation(
       return { status: "error", reason: "assistant-not-seeded" };
     }
     if (operation === "enable") {
-      const connection = await db.orm.public.WhatsAppConnection.first({
+      const connections = await db.orm.public.WhatsAppConnection.where({
         merchantId: demoMerchantId,
         status: "connected",
-      });
+      }).all();
+      const hasActiveConnection = connections.some(
+        (connection) =>
+          !connection.tokenExpiresAt ||
+          Date.parse(connection.tokenExpiresAt) > Date.now(),
+      );
       const graphVersion = process.env.META_GRAPH_API_VERSION?.trim() ?? "";
       if (
-        !connection ||
+        !hasActiveConnection ||
         !/^v\d+\.\d+$/.test(graphVersion) ||
         !process.env.WHATSAPP_TOKEN_ENCRYPTION_KEY?.trim() ||
         !process.env.META_APP_SECRET?.trim() ||

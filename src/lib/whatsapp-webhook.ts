@@ -256,15 +256,14 @@ async function persistMessage(
     const automationBlockers: string[] = [];
     if (message.type !== "text") automationBlockers.push("not-text-message");
     if (!message.body?.trim()) automationBlockers.push("empty-message");
+    if (
+      connection.tokenExpiresAt &&
+      Date.parse(connection.tokenExpiresAt) <= Date.now()
+    ) {
+      automationBlockers.push("whatsapp-token-expired");
+    }
     if (customerOptedOut || customer.optedOutAt) {
       automationBlockers.push("customer-opted-out");
-    }
-    const assistantPhoneNumberId =
-      process.env.META_PHONE_NUMBER_ID?.trim() ?? "";
-    if (!assistantPhoneNumberId) {
-      automationBlockers.push("assistant-phone-number-not-configured");
-    } else if (phoneNumberId !== assistantPhoneNumberId) {
-      automationBlockers.push("not-assistant-phone-number");
     }
     const merchantHasTakenOver = Boolean(
       existingConversation?.status === "handoff" &&

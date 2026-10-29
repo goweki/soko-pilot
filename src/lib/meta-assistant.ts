@@ -715,13 +715,11 @@ export async function processMetaAssistantReply(
   if (conversation.whatsappConnection.status !== "connected") {
     configBlockers.push("whatsapp-connection-not-connected");
   }
-  const assistantPhoneNumberId = process.env.META_PHONE_NUMBER_ID?.trim() ?? "";
-  if (!assistantPhoneNumberId) {
-    configBlockers.push("assistant-phone-number-not-configured");
-  } else if (
-    conversation.whatsappConnection.phoneNumberId !== assistantPhoneNumberId
+  if (
+    conversation.whatsappConnection.tokenExpiresAt &&
+    Date.parse(conversation.whatsappConnection.tokenExpiresAt) <= Date.now()
   ) {
-    configBlockers.push("not-assistant-phone-number");
+    configBlockers.push("whatsapp-token-expired");
   }
   if (configBlockers.length > 0) {
     console.info("[meta-assistant] Reply skipped: assistant is not ready.", {

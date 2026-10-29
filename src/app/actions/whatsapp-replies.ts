@@ -143,6 +143,12 @@ export async function sendWhatsAppManualReply(
   if (conversation.whatsappConnection.status !== "connected") {
     return { status: "error", reason: "not-configured" };
   }
+  if (
+    conversation.whatsappConnection.tokenExpiresAt &&
+    Date.parse(conversation.whatsappConnection.tokenExpiresAt) <= Date.now()
+  ) {
+    return { status: "error", reason: "not-configured" };
+  }
 
   let accessToken: string;
   try {

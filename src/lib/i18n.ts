@@ -95,6 +95,11 @@ export const messages = {
     resumeAutomation: "Resume assistant",
     handoffActive: "Merchant has control",
     handoffSince: "Handoff since",
+    conversationOpen: "Open",
+    conversationHandoff: "Handoff",
+    conversationClosed: "Closed",
+    presentationFixtureNote:
+      "Synthetic presentation conversation. Replies here are not sent to WhatsApp.",
     assistantResumed: "Assistant resumed for future customer messages.",
     merchantHandoffStarted: "Assistant paused. You are now in control.",
     assistantActive: "Assistant active",
@@ -148,6 +153,28 @@ export const messages = {
     replySent: "Reply sent and saved to the conversation.",
     whatsappReplyNotConfigured:
       "WhatsApp sending is not ready. Check the connected test number, Graph API version, token encryption key, and database.",
+    whatsappSignupTitle: "Connect your WhatsApp Business number",
+    whatsappSignupDescription:
+      "Optionally use Meta’s secure Embedded Signup to create or select a business account, share its WhatsApp Business Account, and verify a phone number for this workspace.",
+    whatsappSignupSharedWorkspaceNote:
+      "This demo uses a shared workspace. Only connect a number you control; anyone with demo access can manage connected workspace numbers and conversations.",
+    whatsappSignupPinLabel: "WhatsApp two-step verification PIN",
+    whatsappSignupPinHint:
+      "Enter the number’s existing six-digit Cloud API PIN, or choose one if Meta asks you to set it. This is not the SMS verification code. It is sent to Meta once and never stored by SokoPilot; keep it somewhere safe.",
+    whatsappSignupButton: "Continue with Facebook",
+    whatsappSignupSdkLoading: "Loading Facebook…",
+    whatsappSignupLoading: "Connecting number…",
+    whatsappSignupNotConfigured:
+      "Optional signup is not enabled for this deployment. An administrator must configure the Meta App ID, Graph API version, and Embedded Signup configuration ID first.",
+    whatsappSignupCancelled: "Facebook signup was cancelled. No number was connected.",
+    whatsappSignupFailed:
+      "The number could not be connected. Check the Meta app configuration and server logs, then try again.",
+    whatsappSignupAlreadyLinked:
+      "That WhatsApp account or number is already linked to a workspace.",
+    whatsappSignupSuccess: "WhatsApp number connected:",
+    whatsappConnectedNumbers: "Connected WhatsApp numbers",
+    whatsappConnectedNumber: "Connected number",
+    whatsappConnectionReconnectRequired: "Reconnect required",
     whatsappProviderFailed:
       "WhatsApp did not confirm the reply. Check provider status before trying again.",
     whatsappSentNotSaved:
@@ -369,6 +396,11 @@ export const messages = {
     resumeAutomation: "Washa msaidizi tena",
     handoffActive: "Mfanyabiashara ana udhibiti",
     handoffSince: "Makabidhiano tangu",
+    conversationOpen: "Wazi",
+    conversationHandoff: "Makabidhiano",
+    conversationClosed: "Yamefungwa",
+    presentationFixtureNote:
+      "Mazungumzo ya mfano. Majibu hapa hayatatumwa kupitia WhatsApp.",
     assistantResumed: "Msaidizi ameanzishwa tena kwa ujumbe ujao wa wateja.",
     merchantHandoffStarted: "Msaidizi amesimamishwa. Sasa una udhibiti.",
     assistantActive: "Msaidizi anafanya kazi",
@@ -422,6 +454,28 @@ export const messages = {
     replySent: "Jibu limetumwa na kuhifadhiwa kwenye mazungumzo.",
     whatsappReplyNotConfigured:
       "Utumaji wa WhatsApp hauko tayari. Kagua nambari ya majaribio, toleo la Graph API, ufunguo wa usimbaji wa tokeni na hifadhidata.",
+    whatsappSignupTitle: "Unganisha nambari yako ya WhatsApp Business",
+    whatsappSignupDescription:
+      "Kwa hiari, tumia Embedded Signup salama ya Meta kuunda au kuchagua akaunti ya biashara, kushiriki akaunti ya WhatsApp Business, na kuthibitisha nambari ya simu kwa eneo hili la kazi.",
+    whatsappSignupSharedWorkspaceNote:
+      "Onyesho hili linatumia eneo la kazi la pamoja. Unganisha nambari unayomiliki pekee; kila mtu mwenye ufikiaji wa onyesho anaweza kusimamia nambari na mazungumzo yaliyounganishwa.",
+    whatsappSignupPinLabel: "PIN ya uthibitishaji wa hatua mbili ya WhatsApp",
+    whatsappSignupPinHint:
+      "Weka PIN ya tarakimu sita ya Cloud API iliyopo, au chagua moja Meta ikikuomba. Hii si nambari ya SMS. Itatumwa kwa Meta mara moja na SokoPilot haitaihifadhi; ihifadhi mahali salama.",
+    whatsappSignupButton: "Endelea na Facebook",
+    whatsappSignupSdkLoading: "Inapakia Facebook…",
+    whatsappSignupLoading: "Inaunganisha nambari…",
+    whatsappSignupNotConfigured:
+      "Usajili huu wa hiari haujawashwa kwa uwekaji huu. Msimamizi lazima aweke Meta App ID, toleo la Graph API na Embedded Signup configuration ID.",
+    whatsappSignupCancelled: "Usajili wa Facebook umeghairiwa. Hakuna nambari iliyounganishwa.",
+    whatsappSignupFailed:
+      "Nambari haikuweza kuunganishwa. Kagua mipangilio ya Meta app na kumbukumbu za seva kisha ujaribu tena.",
+    whatsappSignupAlreadyLinked:
+      "Akaunti au nambari hiyo ya WhatsApp tayari imeunganishwa na eneo la kazi.",
+    whatsappSignupSuccess: "Nambari ya WhatsApp imeunganishwa:",
+    whatsappConnectedNumbers: "Nambari za WhatsApp zilizounganishwa",
+    whatsappConnectedNumber: "Nambari iliyounganishwa",
+    whatsappConnectionReconnectRequired: "Unganisha tena",
     whatsappProviderFailed:
       "WhatsApp haijathibitisha jibu. Kagua hali ya mtoa huduma kabla ya kujaribu tena.",
     whatsappSentNotSaved:

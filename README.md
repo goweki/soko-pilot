@@ -90,7 +90,7 @@ WhatsApp is optional for exploring database-backed catalogue features. For the l
 - `META_GRAPH_API_VERSION` (a supported `vNN.N` value)
 - `SOKOPILOT_DEMO_DB_WRITE_APPROVED=YES`
 
-The AI assistant only responds to webhook messages whose `phone_number_id` matches `META_PHONE_NUMBER_ID`. Other subscribed numbers may still be received and recorded, but they will not invoke this assistant; route those numbers to their own handler if they need different automated replies.
+Only phone numbers saved as connected `WhatsAppConnection` records for this merchant can invoke the assistant. Other subscribed numbers are ignored because they have no workspace connection record. The environment-based connector below remains available for a fixed demo number.
 
 Set the Meta webhook callback to `https://YOUR_HOST/api/webhooks/whatsapp` and subscribe to WhatsApp message events. After verifying the selected database and environment, connect the test number:
 
@@ -99,6 +99,21 @@ npm run db:connect-demo-whatsapp
 ```
 
 This setup stores the WhatsApp token encrypted in the database. Once the deployment's Settings page reports both integrations ready, enable the assistant there. Inbound message IDs are deduplicated. Opt-outs and conversations already under merchant control are not sent to the model. If the model or WhatsApp send fails, the inbound message remains saved and the conversation stays in handoff.
+
+### Optional Facebook SDK onboarding
+
+Settings can also offer Meta's WhatsApp Embedded Signup so a merchant can create or select a Business Portfolio/WABA, share it with this app, and verify a phone number without manually copying IDs or tokens. To enable the optional flow, configure:
+
+- `META_APP_ID`, `META_APP_SECRET`, and `META_GRAPH_API_VERSION`
+- `META_EMBEDDED_SIGNUP_CONFIG_ID` for a Facebook Login for Business WhatsApp Embedded Signup v4 configuration
+- `META_WEBHOOK_VERIFY_TOKEN` and `WHATSAPP_TOKEN_ENCRYPTION_KEY`
+- `SOKOPILOT_DEMO_DB_WRITE_APPROVED=YES`
+
+The Meta app must have WhatsApp Embedded Signup configured, the deployment domain allowed for the Facebook JavaScript SDK, and its WhatsApp webhook subscriptions configured. Production onboarding also depends on Meta's app/business verification and access approvals. Use HTTPS. Embedded Signup returns an authorization code to the browser; the server exchanges it, verifies the selected phone belongs to the shared WABA, registers it, subscribes that WABA to app webhooks, then stores the access token encrypted. Token values and the six-digit registration PIN are never sent back to the browser or logged.
+
+The number's six-digit Cloud API two-step-verification PIN is entered for registration and is not stored by SokoPilot. The exchanged token's expiration is recorded when Meta supplies it; reconnect with Embedded Signup if it expires. A shared demo workspace is not per-merchant isolation: only connect a number controlled by the demo operator, because everyone with demo access can manage that workspace's conversations.
+
+Connected numbers saved for the merchant are eligible for this assistant. Any Meta webhook number that is not explicitly connected to the merchant in the database remains ignored.
 
 ## Deploy on Vercel
 

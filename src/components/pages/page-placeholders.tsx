@@ -39,6 +39,10 @@ import type { DemoAssistantConfig } from "@/lib/assistant-config";
 import type { CatalogueReadResult } from "@/lib/catalogue";
 import { getPrivacyPolicyContent } from "@/lib/privacy-policy-content";
 import { Navbar } from "../ui/navbar";
+import {
+  WhatsAppEmbeddedSignup,
+  type EmbeddedSignupClientConfig,
+} from "./whatsapp-embedded-signup";
 
 export type DashboardSection =
   "dashboard" | "conversations" | "products" | "settings";
@@ -982,10 +986,12 @@ export function SettingsClient({
   locale,
   readiness,
   assistantConfig,
+  embeddedSignupConfig,
 }: {
   locale: Locale;
   readiness: DemoReadiness;
   assistantConfig: DemoAssistantConfig;
+  embeddedSignupConfig: EmbeddedSignupClientConfig | null;
 }) {
   const text = messages[locale];
   const [assistantActionState, assistantAction, assistantPending] =
@@ -1084,6 +1090,11 @@ export function SettingsClient({
           </article>
         ))}
       </section>
+      <WhatsAppEmbeddedSignup
+        locale={locale}
+        config={embeddedSignupConfig}
+        connectedNumbers={readiness.connectedWhatsAppNumbers}
+      />
       <section className="mt-5 rounded-2xl border border-border/70 bg-card/70 p-5">
         <h2 className="text-sm font-semibold">{text.assistantConfiguration}</h2>
         {assistantConfig.ok ? (

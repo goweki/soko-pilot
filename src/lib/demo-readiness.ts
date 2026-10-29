@@ -8,6 +8,11 @@ import { isMetaModelConfigured } from "@/lib/meta-model-protocol";
 export type DemoReadiness = {
   database: boolean;
   whatsapp: boolean;
+  connectedWhatsAppNumbers: {
+    displayPhoneNumber: string | null;
+    businessProfileName: string | null;
+    needsReconnect: boolean;
+  }[];
   metaModel: boolean;
   demoGate: boolean;
 };
@@ -15,6 +20,7 @@ export type DemoReadiness = {
 export async function getDemoReadiness(): Promise<DemoReadiness> {
   let database = false;
   let whatsapp = false;
+  let connectedWhatsAppNumbers: DemoReadiness["connectedWhatsAppNumbers"] = [];
   const demoMerchantId = getDemoMerchantId();
   if (process.env.DATABASE_URL?.trim()) {
     try {
@@ -23,12 +29,24 @@ export async function getDemoReadiness(): Promise<DemoReadiness> {
       });
       database = Boolean(merchant);
       if (merchant) {
-        const connection = await db.orm.public.WhatsAppConnection.first({
+        const connections = await db.orm.public.WhatsAppConnection.where({
           merchantId: merchant.id,
           status: "connected",
-        });
+        }).all();
+        connectedWhatsAppNumbers = connections.map((connection) => ({
+          displayPhoneNumber: connection.displayPhoneNumber,
+          businessProfileName: connection.businessProfileName,
+          needsReconnect: Boolean(
+            connection.tokenExpiresAt &&
+              Date.parse(connection.tokenExpiresAt) <= Date.now(),
+          ),
+        }));
         whatsapp = Boolean(
-          connection &&
+          connections.some(
+            (connection) =>
+              !connection.tokenExpiresAt ||
+              Date.parse(connection.tokenExpiresAt) > Date.now(),
+          ) &&
           process.env.META_APP_SECRET?.trim() &&
           process.env.META_WEBHOOK_VERIFY_TOKEN?.trim() &&
           process.env.WHATSAPP_TOKEN_ENCRYPTION_KEY?.trim() &&
@@ -46,6 +64,7 @@ export async function getDemoReadiness(): Promise<DemoReadiness> {
   return {
     database,
     whatsapp,
+    connectedWhatsAppNumbers,
     metaModel: isMetaModelConfigured({
       url: process.env.META_MODEL_API_URL,
       model: process.env.META_MODEL_NAME,

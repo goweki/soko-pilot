@@ -25,11 +25,19 @@ async function ProtectedSettings({ params }: {
 
   const readiness = await getDemoReadiness();
   const assistantConfig = await getDemoAssistantConfig();
+  const appId = process.env.META_APP_ID?.trim() ?? "";
+  const configId = process.env.META_EMBEDDED_SIGNUP_CONFIG_ID?.trim() ?? "";
+  const graphVersion = process.env.META_GRAPH_API_VERSION?.trim() ?? "";
+  const embeddedSignupConfig =
+    appId && configId && /^v\d+\.\d+$/.test(graphVersion)
+      ? { appId, configId, graphVersion }
+      : null;
   return (
     <SettingsClient
       locale={locale}
       readiness={readiness}
       assistantConfig={assistantConfig}
+      embeddedSignupConfig={embeddedSignupConfig}
     />
   );
 }

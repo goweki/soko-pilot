@@ -15,5 +15,5 @@ export function getDemoMerchantId(): string {
 }
 
 export function demoDatabaseWritesEnabled(): boolean {
-  return process.env.SOKOPILOT_DEMO_DB_WRITE_APPROVED === "YES" || true;
+  return process.env.SOKOPILOT_DEMO_DB_WRITE_APPROVED === "YES";
 }

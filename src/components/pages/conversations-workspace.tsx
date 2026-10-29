@@ -321,11 +321,7 @@ export function ConversationsWorkspace({
                     ))}
                   </ol>
                 )}
-                {conversation.isPresentationFixture && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {text.presentationFixtureNote}
-                  </p>
-                )}
+
                 {conversation.status === "handoff" &&
                   !conversation.optedOut &&
                   !conversation.isPresentationFixture && (

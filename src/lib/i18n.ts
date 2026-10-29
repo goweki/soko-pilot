@@ -98,8 +98,6 @@ export const messages = {
     conversationOpen: "Open",
     conversationHandoff: "Handoff",
     conversationClosed: "Closed",
-    presentationFixtureNote:
-      "Synthetic presentation conversation. Replies here are not sent to WhatsApp.",
     assistantResumed: "Assistant resumed for future customer messages.",
     merchantHandoffStarted: "Assistant paused. You are now in control.",
     assistantActive: "Assistant active",
@@ -166,7 +164,8 @@ export const messages = {
     whatsappSignupLoading: "Connecting number…",
     whatsappSignupNotConfigured:
       "Optional signup is not enabled for this deployment. An administrator must configure the Meta App ID, Graph API version, and Embedded Signup configuration ID first.",
-    whatsappSignupCancelled: "Facebook signup was cancelled. No number was connected.",
+    whatsappSignupCancelled:
+      "Facebook signup was cancelled. No number was connected.",
     whatsappSignupFailed:
       "The number could not be connected. Check the Meta app configuration and server logs, then try again.",
     whatsappSignupAlreadyLinked:
@@ -399,8 +398,6 @@ export const messages = {
     conversationOpen: "Wazi",
     conversationHandoff: "Makabidhiano",
     conversationClosed: "Yamefungwa",
-    presentationFixtureNote:
-      "Mazungumzo ya mfano. Majibu hapa hayatatumwa kupitia WhatsApp.",
     assistantResumed: "Msaidizi ameanzishwa tena kwa ujumbe ujao wa wateja.",
     merchantHandoffStarted: "Msaidizi amesimamishwa. Sasa una udhibiti.",
     assistantActive: "Msaidizi anafanya kazi",
@@ -467,7 +464,8 @@ export const messages = {
     whatsappSignupLoading: "Inaunganisha nambari…",
     whatsappSignupNotConfigured:
       "Usajili huu wa hiari haujawashwa kwa uwekaji huu. Msimamizi lazima aweke Meta App ID, toleo la Graph API na Embedded Signup configuration ID.",
-    whatsappSignupCancelled: "Usajili wa Facebook umeghairiwa. Hakuna nambari iliyounganishwa.",
+    whatsappSignupCancelled:
+      "Usajili wa Facebook umeghairiwa. Hakuna nambari iliyounganishwa.",
     whatsappSignupFailed:
       "Nambari haikuweza kuunganishwa. Kagua mipangilio ya Meta app na kumbukumbu za seva kisha ujaribu tena.",
     whatsappSignupAlreadyLinked:

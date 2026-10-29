@@ -217,10 +217,9 @@ export async function resumeDemoConversationAutomation(conversationId: string) {
       id: conversationId,
       merchantId: demoMerchantId,
       status: "handoff",
-    }).update({
-      status: "open",
-      automationPausedAt: null,
-    });
+    })
+      .select("id")
+      .update({ status: "open", automationPausedAt: null });
     if (!updated) return { ok: false as const, error: "not-found" as const };
     return { ok: true as const };
   } catch (error) {

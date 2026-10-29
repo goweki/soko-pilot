@@ -62,8 +62,8 @@ function ConversationControl({
       )}
       {feedback && (
         <p
-          className="max-w-52 text-xs text-destructive sm:text-right"
-          role="alert"
+          className={`max-w-52 text-xs sm:text-right ${state?.status === "success" ? "text-emerald-700 dark:text-emerald-300" : "text-destructive"}`}
+          role={state?.status === "success" ? "status" : "alert"}
         >
           {feedback}
         </p>
@@ -123,8 +123,13 @@ function ManualReplyForm({
 }
 
 function getActionFeedback(state: ConversationActionState, locale: Locale) {
-  if (!state || state.status === "success") return null;
+  if (!state) return null;
   const text = messages[locale];
+  if (state.status === "success") {
+    return state.operation === "resume"
+      ? text.assistantResumed
+      : text.merchantHandoffStarted;
+  }
   if (state.reason === "database-not-configured")
     return text.databaseNotConfigured;
   if (state.reason === "writes-not-approved")

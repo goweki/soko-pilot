@@ -913,11 +913,13 @@ export async function processMetaAssistantReply(
         status: "handoff",
         automationPausedAt: latest.automationPausedAt,
         lastMessageAt: latest.lastMessageAt,
-      }).update({
-        status: "open",
-        automationPausedAt: null,
-        lastMessageAt: completedAt,
-      });
+      })
+        .select("id")
+        .update({
+          status: "open",
+          automationPausedAt: null,
+          lastMessageAt: completedAt,
+        });
       if (!resumedConversation) {
         throw new AssistantFailure("MERCHANT_HANDOFF_TAKEN");
       }

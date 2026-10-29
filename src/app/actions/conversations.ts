@@ -9,7 +9,7 @@ import {
 } from "@/lib/conversations";
 
 export type ConversationActionState =
-  | { status: "success" }
+  | { status: "success"; operation: "handoff" | "resume" }
   | {
       status: "error";
       reason:
@@ -51,5 +51,5 @@ export async function updateConversationHandoff(
   if (!result.ok) return { status: "error", reason: result.error };
   revalidatePath(`/${locale}/dashboard/conversations`);
   revalidatePath(`/${locale}/dashboard`);
-  return { status: "success" };
+  return { status: "success", operation: operationValue };
 }

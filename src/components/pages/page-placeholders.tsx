@@ -250,7 +250,6 @@ export function DashboardShell({
             <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
               <Sparkles className="size-[18px]" aria-hidden="true" />
             </span>
-            <p className="mt-3 text-sm font-semibold">{text.previewBadge}</p>
 
             <Link
               href={`/${locale}/privacy`}
@@ -330,13 +329,7 @@ export function DashboardShell({
                     SW
                   </Link>
                 </nav>
-                <span className="hidden items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-200 sm:inline-flex">
-                  <span
-                    className="size-1.5 rounded-full bg-amber-500"
-                    aria-hidden="true"
-                  />
-                  {text.previewBadge}
-                </span>
+
                 <ThemeToggle locale={locale} variant="ghost" />
                 <form action={lockDemoAccess}>
                   <input type="hidden" name="locale" value={locale} />
@@ -381,9 +374,7 @@ export function DashboardShell({
           <div className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
             <div className="mb-8 max-w-3xl">
               <p className="text-[10px] font-semibold tracking-[0.18em] text-primary">
-                {section === "dashboard"
-                  ? text.overviewEyebrow
-                  : text.previewBadge}
+                {section === "dashboard" ? text.overviewEyebrow : null}
               </p>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
                 {title}
@@ -504,10 +495,6 @@ export function ProductStoryClient({
           aria-hidden="true"
         />
         <div className="relative z-10">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.06] px-3.5 py-2 text-xs font-medium text-primary">
-            <Sparkles className="size-3.5" aria-hidden="true" />
-            {text.previewBadge}
-          </span>
           <h1 className="mt-7 max-w-2xl font-heading text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.5rem]">
             {text.tagline}
           </h1>
@@ -849,9 +836,6 @@ export function DashboardClient({
               <h2 className="text-sm font-semibold">
                 {text.quickActionsTitle}
               </h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {text.previewBadge}
-              </p>
             </div>
           </div>
           <div className="mt-5 divide-y divide-border/70">
@@ -1020,10 +1004,6 @@ export function SettingsClient({
       <section className="mb-6 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.08] via-card to-card p-5 shadow-sm sm:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-background/80 px-2.5 py-1 text-[10px] font-semibold tracking-[0.12em] text-primary">
-              <Sparkles className="size-3" aria-hidden="true" />
-              {text.previewBadge}
-            </span>
             <h2 className="mt-3 font-heading text-2xl leading-tight tracking-tight sm:text-3xl">
               {text.setupTitle}
             </h2>

@@ -57,10 +57,6 @@ export function SignInClient({
             aria-hidden="true"
           />
           <div className="relative">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3.5 py-2 text-[10px] font-semibold tracking-[0.16em]">
-              <ShieldCheck className="size-3.5" aria-hidden="true" />
-              {text.previewBadge}
-            </span>
             <h1 className="mt-8 max-w-lg font-heading text-4xl leading-tight tracking-tight xl:text-5xl">
               {text.tagline}
             </h1>
@@ -96,9 +92,6 @@ export function SignInClient({
             <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
               <KeyRound className="size-5" aria-hidden="true" />
             </span>
-            <p className="mt-6 text-[10px] font-semibold tracking-[0.18em] text-primary">
-              {text.previewBadge}
-            </p>
             <h2 className="mt-2 font-heading text-3xl tracking-tight">
               {text.signInTitle}
             </h2>

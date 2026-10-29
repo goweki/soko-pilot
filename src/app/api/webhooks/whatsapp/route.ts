@@ -38,6 +38,14 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  console.info("[whatsapp-webhook] POST received.", {
+    contentLength: request.headers.get("content-length"),
+    contentType: request.headers.get("content-type"),
+    signaturePresent: Boolean(
+      request.headers.get("x-hub-signature-256")?.startsWith("sha256="),
+    ),
+  });
+
   const appSecret = process.env.META_APP_SECRET;
   if (!appSecret) {
     return Response.json(
@@ -53,7 +61,10 @@ export async function POST(request: Request) {
 
   const body = Buffer.from(await request.arrayBuffer());
   if (body.byteLength > 1_000_000) {
-    return Response.json({ error: "Webhook payload is too large." }, { status: 413 });
+    return Response.json(
+      { error: "Webhook payload is too large." },
+      { status: 413 },
+    );
   }
   const expectedSignature = `sha256=${createHmac("sha256", appSecret)
     .update(body)
@@ -63,10 +74,21 @@ export async function POST(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
+  console.info("[whatsapp-webhook] Signature verified.", {
+    payloadBytes: body.byteLength,
+  });
+
   const result = await processWhatsAppWebhook(body);
   if (!result.ok) {
+    console.error("[whatsapp-webhook] Processing failed.", {
+      error: result.error,
+    });
     const status = result.error === "invalid-payload" ? 400 : 503;
     return Response.json({ error: result.error }, { status });
   }
+  console.info("[whatsapp-webhook] Processing complete.", {
+    accepted: result.accepted,
+    duplicates: result.duplicates,
+  });
   return Response.json(result, { status: 200 });
 }

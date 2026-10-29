@@ -48,6 +48,10 @@ function getString(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
+function maskPhoneNumber(phoneNumber: string): string {
+  return `${"•".repeat(Math.max(0, phoneNumber.length - 4))}${phoneNumber.slice(-4)}`;
+}
+
 function getContentType(
   type: string,
 ): "text" | "image" | "audio" | "video" | "document" | "sticker" | "unknown" {
@@ -251,13 +255,10 @@ async function persistMessage(
 export async function processWhatsAppWebhook(
   body: Buffer,
 ): Promise<WebhookProcessResult> {
-  if (!process.env.DATABASE_URL?.trim()) {
-    return { ok: false, error: "database-not-configured" };
-  }
-  if (!demoDatabaseWritesEnabled()) {
-    return { ok: false, error: "writes-not-approved" };
-  }
   if (body.byteLength > MAX_WEBHOOK_BYTES) {
+    console.warn("[whatsapp-webhook] Rejected oversized payload.", {
+      payloadBytes: body.byteLength,
+    });
     return { ok: false, error: "invalid-payload" };
   }
 
@@ -265,11 +266,42 @@ export async function processWhatsAppWebhook(
   try {
     payload = JSON.parse(body.toString("utf8")) as unknown;
   } catch {
+    console.warn("[whatsapp-webhook] Rejected invalid JSON payload.");
     return { ok: false, error: "invalid-payload" };
   }
 
   const changes = parseChanges(payload);
-  if (!changes) return { ok: false, error: "invalid-payload" };
+  if (!changes) {
+    console.warn("[whatsapp-webhook] Rejected invalid WhatsApp payload.");
+    return { ok: false, error: "invalid-payload" };
+  }
+
+  const incomingMessages = changes.flatMap((change) =>
+    change.messages.map((message) => ({ change, message })),
+  );
+  console.info("[whatsapp-webhook] Payload parsed.", {
+    changes: changes.length,
+    incomingMessages: incomingMessages.length,
+  });
+  for (const { change, message } of incomingMessages) {
+    console.info("[whatsapp-webhook] Incoming message received.", {
+      messageId: message.id,
+      phoneNumberId: change.phoneNumberId,
+      // sender: maskPhoneNumber(message.from),
+      sender: message.from,
+      type: message.type,
+      bodyPreview: message.body?.slice(0, 160) ?? null,
+    });
+  }
+
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.error("[whatsapp-webhook] Database is not configured.");
+    return { ok: false, error: "database-not-configured" };
+  }
+  if (!demoDatabaseWritesEnabled()) {
+    console.error("[whatsapp-webhook] Database writes are not approved.");
+    return { ok: false, error: "writes-not-approved" };
+  }
 
   const payloadHash = createHash("sha256").update(body).digest("hex");
   let accepted = 0;

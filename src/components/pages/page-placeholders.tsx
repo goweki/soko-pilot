@@ -251,9 +251,7 @@ export function DashboardShell({
               <Sparkles className="size-[18px]" aria-hidden="true" />
             </span>
             <p className="mt-3 text-sm font-semibold">{text.previewBadge}</p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              {text.previewNote}
-            </p>
+
             <Link
               href={`/${locale}/privacy`}
               className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
@@ -396,7 +394,6 @@ export function DashboardShell({
             </div>
             {children}
             <footer className="mt-10 flex flex-col gap-2 border-t border-border/70 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-              <span>{text.previewNote}</span>
               <Link
                 href={`/${locale}/privacy`}
                 className="inline-flex items-center gap-1 hover:text-foreground"
@@ -643,10 +640,6 @@ export function ProductStoryClient({
                 {text.featureControl}
               </span>
             </div>
-          </div>
-          <div className="relative mt-5 flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/80 px-4 py-3 text-xs text-muted-foreground shadow-sm backdrop-blur">
-            <CircleHelp className="size-4 text-primary" aria-hidden="true" />
-            {text.previewNote}
           </div>
         </div>
       </section>
@@ -903,13 +896,6 @@ export function DashboardClient({
               />
             </Link>
           </div>
-          <div className="mt-5 flex items-center gap-2 rounded-xl bg-muted/60 px-3 py-2.5 text-xs text-muted-foreground">
-            <ShieldCheck
-              className="size-4 shrink-0 text-primary"
-              aria-hidden="true"
-            />
-            {text.previewNote}
-          </div>
         </article>
       </section>
     </DashboardShell>
@@ -958,9 +944,6 @@ export function ProductsClient({ locale }: { locale: Locale }) {
           </span>
           <div>
             <p className="text-sm font-semibold">{text.productsEmptyLabel}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {text.previewNote}
-            </p>
           </div>
         </div>
         <Button variant="outline" size="sm" className="rounded-full" disabled>

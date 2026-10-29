@@ -169,9 +169,6 @@ export function SignInClient({
               </p>
             </div>
           </div>
-          <p className="mt-5 text-center text-xs text-muted-foreground">
-            {text.previewNote}
-          </p>
         </section>
       </div>
     </main>

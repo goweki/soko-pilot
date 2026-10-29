@@ -239,7 +239,6 @@ export const messages = {
     workspaceType: "Fashion & beauty",
     statusNotConnected: "Private demo",
     workspacePreview: "Preview workspace",
-    previewNote: "Demo records are stored in the configured database.",
     overviewEyebrow: "YOUR SHOP, AT A GLANCE",
     overviewTitle: "A little more room to focus on your customers.",
     overviewIntro:
@@ -537,8 +536,6 @@ export const messages = {
     workspaceType: "Mitindo na urembo",
     statusNotConnected: "Onyesho la faragha",
     workspacePreview: "Eneo la onyesho",
-    previewNote:
-      "Rekodi za onyesho huhifadhiwa kwenye hifadhidata iliyosanidiwa.",
     overviewEyebrow: "MUHTASARI WA DUKA LAKO",
     overviewTitle: "Pata nafasi zaidi ya kuwajali wateja wako.",
     overviewIntro:

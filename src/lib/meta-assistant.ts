@@ -17,9 +17,39 @@ const MAX_REPLY_LENGTH = 4096;
 const MAX_COMPLETION_TOKENS = 600;
 
 class AssistantFailure extends Error {
-  constructor(readonly code: string) {
+  constructor(
+    readonly code: string,
+    readonly detail?: string,
+  ) {
     super(code);
   }
+}
+
+function safeDiagnostic(value: string): string {
+  return value
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/\b(?:sk|key|token)[-_][A-Za-z0-9_-]{12,}\b/gi, "[redacted]")
+    .slice(0, 500);
+}
+
+async function getProviderErrorDetail(response: Response): Promise<string> {
+  try {
+    const body: unknown = await response.json();
+    if (
+      typeof body === "object" &&
+      body !== null &&
+      "error" in body &&
+      typeof body.error === "object" &&
+      body.error !== null &&
+      "message" in body.error &&
+      typeof body.error.message === "string"
+    ) {
+      return safeDiagnostic(body.error.message);
+    }
+  } catch {
+    // Error responses can be empty or non-JSON; the HTTP status remains useful.
+  }
+  return "Provider returned no readable error message.";
 }
 
 type ChatMessage = Record<string, unknown>;
@@ -58,12 +88,19 @@ async function requestCompletion(
       }),
       signal: AbortSignal.timeout(12_000),
     });
-  } catch {
-    throw new AssistantFailure("MODEL_REQUEST_FAILED");
+  } catch (error) {
+    const detail =
+      error instanceof Error
+        ? safeDiagnostic(error.message)
+        : "Unknown fetch error.";
+    throw new AssistantFailure("MODEL_REQUEST_FAILED", detail);
   }
 
   if (!response.ok) {
-    throw new AssistantFailure(`MODEL_HTTP_${response.status}`);
+    throw new AssistantFailure(
+      `MODEL_HTTP_${response.status}`,
+      await getProviderErrorDetail(response),
+    );
   }
 
   let payload: unknown;
@@ -371,10 +408,10 @@ export async function previewMetaAssistantReply(
     console.error(
       "[meta-assistant] Prompt preview failed.",
       error instanceof AssistantFailure
-        ? error.code
+        ? { code: error.code, detail: error.detail }
         : error instanceof Error
-          ? error.name
-          : "UnknownError",
+          ? { name: error.name, message: safeDiagnostic(error.message) }
+          : { name: "UnknownError" },
     );
     return { ok: false, error: "preview-failed" };
   }

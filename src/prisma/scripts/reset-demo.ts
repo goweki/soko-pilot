@@ -99,7 +99,7 @@ async function resetDemoData() {
 
     const merchantPayload = {
       ownerId,
-      businessName: "Atelier Nia",
+      businessName: "Demo Shop",
       defaultCurrency: "KES",
       defaultLanguage: "en",
       status: "active" as const,

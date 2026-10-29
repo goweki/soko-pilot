@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import {
   updateConversationHandoff,
   type ConversationActionState,
@@ -32,6 +33,15 @@ function ConversationControl({
   );
   const feedback = getActionFeedback(state, locale);
 
+  useEffect(() => {
+    if (!state || !feedback) return;
+    if (state.status === "success") {
+      toast.success(feedback);
+    } else {
+      toast.error(feedback);
+    }
+  }, [feedback, state]);
+
   return (
     <div className="flex flex-col items-start gap-2 sm:items-end">
       {(conversation.status === "open" ||
@@ -47,6 +57,7 @@ function ConversationControl({
           <Button
             size="sm"
             variant={conversation.status === "handoff" ? "outline" : "default"}
+            type="submit"
             disabled={
               pending ||
               (conversation.status === "open" && conversation.optedOut)
@@ -59,14 +70,6 @@ function ConversationControl({
                 : text.handoff}
           </Button>
         </form>
-      )}
-      {feedback && (
-        <p
-          className={`max-w-52 text-xs sm:text-right ${state?.status === "success" ? "text-emerald-700 dark:text-emerald-300" : "text-destructive"}`}
-          role={state?.status === "success" ? "status" : "alert"}
-        >
-          {feedback}
-        </p>
       )}
     </div>
   );
@@ -190,6 +193,7 @@ export function ConversationsWorkspace({
       workspaceName={result.ok ? result.merchantName : null}
     >
       <section className="space-y-4">
+        <Toaster position="top-right" />
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-sm sm:px-5">
           <p className="text-sm text-muted-foreground">
             {text.inboxSourceNote}

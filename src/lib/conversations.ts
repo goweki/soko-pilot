@@ -168,31 +168,42 @@ export async function listDemoConversations(): Promise<ConversationsReadResult> 
 }
 
 export async function setDemoConversationHandoff(conversationId: string) {
+  console.info("[conversations] Applying merchant takeover.", {
+    conversationId,
+  });
   if (!process.env.DATABASE_URL?.trim()) {
+    console.error(
+      "[conversations] Takeover failed: database is not configured.",
+    );
     return { ok: false as const, error: "database-not-configured" as const };
   }
   const demoMerchantId = getDemoMerchantId();
   if (!demoDatabaseWritesEnabled()) {
+    console.error(
+      "[conversations] Takeover failed: database writes are disabled.",
+    );
     return { ok: false as const, error: "writes-not-approved" as const };
   }
 
   try {
-    const conversation = await db.orm.public.Conversation.where({
+    const updated = await db.orm.public.Conversation.where({
       id: conversationId,
       merchantId: demoMerchantId,
-    }).first();
-    if (!conversation) {
+    })
+      .select("id")
+      .update({
+        status: "handoff",
+        automationPausedAt: new Date().toISOString(),
+      });
+    if (!updated) {
+      console.warn("[conversations] Takeover found no matching conversation.", {
+        conversationId,
+      });
       return { ok: false as const, error: "not-found" as const };
     }
-
-    await db.orm.public.Conversation.where({
-      id: conversation.id,
-      merchantId: demoMerchantId,
-    }).update({
-      status: "handoff",
-      automationPausedAt: new Date().toISOString(),
+    console.info("[conversations] Merchant takeover applied.", {
+      conversationId: updated.id,
     });
-
     return { ok: true as const };
   } catch (error) {
     console.error(

@@ -30,6 +30,12 @@ export async function updateConversationHandoff(
   const conversationId = formData.get("conversationId");
   const operationValue = formData.get("operation");
 
+  console.info("[conversation-action] Request received.", {
+    operation: operationValue,
+    conversationId:
+      typeof conversationId === "string" ? conversationId : "invalid",
+  });
+
   if (
     typeof localeValue !== "string" ||
     !isLocale(localeValue) ||
@@ -37,10 +43,18 @@ export async function updateConversationHandoff(
     !/^[a-zA-Z0-9_-]{1,128}$/.test(conversationId) ||
     (operationValue !== "handoff" && operationValue !== "resume")
   ) {
+    console.warn("[conversation-action] Rejected invalid request.");
     return { status: "error", reason: "invalid-input" };
   }
   const locale: Locale = localeValue;
   if (!(await hasDemoAccess())) {
+    console.warn(
+      "[conversation-action] Rejected request without demo access.",
+      {
+        operation: operationValue,
+        conversationId,
+      },
+    );
     return { status: "error", reason: "not-authorized" };
   }
 
@@ -48,7 +62,18 @@ export async function updateConversationHandoff(
     operationValue === "handoff"
       ? await setDemoConversationHandoff(conversationId)
       : await resumeDemoConversationAutomation(conversationId);
-  if (!result.ok) return { status: "error", reason: result.error };
+  if (!result.ok) {
+    console.error("[conversation-action] Operation failed.", {
+      operation: operationValue,
+      conversationId,
+      reason: result.error,
+    });
+    return { status: "error", reason: result.error };
+  }
+  console.info("[conversation-action] Operation completed.", {
+    operation: operationValue,
+    conversationId,
+  });
   revalidatePath(`/${locale}/dashboard/conversations`);
   revalidatePath(`/${locale}/dashboard`);
   return { status: "success", operation: operationValue };

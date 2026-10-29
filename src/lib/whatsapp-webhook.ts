@@ -266,13 +266,14 @@ async function persistMessage(
     } else if (phoneNumberId !== assistantPhoneNumberId) {
       automationBlockers.push("not-assistant-phone-number");
     }
-    if (existingConversation?.status !== undefined) {
-      if (existingConversation.status !== "open") {
-        automationBlockers.push("conversation-not-open");
-      }
-      if (existingConversation.automationPausedAt !== null) {
-        automationBlockers.push("automation-paused");
-      }
+    const merchantHasTakenOver = Boolean(
+      existingConversation?.status === "handoff" &&
+      existingConversation.automationPausedAt &&
+      existingConversation.automationPausedAt !==
+        existingConversation.lastMessageAt,
+    );
+    if (merchantHasTakenOver) {
+      automationBlockers.push("merchant-takeover-active");
     }
     const automationEligible = automationBlockers.length === 0;
     const conversation = existingConversation
@@ -301,7 +302,9 @@ async function persistMessage(
       merchantId: connection.merchantId,
     }).update({
       status: "handoff",
-      automationPausedAt: now,
+      automationPausedAt: merchantHasTakenOver
+        ? (existingConversation?.automationPausedAt ?? now)
+        : now,
       lastMessageAt: now,
     });
 

@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, KeyRound, ShieldCheck } from "lucide-react";
+import { ArrowRight, KeyRound, ShieldCheck } from "lucide-react";
 import { useActionState } from "react";
 import { unlockDemoAccess } from "@/app/actions/demo-gate";
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/lib/i18n";
 import { messages } from "@/lib/i18n";
 import { Navbar } from "../ui/navbar";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 export function SignInClient({
   locale,
@@ -81,13 +82,12 @@ export function SignInClient({
         </section>
 
         <section className="mx-auto w-full max-w-md">
-          <Link
+          <BrandLogo
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            locale={locale}
             href={`/${locale}`}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            {text.brand}
-          </Link>
+            size="sm"
+          />
           <div className="mt-6 rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-xl shadow-foreground/[0.04] sm:p-8">
             <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
               <KeyRound className="size-5" aria-hidden="true" />

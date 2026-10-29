@@ -4,7 +4,7 @@ import { cn } from "cn";
 import { buttonVariants } from "@/components/ui/button";
 
 import ThemeToggle from "../toggle-theme";
-import Image from "next/image";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 type PublicRoute = "home" | "privacy" | "recovery" | "sign-in";
 
@@ -87,25 +87,7 @@ interface HeaderProps {
 export function Navbar({ locale, route, cta, text, publicHref }: HeaderProps) {
   return (
     <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
-      {/* Brand Logo */}
-      <Link
-        className="group flex items-center gap-2.5"
-        href={`/${locale}`}
-        aria-label={text.brand}
-      >
-        <div className="size-10 overflow-hidden rounded-lg">
-          <Image
-            alt="img"
-            src="/img/symbol-512.png"
-            width={512}
-            height={512}
-            className="size-full scale-140 object-cover"
-          />
-        </div>
-        <span className="text-lg font-semibold tracking-tight">
-          {text.brand}
-        </span>
-      </Link>
+      <BrandLogo locale={locale} href={`/${locale}`} />
 
       {/* Right-side Utilities & Actions */}
       <div className="flex items-center gap-2">

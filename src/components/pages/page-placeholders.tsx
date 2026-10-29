@@ -39,6 +39,7 @@ import type { DemoAssistantConfig } from "@/lib/assistant-config";
 import type { CatalogueReadResult } from "@/lib/catalogue";
 import { getPrivacyPolicyContent } from "@/lib/privacy-policy-content";
 import { Navbar } from "../ui/navbar";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import {
   WhatsAppEmbeddedSignup,
   type EmbeddedSignupClientConfig,
@@ -144,17 +145,11 @@ export function DashboardShell({
     <main lang={locale} className="min-h-screen bg-muted/35">
       <div className="mx-auto flex min-h-screen max-w-[1600px]">
         <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-border/70 bg-background px-5 py-6 md:flex">
-          <Link
-            className="group flex items-center gap-2.5 px-2"
+          <BrandLogo
+            className="px-2"
+            locale={locale}
             href={`/${locale}/dashboard`}
-          >
-            <span className="grid size-10 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:-rotate-3">
-              <Store className="size-5" aria-hidden="true" />
-            </span>
-            <span className="text-lg font-semibold tracking-tight">
-              {text.brand}
-            </span>
-          </Link>
+          />
 
           <div className="mt-9 rounded-2xl border border-border/70 bg-card p-3 shadow-sm">
             <div className="flex items-center gap-3">
@@ -265,15 +260,13 @@ export function DashboardShell({
           <header className="sticky top-0 z-20 border-b border-border/70 bg-background/90 backdrop-blur-xl">
             <div className="mx-auto flex h-[68px] w-full max-w-6xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
               <div className="flex min-w-0 items-center gap-3">
-                <Link
-                  className="flex items-center gap-2 md:hidden"
+                <BrandLogo
+                  className="md:hidden"
+                  locale={locale}
                   href={`/${locale}/dashboard`}
-                  aria-label={text.brand}
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-                    <Store className="size-4" aria-hidden="true" />
-                  </span>
-                </Link>
+                  size="sm"
+                  showName={false}
+                />
                 <div className="hidden size-9 place-items-center rounded-xl bg-muted sm:grid">
                   {section === "dashboard" && (
                     <LayoutDashboard className="size-4 text-muted-foreground" />
@@ -338,6 +331,7 @@ export function DashboardShell({
                     variant="outline"
                     size="sm"
                     className="rounded-full"
+                    type="submit"
                   >
                     <LockKeyhole aria-hidden="true" />
                     <span className="hidden sm:inline">{text.signOut}</span>

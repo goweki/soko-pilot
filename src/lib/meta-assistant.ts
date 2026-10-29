@@ -602,7 +602,15 @@ export async function processMetaAssistantReply(
   conversationId: string,
   inboundMessageId: string,
 ) {
-  if (!process.env.DATABASE_URL?.trim()) return;
+  const logContext = { conversationId, inboundMessageId };
+  console.info("[meta-assistant] Processing inbound message.", logContext);
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.error(
+      "[meta-assistant] Reply skipped: database is not configured.",
+      logContext,
+    );
+    return;
+  }
   const demoMerchantId = getDemoMerchantId();
   const configuredModel = (() => {
     try {
@@ -611,7 +619,13 @@ export async function processMetaAssistantReply(
       return null;
     }
   })();
-  if (!configuredModel) return;
+  if (!configuredModel) {
+    console.error(
+      "[meta-assistant] Reply skipped: model is not configured.",
+      logContext,
+    );
+    return;
+  }
 
   let conversation;
   let assistant;
@@ -626,18 +640,40 @@ export async function processMetaAssistantReply(
       )
       .where({ id: conversationId, merchantId: demoMerchantId })
       .first();
-    if (!conversation) return;
+    if (!conversation) {
+      console.warn(
+        "[meta-assistant] Reply skipped: conversation not found.",
+        logContext,
+      );
+      return;
+    }
 
     // Only answer the newly accepted event while its webhook-created pause is
     // still current. A merchant takeover or a later message cancels this run.
-    if (
-      conversation.status !== "handoff" ||
-      !conversation.automationPausedAt ||
-      conversation.automationPausedAt !== conversation.lastMessageAt ||
-      conversation.customer.optedOutAt ||
-      conversation.messages[0]?.providerMessageId !== inboundMessageId ||
-      !conversation.messages[0]?.body
-    ) {
+    const eligibilityBlockers: string[] = [];
+    if (conversation.status !== "handoff") {
+      eligibilityBlockers.push("conversation-not-awaiting-assistant");
+    }
+    if (!conversation.automationPausedAt) {
+      eligibilityBlockers.push("automation-pause-marker-missing");
+    }
+    if (conversation.automationPausedAt !== conversation.lastMessageAt) {
+      eligibilityBlockers.push("message-is-no-longer-latest");
+    }
+    if (conversation.customer.optedOutAt) {
+      eligibilityBlockers.push("customer-opted-out");
+    }
+    if (conversation.messages[0]?.providerMessageId !== inboundMessageId) {
+      eligibilityBlockers.push("inbound-message-is-no-longer-latest");
+    }
+    if (!conversation.messages[0]?.body) {
+      eligibilityBlockers.push("message-has-no-text-body");
+    }
+    if (eligibilityBlockers.length > 0) {
+      console.info("[meta-assistant] Reply skipped: message is not eligible.", {
+        ...logContext,
+        reasons: eligibilityBlockers,
+      });
       return;
     }
 
@@ -647,18 +683,35 @@ export async function processMetaAssistantReply(
   } catch (error) {
     console.error(
       "[meta-assistant] Could not load conversation context.",
-      error instanceof Error ? error.name : "UnknownError",
+      error instanceof Error
+        ? {
+            ...logContext,
+            name: error.name,
+            message: safeDiagnostic(error.message),
+          }
+        : { ...logContext, name: "UnknownError" },
     );
     return;
   }
 
-  if (
-    !assistant ||
-    !assistant.isActive ||
-    assistant.modelProvider !== MODEL_PROVIDER ||
-    assistant.modelName !== configuredModel.model ||
-    conversation.whatsappConnection.status !== "connected"
-  ) {
+  const configBlockers: string[] = [];
+  if (!assistant) configBlockers.push("assistant-config-not-found");
+  if (assistant && !assistant.isActive)
+    configBlockers.push("assistant-disabled");
+  if (assistant && assistant.modelProvider !== MODEL_PROVIDER) {
+    configBlockers.push("provider-mismatch");
+  }
+  if (assistant && assistant.modelName !== configuredModel.model) {
+    configBlockers.push("configured-model-mismatch");
+  }
+  if (conversation.whatsappConnection.status !== "connected") {
+    configBlockers.push("whatsapp-connection-not-connected");
+  }
+  if (configBlockers.length > 0) {
+    console.info("[meta-assistant] Reply skipped: assistant is not ready.", {
+      ...logContext,
+      reasons: configBlockers,
+    });
     return;
   }
 
@@ -668,6 +721,7 @@ export async function processMetaAssistantReply(
   if (!searchTool?.isEnabled) {
     console.error(
       "[meta-assistant] Assistant is active without catalogue search.",
+      logContext,
     );
     return;
   }
@@ -680,7 +734,13 @@ export async function processMetaAssistantReply(
   } catch (error) {
     console.error(
       "[meta-assistant] WhatsApp token could not be decrypted.",
-      error instanceof Error ? error.name : "UnknownError",
+      error instanceof Error
+        ? {
+            ...logContext,
+            name: error.name,
+            message: safeDiagnostic(error.message),
+          }
+        : { ...logContext, name: "UnknownError" },
     );
     return;
   }
@@ -697,10 +757,21 @@ export async function processMetaAssistantReply(
   } catch (error) {
     console.error(
       "[meta-assistant] Could not start a persisted run.",
-      error instanceof Error ? error.name : "UnknownError",
+      error instanceof Error
+        ? {
+            ...logContext,
+            name: error.name,
+            message: safeDiagnostic(error.message),
+          }
+        : { ...logContext, name: "UnknownError" },
     );
     return;
   }
+  console.info("[meta-assistant] Assistant run started.", {
+    ...logContext,
+    runId: run.id,
+    model: configuredModel.model,
+  });
 
   const messages = toModelMessages(
     [...conversation.messages].reverse(),
@@ -749,6 +820,13 @@ export async function processMetaAssistantReply(
       for (const call of completion.toolCalls) {
         if (call.name === "request_merchant_handoff") {
           await markRunHandedOff(run.id);
+          console.info(
+            "[meta-assistant] Assistant requested merchant handoff.",
+            {
+              ...logContext,
+              runId: run.id,
+            },
+          );
           return;
         }
         if (call.name !== "search_catalogue") {
@@ -832,12 +910,32 @@ export async function processMetaAssistantReply(
         completedAt,
       });
     });
+    console.info("[meta-assistant] Reply sent and saved.", {
+      ...logContext,
+      runId: run.id,
+      providerMessageId,
+    });
   } catch (error) {
     const errorCode =
       error instanceof AssistantFailure ? error.code : "ASSISTANT_RUN_FAILED";
     console.error(
       "[meta-assistant] Run failed; conversation remains in handoff.",
-      errorCode,
+      error instanceof AssistantFailure
+        ? {
+            ...logContext,
+            runId: run.id,
+            code: errorCode,
+            detail: error.detail,
+          }
+        : error instanceof Error
+          ? {
+              ...logContext,
+              runId: run.id,
+              code: errorCode,
+              name: error.name,
+              message: safeDiagnostic(error.message),
+            }
+          : { ...logContext, runId: run.id, code: errorCode },
     );
     await markRunFailed(run.id, conversation.id, errorCode);
   }

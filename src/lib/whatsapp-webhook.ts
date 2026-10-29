@@ -21,6 +21,17 @@ type InboundMessage = {
 type IncomingChange = {
   phoneNumberId: string;
   messages: InboundMessage[];
+  statuses: {
+    id: string;
+    status: string;
+    recipientId: string | null;
+    timestamp: string | null;
+    errors: {
+      code: string | null;
+      title: string | null;
+      detail: string | null;
+    }[];
+  }[];
 };
 
 export type WebhookProcessResult =
@@ -36,7 +47,12 @@ export type WebhookProcessResult =
     };
 
 type PersistMessageResult =
-  | { kind: "accepted"; conversationId: string; automationEligible: boolean }
+  | {
+      kind: "accepted";
+      conversationId: string;
+      automationEligible: boolean;
+      automationBlockers: string[];
+    }
   | { kind: "duplicate" }
   | { kind: "connection-not-found" };
 
@@ -121,7 +137,48 @@ function parseChanges(payload: unknown): IncomingChange[] | null {
           displayName: names.get(from) ?? null,
         });
       }
-      changes.push({ phoneNumberId, messages });
+
+      const statuses: IncomingChange["statuses"] = [];
+      if (value.statuses !== undefined && !Array.isArray(value.statuses)) {
+        return null;
+      }
+      for (const status of Array.isArray(value.statuses)
+        ? value.statuses
+        : []) {
+        if (!isRecord(status)) return null;
+        const id = getString(status.id);
+        const currentStatus = getString(status.status);
+        if (!id || !currentStatus) return null;
+        const errors: IncomingChange["statuses"][number]["errors"] = [];
+        for (const error of Array.isArray(status.errors) ? status.errors : []) {
+          if (!isRecord(error)) continue;
+          errors.push({
+            code:
+              typeof error.code === "string" || typeof error.code === "number"
+                ? String(error.code).slice(0, 40)
+                : null,
+            title:
+              typeof error.title === "string"
+                ? error.title.slice(0, 160)
+                : null,
+            detail:
+              typeof error.message === "string"
+                ? error.message.slice(0, 240)
+                : isRecord(error.error_data) &&
+                    typeof error.error_data.details === "string"
+                  ? error.error_data.details.slice(0, 240)
+                  : null,
+          });
+        }
+        statuses.push({
+          id,
+          status: currentStatus,
+          recipientId: getString(status.recipient_id),
+          timestamp: getString(status.timestamp),
+          errors,
+        });
+      }
+      changes.push({ phoneNumberId, messages, statuses });
     }
   }
 
@@ -196,15 +253,21 @@ async function persistMessage(
     })
       .orderBy((conversation) => conversation.updatedAt.desc())
       .first();
-    const automationEligible = Boolean(
-      message.type === "text" &&
-      message.body?.trim() &&
-      !customerOptedOut &&
-      !customer.optedOutAt &&
-      (!existingConversation ||
-        (existingConversation.status === "open" &&
-          existingConversation.automationPausedAt === null)),
-    );
+    const automationBlockers: string[] = [];
+    if (message.type !== "text") automationBlockers.push("not-text-message");
+    if (!message.body?.trim()) automationBlockers.push("empty-message");
+    if (customerOptedOut || customer.optedOutAt) {
+      automationBlockers.push("customer-opted-out");
+    }
+    if (existingConversation?.status !== undefined) {
+      if (existingConversation.status !== "open") {
+        automationBlockers.push("conversation-not-open");
+      }
+      if (existingConversation.automationPausedAt !== null) {
+        automationBlockers.push("automation-paused");
+      }
+    }
+    const automationEligible = automationBlockers.length === 0;
     const conversation = existingConversation
       ? existingConversation
       : await tx.orm.public.Conversation.create({
@@ -248,6 +311,7 @@ async function persistMessage(
       kind: "accepted",
       conversationId: conversation.id,
       automationEligible,
+      automationBlockers,
     };
   });
 }
@@ -293,6 +357,27 @@ export async function processWhatsAppWebhook(
       bodyPreview: message.body?.slice(0, 160) ?? null,
     });
   }
+  for (const change of changes) {
+    for (const status of change.statuses) {
+      const details = {
+        messageId: status.id,
+        phoneNumberId: change.phoneNumberId,
+        recipient: status.recipientId
+          ? maskPhoneNumber(status.recipientId)
+          : null,
+        timestamp: status.timestamp,
+        errors: status.errors,
+      };
+      if (status.status === "failed") {
+        console.error("[whatsapp-webhook] Outbound message failed.", details);
+      } else {
+        console.info(
+          `[whatsapp-webhook] Outbound message ${status.status}.`,
+          details,
+        );
+      }
+    }
+  }
 
   if (!process.env.DATABASE_URL?.trim()) {
     console.error("[whatsapp-webhook] Database is not configured.");
@@ -323,7 +408,17 @@ export async function processWhatsAppWebhook(
         } else {
           accepted += 1;
           if (result.automationEligible) {
+            console.info("[whatsapp-webhook] Starting assistant reply.", {
+              messageId: message.id,
+              conversationId: result.conversationId,
+            });
             await processMetaAssistantReply(result.conversationId, message.id);
+          } else {
+            console.info("[whatsapp-webhook] Assistant reply skipped.", {
+              messageId: message.id,
+              conversationId: result.conversationId,
+              reasons: result.automationBlockers,
+            });
           }
         }
       }

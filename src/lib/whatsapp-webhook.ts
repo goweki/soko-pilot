@@ -259,6 +259,13 @@ async function persistMessage(
     if (customerOptedOut || customer.optedOutAt) {
       automationBlockers.push("customer-opted-out");
     }
+    const assistantPhoneNumberId =
+      process.env.META_PHONE_NUMBER_ID?.trim() ?? "";
+    if (!assistantPhoneNumberId) {
+      automationBlockers.push("assistant-phone-number-not-configured");
+    } else if (phoneNumberId !== assistantPhoneNumberId) {
+      automationBlockers.push("not-assistant-phone-number");
+    }
     if (existingConversation?.status !== undefined) {
       if (existingConversation.status !== "open") {
         automationBlockers.push("conversation-not-open");

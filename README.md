@@ -90,6 +90,8 @@ WhatsApp is optional for exploring database-backed catalogue features. For the l
 - `META_GRAPH_API_VERSION` (a supported `vNN.N` value)
 - `SOKOPILOT_DEMO_DB_WRITE_APPROVED=YES`
 
+The AI assistant only responds to webhook messages whose `phone_number_id` matches `META_PHONE_NUMBER_ID`. Other subscribed numbers may still be received and recorded, but they will not invoke this assistant; route those numbers to their own handler if they need different automated replies.
+
 Set the Meta webhook callback to `https://YOUR_HOST/api/webhooks/whatsapp` and subscribe to WhatsApp message events. After verifying the selected database and environment, connect the test number:
 
 ```sh

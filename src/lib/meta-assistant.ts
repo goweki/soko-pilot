@@ -694,18 +694,34 @@ export async function processMetaAssistantReply(
     return;
   }
 
+  if (!assistant) {
+    console.info(
+      "[meta-assistant] Reply skipped: assistant config not found.",
+      {
+        ...logContext,
+      },
+    );
+    return;
+  }
+
   const configBlockers: string[] = [];
-  if (!assistant) configBlockers.push("assistant-config-not-found");
-  if (assistant && !assistant.isActive)
-    configBlockers.push("assistant-disabled");
-  if (assistant && assistant.modelProvider !== MODEL_PROVIDER) {
+  if (!assistant.isActive) configBlockers.push("assistant-disabled");
+  if (assistant.modelProvider !== MODEL_PROVIDER) {
     configBlockers.push("provider-mismatch");
   }
-  if (assistant && assistant.modelName !== configuredModel.model) {
+  if (assistant.modelName !== configuredModel.model) {
     configBlockers.push("configured-model-mismatch");
   }
   if (conversation.whatsappConnection.status !== "connected") {
     configBlockers.push("whatsapp-connection-not-connected");
+  }
+  const assistantPhoneNumberId = process.env.META_PHONE_NUMBER_ID?.trim() ?? "";
+  if (!assistantPhoneNumberId) {
+    configBlockers.push("assistant-phone-number-not-configured");
+  } else if (
+    conversation.whatsappConnection.phoneNumberId !== assistantPhoneNumberId
+  ) {
+    configBlockers.push("not-assistant-phone-number");
   }
   if (configBlockers.length > 0) {
     console.info("[meta-assistant] Reply skipped: assistant is not ready.", {

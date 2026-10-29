@@ -290,6 +290,17 @@ export async function previewMetaAssistantReply(
   customerMessage: string,
   shopInstructionsOverride?: string,
 ): Promise<AssistantPreviewResult> {
+  const failPreview = (
+    code: string,
+    details?: Record<string, string | number | boolean | null>,
+  ): AssistantPreviewResult => {
+    console.error("[meta-assistant] Prompt preview failed.", {
+      code,
+      ...details,
+    });
+    return { ok: false, error: "preview-failed" };
+  };
+
   if (!process.env.DATABASE_URL?.trim()) {
     return { ok: false, error: "database-not-configured" };
   }
@@ -330,11 +341,14 @@ export async function previewMetaAssistantReply(
 
       if (!completion.toolCalls.length) {
         if (completion.finishReason !== "stop" || !completion.content?.trim()) {
-          return { ok: false, error: "preview-failed" };
+          return failPreview("MODEL_EMPTY_OR_INCOMPLETE_REPLY", {
+            finishReason: completion.finishReason,
+            hasContent: Boolean(completion.content?.trim()),
+          });
         }
         const reply = completion.content.trim();
         if (reply.length > MAX_REPLY_LENGTH) {
-          return { ok: false, error: "preview-failed" };
+          return failPreview("MODEL_REPLY_INVALID_LENGTH");
         }
         return { ok: true, reply, handedOff: false };
       }
@@ -343,7 +357,10 @@ export async function previewMetaAssistantReply(
         completion.finishReason !== "tool_calls" ||
         round === MAX_TOOL_ROUNDS
       ) {
-        return { ok: false, error: "preview-failed" };
+        return failPreview("MODEL_TOOL_LOOP_LIMIT", {
+          finishReason: completion.finishReason,
+          round,
+        });
       }
 
       messages.push({
@@ -365,7 +382,7 @@ export async function previewMetaAssistantReply(
           };
         }
         if (call.name !== "search_catalogue") {
-          return { ok: false, error: "preview-failed" };
+          return failPreview(`UNSUPPORTED_TOOL:${call.name}`);
         }
         const searchTool = assistant.tools.find(
           (tool) => tool.tool === "search_catalogue",
@@ -374,7 +391,7 @@ export async function previewMetaAssistantReply(
           return { ok: false, error: "catalogue-unavailable" };
         }
         const args = parseCatalogueSearchArguments(call.arguments);
-        if (!args) return { ok: false, error: "preview-failed" };
+        if (!args) return failPreview("INVALID_CATALOGUE_TOOL_ARGUMENTS");
         const result = await searchDemoCatalogue(args.query);
         if (!result.ok) return { ok: false, error: "catalogue-unavailable" };
         const content = result.products.length
@@ -403,7 +420,7 @@ export async function previewMetaAssistantReply(
       }
     }
 
-    return { ok: false, error: "preview-failed" };
+    return failPreview("MODEL_TOOL_LOOP_EXHAUSTED");
   } catch (error) {
     console.error(
       "[meta-assistant] Prompt preview failed.",

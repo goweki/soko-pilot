@@ -83,13 +83,13 @@ async function seedDemoData() {
       create: {
         id: demoMerchantId,
         ownerId,
-        businessName: "Atelier Nia",
+        businessName: "Demo Shop",
         defaultCurrency: "KES",
         defaultLanguage: "en",
       },
       update: {
         ownerId,
-        businessName: "Atelier Nia",
+        businessName: "Demo Shop",
         defaultCurrency: "KES",
         defaultLanguage: "en",
         status: "active",

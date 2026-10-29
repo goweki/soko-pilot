@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { useState } from "react";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -22,8 +23,11 @@ import {
 } from "lucide-react";
 import { lockDemoAccess } from "@/app/actions/demo-gate";
 import {
+  runAssistantPreview,
   setAssistantAutomation,
+  saveAssistantInstructions,
   type AssistantActionState,
+  type AssistantPreviewState,
 } from "@/app/actions/assistant";
 import { Button, buttonVariants } from "@/components/ui/button";
 import ThemeToggle from "@/components/ui/toggle-theme";
@@ -986,6 +990,15 @@ export function SettingsClient({
   const text = messages[locale];
   const [assistantActionState, assistantAction, assistantPending] =
     useActionState(setAssistantAutomation, null);
+  const [instructionsState, instructionsAction, instructionsPending] =
+    useActionState(saveAssistantInstructions, null);
+  const [previewState, previewAction, previewPending] = useActionState(
+    runAssistantPreview,
+    null,
+  );
+  const [shopInstructionsDraft, setShopInstructionsDraft] = useState(
+    assistantConfig.ok ? (assistantConfig.systemInstructions ?? "") : "",
+  );
   const setupItems = [
     {
       icon: MessageCircle,
@@ -1151,6 +1164,135 @@ export function SettingsClient({
               : text.assistantAutomationPaused}
         </p>
       </section>
+      <section className="mt-5 rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+        <div className="max-w-2xl">
+          <h2 className="text-sm font-semibold">
+            {text.shopAssistantInstructions}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            {text.shopAssistantInstructionsDescription}
+          </p>
+        </div>
+        {assistantConfig.ok ? (
+          <form action={instructionsAction} className="mt-5">
+            <input type="hidden" name="locale" value={locale} />
+            <label
+              className="block text-sm font-medium"
+              htmlFor="shop-instructions"
+            >
+              {text.shopAssistantInstructionsLabel}
+            </label>
+            <textarea
+              id="shop-instructions"
+              className="mt-2 min-h-36 w-full max-w-3xl resize-y rounded-xl border border-input bg-background px-3 py-2.5 text-sm leading-6"
+              onChange={(event) => setShopInstructionsDraft(event.target.value)}
+              value={shopInstructionsDraft}
+              maxLength={2000}
+              name="systemInstructions"
+              placeholder={text.shopAssistantInstructionsPlaceholder}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              {text.shopAssistantInstructionsHint}
+            </p>
+            <Button
+              className="mt-4"
+              disabled={instructionsPending}
+              size="sm"
+              type="submit"
+            >
+              {instructionsPending ? text.saving : text.saveShopInstructions}
+            </Button>
+            {instructionsState && (
+              <p
+                className={`mt-3 text-xs leading-5 ${instructionsState.status === "success" ? "text-emerald-700 dark:text-emerald-300" : "text-destructive"}`}
+                role={
+                  instructionsState.status === "success" ? "status" : "alert"
+                }
+              >
+                {getAssistantActionMessage(instructionsState, locale)}
+              </p>
+            )}
+          </form>
+        ) : (
+          <p className="mt-4 text-xs text-muted-foreground">
+            {assistantConfig.error === "database-not-configured"
+              ? text.databaseNotConfigured
+              : assistantConfig.error === "merchant-not-seeded"
+                ? text.demoDataNotSeeded
+                : text.storageUnavailable}
+          </p>
+        )}
+      </section>
+      <section className="mt-5 rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+        <div className="max-w-2xl">
+          <h2 className="text-sm font-semibold">{text.testAssistant}</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            {text.testAssistantDescription}
+          </p>
+        </div>
+        {assistantConfig.ok ? (
+          <form action={previewAction} className="mt-5 max-w-3xl">
+            <input type="hidden" name="locale" value={locale} />
+            <input
+              type="hidden"
+              name="systemInstructions"
+              value={shopInstructionsDraft}
+            />
+            <label
+              className="block text-sm font-medium"
+              htmlFor="assistant-test-message"
+            >
+              {text.testAssistantMessageLabel}
+            </label>
+            <textarea
+              id="assistant-test-message"
+              className="mt-2 min-h-24 w-full resize-y rounded-xl border border-input bg-background px-3 py-2.5 text-sm leading-6"
+              maxLength={1000}
+              name="customerMessage"
+              placeholder={text.testAssistantMessagePlaceholder}
+              required
+            />
+            <Button
+              className="mt-4"
+              disabled={previewPending}
+              size="sm"
+              type="submit"
+            >
+              {previewPending ? text.testingAssistant : text.runAssistantTest}
+            </Button>
+          </form>
+        ) : (
+          <p className="mt-4 text-xs text-muted-foreground">
+            {assistantConfig.error === "database-not-configured"
+              ? text.databaseNotConfigured
+              : assistantConfig.error === "merchant-not-seeded"
+                ? text.demoDataNotSeeded
+                : text.storageUnavailable}
+          </p>
+        )}
+        {previewState?.status === "success" && (
+          <div className="mt-5 max-w-3xl rounded-2xl border border-primary/15 bg-primary/[0.04] p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-sm font-semibold">
+                {text.assistantTestReply}
+              </h3>
+              {previewState.handedOff && (
+                <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs text-amber-800 dark:text-amber-200">
+                  {text.assistantTestHandoff}
+                </span>
+              )}
+            </div>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-6">
+              {previewState.reply || text.assistantTestHandoffOnly}
+            </p>
+          </div>
+        )}
+        {previewState?.status === "error" && (
+          <p className="mt-4 max-w-3xl text-sm text-destructive" role="alert">
+            {getAssistantPreviewMessage(previewState, locale)}
+          </p>
+        )}
+      </section>
       <section className="mt-5 rounded-2xl border border-border/70 bg-card/70 p-5">
         <h2 className="text-sm font-semibold">{text.demoReadiness}</h2>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -1205,12 +1347,37 @@ function getAssistantActionMessage(
       return text.whatsappReplyNotConfigured;
     case "assistant-not-seeded":
       return text.demoDataNotSeeded;
+    case "invalid-input":
+      return text.invalidShopAssistantInstructions;
     case "catalogue-search-required":
       return text.assistantCatalogueToolRequired;
     case "write-tools-must-stay-disabled":
       return text.assistantWriteToolsDisabled;
     default:
       return text.storageUnavailable;
+  }
+}
+
+function getAssistantPreviewMessage(
+  state: Extract<Exclude<AssistantPreviewState, null>, { status: "error" }>,
+  locale: Locale,
+) {
+  const text = messages[locale];
+  switch (state.reason) {
+    case "invalid-input":
+      return text.invalidAssistantTestMessage;
+    case "not-authorized":
+      return text.demoAccessExpired;
+    case "database-not-configured":
+      return text.databaseNotConfigured;
+    case "assistant-not-seeded":
+      return text.demoDataNotSeeded;
+    case "model-not-configured":
+      return text.modelPathUnavailable;
+    case "catalogue-unavailable":
+      return text.assistantTestCatalogueUnavailable;
+    case "preview-failed":
+      return text.assistantTestFailed;
   }
 }
 

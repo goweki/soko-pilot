@@ -9,6 +9,7 @@ export type DemoAssistantConfig =
       merchantName: string;
       modelName: string;
       isActive: boolean;
+      systemInstructions: string | null;
       tools: { name: string; enabled: boolean }[];
     }
   | {
@@ -38,6 +39,7 @@ export async function getDemoAssistantConfig(): Promise<DemoAssistantConfig> {
       merchantName: merchant.businessName,
       modelName: assistant.modelName,
       isActive: assistant.isActive,
+      systemInstructions: assistant.systemInstructions,
       tools: assistant.tools.map((tool) => ({
         name: tool.tool,
         enabled: tool.isEnabled,

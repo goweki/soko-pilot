@@ -153,6 +153,35 @@ export const messages = {
       "Take over the conversation before sending a manual reply.",
     settingsDescription:
       "Connect your channels and choose how your assistant supports your customers.",
+    shopAssistantInstructions: "Shop information for your assistant",
+    shopAssistantInstructionsDescription:
+      "Add details customers may ask about, such as your shop location, opening hours, delivery area, or return policy. The assistant will use these as shop context alongside its built-in safety and catalogue rules.",
+    shopAssistantInstructionsLabel: "Shop details and guidance",
+    shopAssistantInstructionsPlaceholder:
+      "Our shop is located in Westlands, Nairobi. We are open Monday to Saturday, 9am–6pm. We deliver within Nairobi and Kiambu…",
+    shopAssistantInstructionsHint:
+      "Up to 2,000 characters. Keep information accurate and avoid adding passwords, payment credentials, or other secrets.",
+    saveShopInstructions: "Save shop information",
+    invalidShopAssistantInstructions:
+      "Shop information must be 2,000 characters or fewer.",
+    testAssistant: "Test your assistant",
+    testAssistantDescription:
+      "Try a sample customer message against the shop information currently in the form and the current catalogue. This preview uses the configured model without activating automation, sending WhatsApp messages, or saving a conversation.",
+    testAssistantMessageLabel: "Sample customer message",
+    testAssistantMessagePlaceholder:
+      "Hi, where is your shop located? Do you deliver to Kiambu?",
+    runAssistantTest: "Generate test reply",
+    testingAssistant: "Testing…",
+    assistantTestReply: "Assistant preview",
+    assistantTestHandoff: "Would hand off to the merchant",
+    assistantTestHandoffOnly:
+      "The assistant requested a merchant handoff and would not send an automatic reply.",
+    invalidAssistantTestMessage:
+      "Enter a customer message between 2 and 1,000 characters.",
+    assistantTestCatalogueUnavailable:
+      "The catalogue lookup is unavailable. Check the database and catalogue search configuration.",
+    assistantTestFailed:
+      "The assistant preview could not complete. Check the model configuration and try again.",
     privacyDescription:
       "Your customers' conversations should be handled with care. SokoPilot is designed to use conversation and catalogue data only to support the merchant's customer service.",
     recoveryDescription:
@@ -379,6 +408,34 @@ export const messages = {
     replyRequiresHandoff: "Chukua udhibiti wa mazungumzo kabla ya kutuma jibu.",
     settingsDescription:
       "Unganisha njia zako za mawasiliano na uchague jinsi msaidizi atakavyowahudumia wateja.",
+    shopAssistantInstructions: "Taarifa za duka kwa msaidizi",
+    shopAssistantInstructionsDescription:
+      "Ongeza maelezo ambayo wateja wanaweza kuuliza, kama vile eneo la duka, saa za kazi, maeneo ya usafirishaji au sera ya kurejesha bidhaa. Msaidizi atatumia maelezo haya pamoja na kanuni zake za usalama na katalogi.",
+    shopAssistantInstructionsLabel: "Maelezo na mwongozo wa duka",
+    shopAssistantInstructionsPlaceholder:
+      "Duka letu liko Westlands, Nairobi. Tuko wazi Jumatatu hadi Jumamosi, saa 3 asubuhi hadi saa 12 jioni. Tunapeleka bidhaa Nairobi na Kiambu…",
+    shopAssistantInstructionsHint:
+      "Hadi herufi 2,000. Hakikisha maelezo ni sahihi na usiweke nywila, taarifa za malipo au siri nyingine.",
+    saveShopInstructions: "Hifadhi maelezo ya duka",
+    invalidShopAssistantInstructions: "Maelezo ya duka yasizidi herufi 2,000.",
+    testAssistant: "Jaribu msaidizi wako",
+    testAssistantDescription:
+      "Jaribu ujumbe wa mfano wa mteja ukitumia taarifa za duka zilizo kwenye fomu na katalogi ya sasa. Jaribio hili hutumia modeli iliyosanidiwa bila kuwasha uendeshaji wa kiotomatiki, kutuma ujumbe wa WhatsApp au kuhifadhi mazungumzo.",
+    testAssistantMessageLabel: "Ujumbe wa mfano wa mteja",
+    testAssistantMessagePlaceholder:
+      "Habari, duka lenu liko wapi? Mnasafirisha bidhaa Kiambu?",
+    runAssistantTest: "Tengeneza jibu la jaribio",
+    testingAssistant: "Inajaribu…",
+    assistantTestReply: "Jibu la majaribio la msaidizi",
+    assistantTestHandoff: "Atakabidhi kwa mfanyabiashara",
+    assistantTestHandoffOnly:
+      "Msaidizi ameomba kumkabidhi mfanyabiashara na hatatuma jibu la kiotomatiki.",
+    invalidAssistantTestMessage:
+      "Weka ujumbe wa mteja wenye herufi 2 hadi 1,000.",
+    assistantTestCatalogueUnavailable:
+      "Utafutaji wa katalogi haupatikani. Kagua hifadhidata na usanidi wa utafutaji wa katalogi.",
+    assistantTestFailed:
+      "Jaribio la msaidizi halikukamilika. Kagua usanidi wa modeli kisha ujaribu tena.",
     privacyDescription:
       "Mazungumzo ya wateja wako yanapaswa kushughulikiwa kwa uangalifu. SokoPilot imeundwa kutumia data ya mazungumzo na katalogi kusaidia huduma kwa wateja pekee.",
     recoveryDescription:

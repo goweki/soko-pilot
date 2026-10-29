@@ -9,6 +9,7 @@ import {
 import { isLocale } from "@/lib/i18n";
 import { db } from "@/prisma/db";
 import { isMetaModelConfigured } from "@/lib/meta-model-protocol";
+import { previewMetaAssistantReply } from "@/lib/meta-assistant";
 
 export type AssistantActionState =
   | { status: "success" }
@@ -27,6 +28,55 @@ export type AssistantActionState =
         | "storage-unavailable";
     }
   | null;
+
+export type AssistantPreviewState =
+  | { status: "success"; reply: string; handedOff: boolean }
+  | {
+      status: "error";
+      reason:
+        | "invalid-input"
+        | "not-authorized"
+        | "database-not-configured"
+        | "assistant-not-seeded"
+        | "model-not-configured"
+        | "catalogue-unavailable"
+        | "preview-failed";
+    }
+  | null;
+
+export async function runAssistantPreview(
+  _previousState: AssistantPreviewState,
+  formData: FormData,
+): Promise<AssistantPreviewState> {
+  const locale = formData.get("locale");
+  const customerMessage = formData.get("customerMessage");
+  const systemInstructions = formData.get("systemInstructions");
+  if (
+    typeof locale !== "string" ||
+    !isLocale(locale) ||
+    typeof customerMessage !== "string" ||
+    customerMessage.trim().length < 2 ||
+    customerMessage.trim().length > 1000 ||
+    typeof systemInstructions !== "string" ||
+    systemInstructions.trim().length > 2000
+  ) {
+    return { status: "error", reason: "invalid-input" };
+  }
+  if (!(await hasDemoAccess())) {
+    return { status: "error", reason: "not-authorized" };
+  }
+
+  const result = await previewMetaAssistantReply(
+    customerMessage.trim(),
+    systemInstructions.trim(),
+  );
+  if (!result.ok) return { status: "error", reason: result.error };
+  return {
+    status: "success",
+    reply: result.reply,
+    handedOff: result.handedOff,
+  };
+}
 
 export async function setAssistantAutomation(
   _previousState: AssistantActionState,
@@ -126,5 +176,52 @@ export async function setAssistantAutomation(
 
   revalidatePath(`/${locale}/settings`);
   revalidatePath(`/${locale}/dashboard/conversations`);
+  return { status: "success" };
+}
+
+export async function saveAssistantInstructions(
+  _previousState: AssistantActionState,
+  formData: FormData,
+): Promise<AssistantActionState> {
+  const locale = formData.get("locale");
+  const instructions = formData.get("systemInstructions");
+  if (
+    typeof locale !== "string" ||
+    !isLocale(locale) ||
+    typeof instructions !== "string" ||
+    instructions.trim().length > 2000
+  ) {
+    return { status: "error", reason: "invalid-input" };
+  }
+  if (!(await hasDemoAccess())) {
+    return { status: "error", reason: "not-authorized" };
+  }
+  if (!process.env.DATABASE_URL?.trim()) {
+    return { status: "error", reason: "database-not-configured" };
+  }
+  if (!demoDatabaseWritesEnabled()) {
+    return { status: "error", reason: "writes-not-approved" };
+  }
+
+  try {
+    const assistant = await db.orm.public.AssistantConfig.first({
+      merchantId: getDemoMerchantId(),
+    });
+    if (!assistant) return { status: "error", reason: "assistant-not-seeded" };
+    await db.orm.public.AssistantConfig.where({
+      id: assistant.id,
+      merchantId: getDemoMerchantId(),
+    }).update({
+      systemInstructions: instructions.trim() || null,
+    });
+  } catch (error) {
+    console.error(
+      "[assistant-action] Could not save shop instructions.",
+      error instanceof Error ? error.name : "UnknownError",
+    );
+    return { status: "error", reason: "storage-unavailable" };
+  }
+
+  revalidatePath(`/${locale}/settings`);
   return { status: "success" };
 }

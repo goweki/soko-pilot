@@ -36,7 +36,8 @@ import type { CatalogueReadResult } from "@/lib/catalogue";
 import { getPrivacyPolicyContent } from "@/lib/privacy-policy-content";
 import { Navbar } from "../ui/navbar";
 
-type DashboardSection = "dashboard" | "conversations" | "products" | "settings";
+export type DashboardSection =
+  "dashboard" | "conversations" | "products" | "settings";
 type PublicRoute = "home" | "privacy" | "recovery" | "sign-in";
 
 function dashboardHref(locale: Locale, section: DashboardSection): string {
@@ -114,7 +115,7 @@ function ProductShell({
   );
 }
 
-function DashboardShell({
+export function DashboardShell({
   locale,
   section,
   title,

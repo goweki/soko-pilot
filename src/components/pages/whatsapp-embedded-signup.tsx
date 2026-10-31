@@ -50,6 +50,7 @@ export function WhatsAppEmbeddedSignup({
   locale,
   config,
   connectedNumbers,
+  disabledByCredentials,
 }: {
   locale: Locale;
   config: EmbeddedSignupClientConfig | null;
@@ -58,6 +59,7 @@ export function WhatsAppEmbeddedSignup({
     businessProfileName: string | null;
     needsReconnect: boolean;
   }[];
+  disabledByCredentials: boolean;
 }) {
   const text = messages[locale];
   const router = useRouter();
@@ -71,9 +73,10 @@ export function WhatsAppEmbeddedSignup({
   );
   const [state, setState] = useState<SignupUiState>({ status: "idle" });
   const processing = useRef(false);
+  const alreadyConfigured = disabledByCredentials || connectedNumbers.length > 0;
 
   useEffect(() => {
-    if (!config) return;
+    if (!config || alreadyConfigured) return;
 
     const initialize = () => {
       if (!window.FB) return;
@@ -102,10 +105,10 @@ export function WhatsAppEmbeddedSignup({
     script.defer = true;
     script.onerror = () => setState({ status: "failed" });
     document.body.appendChild(script);
-  }, [config]);
+  }, [alreadyConfigured, config]);
 
   useEffect(() => {
-    if (!config) return;
+    if (!config || alreadyConfigured) return;
 
     const onMessage = (event: MessageEvent) => {
       let hostname = "";
@@ -158,7 +161,7 @@ export function WhatsAppEmbeddedSignup({
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [config]);
+  }, [alreadyConfigured, config]);
 
   useEffect(() => {
     if (!authorizationCode || !signupSession || processing.current) return;
@@ -188,7 +191,7 @@ export function WhatsAppEmbeddedSignup({
   }, [authorizationCode, locale, registrationPin, router, signupSession]);
 
   function startSignup() {
-    if (!config || !window.FB || !sdkReady || registrationPin.length !== 6) {
+    if (alreadyConfigured || !config || !window.FB || !sdkReady || registrationPin.length !== 6) {
       return;
     }
     processing.current = false;
@@ -230,7 +233,16 @@ export function WhatsAppEmbeddedSignup({
         </p>
       </div>
 
-      {config ? (
+      {alreadyConfigured ? (
+        <div className="mt-5 max-w-xl">
+          <Button className="pointer-events-none opacity-50" disabled size="sm" type="button">
+            {text.whatsappSignupButton}
+          </Button>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground" role="status">
+            {text.whatsappSignupAlreadyConfigured}
+          </p>
+        </div>
+      ) : config ? (
         <div className="mt-5 max-w-xl">
           <label
             className="block text-sm font-medium"

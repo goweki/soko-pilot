@@ -948,11 +948,13 @@ export function SettingsClient({
   readiness,
   assistantConfig,
   embeddedSignupConfig,
+  embeddedSignupDisabledByCredentials,
 }: {
   locale: Locale;
   readiness: DemoReadiness;
   assistantConfig: DemoAssistantConfig;
   embeddedSignupConfig: EmbeddedSignupClientConfig | null;
+  embeddedSignupDisabledByCredentials: boolean;
 }) {
   const text = messages[locale];
   const [assistantActionState, assistantAction, assistantPending] =
@@ -1051,6 +1053,7 @@ export function SettingsClient({
         locale={locale}
         config={embeddedSignupConfig}
         connectedNumbers={readiness.connectedWhatsAppNumbers}
+        disabledByCredentials={embeddedSignupDisabledByCredentials}
       />
       <section className="mt-5 rounded-2xl border border-border/70 bg-card/70 p-5">
         <h2 className="text-sm font-semibold">{text.assistantConfiguration}</h2>

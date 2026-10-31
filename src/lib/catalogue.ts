@@ -163,7 +163,7 @@ export async function createDemoProduct(input: {
 
       await tx.orm.public.ProductVariant.create({
         productId: product.id,
-        sku: `DEMO-${crypto.randomUUID()}`,
+        sku: `SKU-${crypto.randomUUID()}`,
         label: input.label,
         size: input.size,
         color: input.color,

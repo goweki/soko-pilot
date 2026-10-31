@@ -17,7 +17,6 @@ export type DemoConversation = {
   automationPaused: boolean;
   handoffAt: string | null;
   optedOut: boolean;
-  isPresentationFixture: boolean;
   latestAssistantRun: {
     provider: string;
     model: string;
@@ -30,6 +29,7 @@ export type DemoConversation = {
     direction: "inbound" | "outbound" | "internal";
     body: string | null;
     contentType: string;
+    mediaId: string | null;
     status: string;
     createdAt: string;
   }[];
@@ -140,8 +140,6 @@ export async function listDemoConversations(): Promise<ConversationsReadResult> 
             ? conversation.automationPausedAt
             : null,
         optedOut: conversation.customer.optedOutAt !== null,
-        isPresentationFixture:
-          conversation.customer.waId.startsWith("demo-presentation-"),
         latestAssistantRun: conversation.assistantRuns[0]
           ? {
               provider: conversation.assistantRuns[0].provider,
@@ -156,6 +154,7 @@ export async function listDemoConversations(): Promise<ConversationsReadResult> 
           direction: message.direction,
           body: message.body,
           contentType: message.contentType,
+          mediaId: message.mediaId,
           status: message.status,
           createdAt: message.createdAt,
         })),

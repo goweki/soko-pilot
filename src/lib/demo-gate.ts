@@ -39,8 +39,10 @@ export function sanitizeGateDestination(
 }
 
 function configuredSecrets() {
-  const accessCode = process.env.DEMO_ACCESS_CODE;
-  const signingSecret = process.env.DEMO_GATE_SECRET;
+  const accessCode =
+    process.env.WORKSPACE_ACCESS_CODE || process.env.DEMO_ACCESS_CODE;
+  const signingSecret =
+    process.env.WORKSPACE_ACCESS_SECRET || process.env.DEMO_GATE_SECRET;
 
   if (
     !accessCode ||
@@ -84,7 +86,7 @@ export async function grantDemoAccess(): Promise<void> {
   const secrets = configuredSecrets();
   if (!secrets) {
     throw new Error(
-      "Demo access requires DEMO_ACCESS_CODE (12+ characters) and DEMO_GATE_SECRET (32+ characters).",
+      "Workspace access requires WORKSPACE_ACCESS_CODE (12+ characters) and WORKSPACE_ACCESS_SECRET (32+ characters).",
     );
   }
 

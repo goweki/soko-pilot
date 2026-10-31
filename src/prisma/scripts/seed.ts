@@ -66,12 +66,12 @@ async function seedDemoData() {
       create: {
         id: ownerId,
         email: demoUserEmail,
-        name: "Demo workspace owner",
+        name: "SokoPilot workspace owner",
         isActive: true,
       },
       update: {
         email: demoUserEmail,
-        name: "Demo workspace owner",
+        name: "SokoPilot workspace owner",
         isActive: true,
       },
     });
@@ -83,13 +83,13 @@ async function seedDemoData() {
       create: {
         id: demoMerchantId,
         ownerId,
-        businessName: "Demo Shop",
+        businessName: "Soko Market",
         defaultCurrency: "KES",
         defaultLanguage: "en",
       },
       update: {
         ownerId,
-        businessName: "Demo Shop",
+        businessName: "Soko Market",
         defaultCurrency: "KES",
         defaultLanguage: "en",
         status: "active",

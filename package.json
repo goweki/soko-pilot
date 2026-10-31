@@ -24,6 +24,7 @@
     "db:migrate": "npx prisma contract emit && npx prisma migration plan && npx prisma db migrate --advance-ref db",
     "db:migrate-min": "npx prisma db migrate --advance-ref db",
     "db:seed": "tsx src/prisma/scripts/seed",
+    "db:connect-whatsapp": "tsx src/prisma/scripts/connect-demo-whatsapp",
     "db:reset": "tsx src/prisma/scripts/reset-demo && tsx src/prisma/scripts/connect-demo-whatsapp "
   },
   "dependencies": {

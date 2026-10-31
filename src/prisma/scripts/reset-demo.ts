@@ -60,7 +60,7 @@ async function resetDemoData() {
 
     if (userById && userByEmail && userById.id !== userByEmail.id) {
       throw new Error(
-        `The demo ID and email belong to different users. Resolve the conflict for ${demoUserEmail} before seeding.`,
+        `The workspace ID and email belong to different users. Resolve the conflict for ${demoUserEmail} before seeding.`,
       );
     }
 
@@ -69,7 +69,7 @@ async function resetDemoData() {
 
     const userPayload = {
       email: demoUserEmail,
-      name: "Demo workspace owner",
+      name: "SokoPilot workspace owner",
       isActive: true,
     };
 
@@ -99,7 +99,7 @@ async function resetDemoData() {
 
     const merchantPayload = {
       ownerId,
-      businessName: "Demo Shop",
+      businessName: "Soko Market",
       defaultCurrency: "KES",
       defaultLanguage: "en",
       status: "active" as const,

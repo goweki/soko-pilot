@@ -12,19 +12,19 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
   en: {
     title: "Privacy policy",
     introduction:
-      "This notice explains how SokoPilot handles information in its current private-demo version. SokoPilot is a merchant-facing tool for managing a product catalogue and WhatsApp customer conversations. The notice describes the software as currently built; the organization operating a deployment is responsible for its configuration and for any additional notices required by law.",
+      "This notice explains how SokoPilot handles information in its current version. SokoPilot is a merchant-facing tool for managing a product catalogue and WhatsApp customer conversations. The notice describes the software as currently built; the organization operating a deployment is responsible for its configuration and for any additional notices required by law.",
     updatedLabel: "Last updated",
     sections: [
       {
-        title: "Information this demo handles",
+        title: "Information SokoPilot handles",
         paragraphs: [
-          "The demo uses a shared access passcode, not individual user accounts. The passcode is checked by the server and is not stored as a user profile. After access is granted, a signed, HTTP-only cookie remembers that access for a limited time.",
+          "This workspace uses a shared access passcode, not individual user accounts. The passcode is checked by the server and is not stored as a user profile. After access is granted, a signed, HTTP-only cookie remembers that access for a limited time.",
           "Depending on which features and integrations the operator configures, SokoPilot may process:",
         ],
         list: [
           "Merchant workspace information, including business details, product names, descriptions, variants, prices, and stock.",
           "WhatsApp customer details such as phone number or WhatsApp ID and, when provided by WhatsApp, display name.",
-          "Conversation data such as message text, message type, provider message IDs, media IDs, timestamps, and delivery or handoff status. The current app records media identifiers but does not download or interpret the media itself.",
+          "Conversation data such as message text, message type, provider message IDs, media IDs, timestamps, and delivery or handoff status. When image handling is enabled, images are downloaded for processing and included in the request to the configured Meta model; the app does not retain the downloaded image bytes.",
           "Integration configuration and encrypted WhatsApp access tokens.",
           "Technical request and diagnostic information handled by the hosting, database, or messaging providers used by the deployment.",
         ],
@@ -33,7 +33,7 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
         title: "How information is used",
         paragraphs: [
           "Information is used to provide the merchant dashboard, display catalogue and conversation records, verify and deduplicate inbound WhatsApp webhooks, support merchant handoff, and send a manual reply when that feature has been configured and authorized. It may also be used to protect, maintain, and troubleshoot the service.",
-          "When an operator enables the configured Meta assistant, eligible WhatsApp message text and bounded recent conversation context are sent to the selected Meta model. The assistant may use a server-side, read-only catalogue search. Model runs, replies, and tool executions are recorded in the deployment database. Do not enable this feature until its provider configuration and applicable privacy notices have been reviewed.",
+          "When an operator enables the configured Meta assistant, eligible WhatsApp message text, supported images, and bounded recent conversation context are sent to the selected Meta model. The assistant may use a server-side, read-only catalogue search. Model runs, replies, and tool executions are recorded in the deployment database. Review provider configuration and applicable privacy notices before enabling this feature.",
         ],
       },
       {
@@ -46,7 +46,7 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
       {
         title: "Sharing and advertising",
         paragraphs: [
-          "SokoPilot is not designed to sell personal information or use customer conversation data for advertising. Information is available to the merchant workspace and to service providers needed to operate the configured deployment. Anyone given the shared demo passcode may be able to access the same demo workspace; the passcode does not identify individual users.",
+          "SokoPilot is not designed to sell personal information or use customer conversation data for advertising. Information is available to the merchant workspace and to service providers needed to operate the configured deployment. Anyone given the shared access passcode may be able to access the same workspace; the passcode does not identify individual users.",
         ],
       },
       {
@@ -60,13 +60,13 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
         title: "Your choices",
         paragraphs: [
           "The current app recognizes WhatsApp messages containing STOP, STOP ALL, or UNSUBSCRIBE, records the opt-out, and blocks manual replies to that customer from the app. You may also contact the merchant directly about your communication preferences.",
-          "The shared demo passcode is an access control for a private preview, not an individual account or a production-grade identity system. Do not send sensitive information through a demo unless its operator has confirmed that the environment is appropriate.",
+          "The shared access passcode is not an individual account or a production-grade identity system. Do not send sensitive information unless the workspace operator has confirmed that the environment is appropriate.",
         ],
       },
       {
         title: "Security",
         paragraphs: [
-          "The app verifies WhatsApp webhook signatures, limits duplicate message processing, and encrypts stored WhatsApp access tokens using AES-256-GCM. The demo gate uses a signed, HTTP-only cookie. These measures reduce risk but cannot guarantee that information is always secure; operators should restrict access, protect credentials, and use a dedicated database.",
+          "The app verifies WhatsApp webhook signatures, limits duplicate message processing, and encrypts stored WhatsApp access tokens using AES-256-GCM. Workspace access uses a signed, HTTP-only cookie. These measures reduce risk but cannot guarantee that information is always secure; operators should restrict access, protect credentials, and use a dedicated database.",
         ],
       },
       {
@@ -83,19 +83,19 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
   sw: {
     title: "Sera ya faragha",
     introduction:
-      "Notisi hii inaeleza jinsi SokoPilot inavyoshughulikia taarifa katika toleo lake la sasa la onyesho la faragha. SokoPilot ni zana ya wafanyabiashara ya kusimamia katalogi ya bidhaa na mazungumzo ya wateja kupitia WhatsApp. Notisi inaeleza programu ilivyojengwa kwa sasa; shirika linaloendesha huduma linawajibika kwa usanidi wake na notisi nyingine zinazohitajika kisheria.",
+      "Notisi hii inaeleza jinsi SokoPilot inavyoshughulikia taarifa katika toleo lake la sasa. SokoPilot ni zana ya wafanyabiashara ya kusimamia katalogi ya bidhaa na mazungumzo ya wateja kupitia WhatsApp. Notisi inaeleza programu ilivyojengwa kwa sasa; shirika linaloendesha huduma linawajibika kwa usanidi wake na notisi nyingine zinazohitajika kisheria.",
     updatedLabel: "Ilisasishwa mwisho",
     sections: [
       {
-        title: "Taarifa zinazoshughulikiwa na onyesho hili",
+        title: "Taarifa zinazoshughulikiwa na SokoPilot",
         paragraphs: [
-          "Onyesho hutumia msimbo mmoja wa pamoja wa kuingia, si akaunti binafsi za watumiaji. Seva hukagua msimbo huo na hauhifadhiwi kama wasifu wa mtumiaji. Baada ya ruhusa kutolewa, kidakuzi kilichotiwa saini na kisichoweza kusomwa na JavaScript hukumbuka ruhusa hiyo kwa muda maalum.",
+          "Eneo hili la kazi hutumia msimbo mmoja wa pamoja wa kuingia, si akaunti binafsi za watumiaji. Seva hukagua msimbo huo na hauhifadhiwi kama wasifu wa mtumiaji. Baada ya ruhusa kutolewa, kidakuzi kilichotiwa saini na kisichoweza kusomwa na JavaScript hukumbuka ruhusa hiyo kwa muda maalum.",
           "Kulingana na vipengele na miunganisho iliyosanidiwa na mwendeshaji, SokoPilot inaweza kushughulikia:",
         ],
         list: [
           "Taarifa za eneo la mfanyabiashara, ikiwemo maelezo ya biashara, majina na maelezo ya bidhaa, aina zake, bei na idadi ya bidhaa zilizopo.",
           "Maelezo ya wateja wa WhatsApp kama nambari ya simu au kitambulisho cha WhatsApp na, WhatsApp ikitoa, jina la kuonekana.",
-          "Taarifa za mazungumzo kama maandishi ya ujumbe, aina ya ujumbe, vitambulisho vya ujumbe vya mtoa huduma, vitambulisho vya faili, nyakati na hali ya ujumbe au kukabidhi mazungumzo kwa mfanyabiashara. Programu ya sasa huhifadhi vitambulisho vya faili lakini haipakui wala kuchambua faili hizo.",
+          "Taarifa za mazungumzo kama maandishi ya ujumbe, aina ya ujumbe, vitambulisho vya ujumbe vya mtoa huduma, vitambulisho vya faili, nyakati na hali ya ujumbe au kukabidhi mazungumzo kwa mfanyabiashara. Picha zinapochakatwa, hupakuliwa kwa uchambuzi na kutumwa kwa modeli ya Meta iliyosanidiwa; programu haihifadhi nakala ya picha iliyopakuliwa.",
           "Mipangilio ya miunganisho na tokeni za WhatsApp zilizohifadhiwa kwa usimbaji fiche.",
           "Taarifa za kiufundi za maombi na uchunguzi zinazoshughulikiwa na watoa huduma wa seva, hifadhidata au ujumbe waliotumiwa na mfumo.",
         ],
@@ -117,7 +117,7 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
       {
         title: "Kushiriki taarifa na matangazo",
         paragraphs: [
-          "SokoPilot haijaundwa kuuza taarifa binafsi au kutumia mazungumzo ya wateja kwa matangazo. Taarifa hupatikana kwa eneo la mfanyabiashara na kwa watoa huduma wanaohitajika kuendesha mfumo uliosanidiwa. Mtu yeyote aliyepewa msimbo wa pamoja wa onyesho anaweza kufikia eneo hilo hilo; msimbo huo hautambui watumiaji binafsi.",
+          "SokoPilot haijaundwa kuuza taarifa binafsi au kutumia mazungumzo ya wateja kwa matangazo. Taarifa hupatikana kwa eneo la mfanyabiashara na kwa watoa huduma wanaohitajika kuendesha mfumo uliosanidiwa. Mtu yeyote aliyepewa msimbo wa pamoja wa ufikiaji anaweza kufikia eneo hilo hilo; msimbo huo hautambui watumiaji binafsi.",
         ],
       },
       {
@@ -131,13 +131,13 @@ const policies: Record<Locale, PrivacyPolicyContent> = {
         title: "Chaguo zako",
         paragraphs: [
           "Programu ya sasa hutambua ujumbe wa WhatsApp wenye STOP, STOP ALL au UNSUBSCRIBE, huhifadhi ombi la kujiondoa, na huzuia programu kutuma majibu ya mkono kwa mteja huyo. Unaweza pia kuwasiliana moja kwa moja na mfanyabiashara kuhusu mapendeleo yako ya mawasiliano.",
-          "Msimbo wa pamoja wa onyesho ni udhibiti wa ufikiaji wa toleo la majaribio la faragha, si akaunti binafsi au mfumo kamili wa utambulisho wa uzalishaji. Usitume taarifa nyeti kupitia onyesho isipokuwa mwendeshaji athibitishe kuwa mazingira hayo yanafaa.",
+          "Msimbo wa pamoja wa kuingia si akaunti binafsi au mfumo kamili wa utambulisho. Usitume taarifa nyeti isipokuwa mwendeshaji athibitishe kuwa mazingira hayo yanafaa.",
         ],
       },
       {
         title: "Usalama",
         paragraphs: [
-          "Programu huthibitisha saini za webhook za WhatsApp, hupunguza uchakataji wa ujumbe unaojirudia, na husimba tokeni za WhatsApp zilizohifadhiwa kwa AES-256-GCM. Msimbo wa onyesho hutumia kidakuzi kilichotiwa saini na kisichoweza kusomwa na JavaScript. Hatua hizi hupunguza hatari lakini haziwezi kuhakikisha usalama kamili wa taarifa; waendeshaji wanapaswa kudhibiti ufikiaji, kulinda siri na kutumia hifadhidata maalum.",
+          "Programu huthibitisha saini za webhook za WhatsApp, hupunguza uchakataji wa ujumbe unaojirudia, na husimba tokeni za WhatsApp zilizohifadhiwa kwa AES-256-GCM. Ufikiaji hutumia kidakuzi kilichotiwa saini na kisichoweza kusomwa na JavaScript. Hatua hizi hupunguza hatari lakini haziwezi kuhakikisha usalama kamili wa taarifa; waendeshaji wanapaswa kudhibiti ufikiaji, kulinda siri na kutumia hifadhidata maalum.",
         ],
       },
       {

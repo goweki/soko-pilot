@@ -22,15 +22,15 @@ export const messages = {
     tagline: "Every product detail. Every customer conversation. One place.",
     intro:
       "A clear view of products and WhatsApp conversations for fashion and beauty merchants. Keep prices and stock current, bring every customer question into one inbox, and keep your team in control.",
-    signIn: "Open the demo",
+    signIn: "Open workspace",
     signInTitle: "Welcome to SokoPilot",
     signInDescription:
-      "Enter the shared demo code to explore a calmer way to handle product questions.",
-    accessCode: "Demo access code",
+      "Enter your access code to review customer questions and product information.",
+    accessCode: "Access code",
     enterDemo: "Enter workspace",
     checkingCode: "Checking code…",
     gateNotConfigured:
-      "Demo access isn't set up yet. Please ask the demo team to configure it.",
+      "Workspace access isn't configured yet. Contact the workspace administrator.",
     invalidCode: "That code doesn't look right. Please try again.",
     dashboard: "Overview",
     conversations: "Conversations",
@@ -38,7 +38,7 @@ export const messages = {
     settings: "Assistant setup",
     privacy: "Privacy",
     recovery: "Access help",
-    signOut: "Exit demo",
+    signOut: "Sign out",
     welcome: "Good to see you",
     dashboardDescription:
       "A clear view of your customer conversations and product catalogue.",
@@ -67,15 +67,15 @@ export const messages = {
     productNotFound:
       "That product variant could not be found in this workspace.",
     databaseNotConfigured:
-      "The demo database is not configured. Set DATABASE_URL for the configured demo database.",
+      "The database is not configured. Set DATABASE_URL for this workspace.",
     demoDataNotSeeded:
-      "The synthetic demo workspace has not been seeded. Follow the setup runbook for the dedicated demo database.",
+      "The workspace has not been initialized. Check the database setup and runbook.",
     databaseWritesNotApproved:
-      "Database writes are disabled until you explicitly approve a dedicated demo database.",
+      "Database writes are disabled until the configured database is approved for writes.",
     demoAccessExpired:
-      "Your demo access expired. Please unlock the demo again.",
+      "Your access expired. Please sign in again.",
     storageUnavailable:
-      "The demo catalogue could not be loaded or saved. Check the database setup and server logs.",
+      "The catalogue could not be loaded or saved. Check the database setup and server logs.",
     catalogueProducts: "Catalogue products",
     catalogueUnavailable:
       "Live catalogue preview is unavailable until the database is configured.",
@@ -83,7 +83,7 @@ export const messages = {
     productDraft: "Draft",
     productArchived: "Archived",
     catalogueSourceNote:
-      "Values below are read from the configured demo database.",
+      "Values below are read from the configured database.",
     noVariants: "No variants have been added to this product.",
     defaultVariant: "Standard",
     noVariantDetails: "No size or color specified",
@@ -103,6 +103,7 @@ export const messages = {
     assistantActive: "Assistant active",
     customer: "Customer",
     latestMessage: "Latest message",
+    imageAttachment: "Customer photo",
     conversationHistory: "Conversation history",
     noConversationMessages: "No message content was stored.",
     databaseSetupNeeded: "Database setup needed",
@@ -139,10 +140,10 @@ export const messages = {
     inboxSourceNote:
       "Inbound messages are stored after webhook verification. When enabled, Meta replies use the saved catalogue and failures return the conversation to merchant handoff.",
     conversationNotFound:
-      "That conversation could not be found in this demo workspace.",
+      "That conversation could not be found in this workspace.",
     invalidConversationAction:
       "This conversation action is invalid. Refresh and try again.",
-    demoReadiness: "Demo readiness",
+    demoReadiness: "Service readiness",
     customerOptedOut: "Customer opted out",
     assistantUnavailable: "Assistant not connected",
     manualReply: "Write a WhatsApp reply",
@@ -155,7 +156,9 @@ export const messages = {
     whatsappSignupDescription:
       "Optionally use Meta’s secure Embedded Signup to create or select a business account, share its WhatsApp Business Account, and verify a phone number for this workspace.",
     whatsappSignupSharedWorkspaceNote:
-      "This demo uses a shared workspace. Only connect a number you control; anyone with demo access can manage connected workspace numbers and conversations.",
+      "This workspace is shared. Connect only a number you control; workspace members can manage connected numbers and conversations.",
+    whatsappSignupAlreadyConfigured:
+      "Embedded Signup is available but disabled because WhatsApp Business credentials or a connected number are already configured.",
     whatsappSignupPinLabel: "WhatsApp two-step verification PIN",
     whatsappSignupPinHint:
       "Enter the number’s existing six-digit Cloud API PIN, or choose one if Meta asks you to set it. This is not the SMS verification code. It is sent to Meta once and never stored by SokoPilot; keep it somewhere safe.",
@@ -213,31 +216,31 @@ export const messages = {
       "The assistant preview could not complete. Check the model configuration and try again.",
     assistantTestErrorTitle: "The test could not finish",
     assistantTestOutputLimit:
-      "The model used its reply limit before finishing. Try a shorter customer message or a simpler question. If this keeps happening, ask the demo administrator to increase the model output limit.",
+      "The model used its reply limit before finishing. Try a shorter customer message or a simpler question. If this keeps happening, ask the workspace administrator to increase the model output limit.",
     assistantTestModelUnavailable:
-      "The model service timed out or is temporarily unavailable. Wait a moment and try again. If it continues, ask the demo administrator to check provider status and the server logs.",
+      "The model service timed out or is temporarily unavailable. Wait a moment and try again. If it continues, ask the workspace administrator to check provider status and the server logs.",
     assistantTestCredentialsRejected:
-      "The model provider rejected its credentials or model setting. Ask the demo administrator to verify META_MODEL_API_KEY and META_MODEL_NAME.",
+      "The model provider rejected its credentials or model setting. Ask the workspace administrator to verify the model API key and model name.",
     assistantTestRateLimited:
-      "The model provider is limiting requests or has reached its usage quota. Wait and try again; if it continues, ask the demo administrator to check the provider quota.",
+      "The model provider is limiting requests or has reached its usage quota. Wait and try again; if it continues, ask the workspace administrator to check the provider quota.",
     assistantTestInvalidModelResponse:
-      "The model provider returned a response this app could not use. Retry once. If it keeps happening, ask the demo administrator to verify that the selected model supports chat completions and tool calls.",
+      "The model provider returned a response this app could not use. Retry once. If it keeps happening, ask the workspace administrator to verify that the selected model supports chat completions and tool calls.",
     assistantTestToolIssue:
-      "The model could not complete a catalogue or handoff step. Try a simpler customer question. If it continues, ask the demo administrator to check the assistant tool configuration and server logs.",
+      "The model could not complete a catalogue or handoff step. Try a simpler customer question. If it continues, ask the workspace administrator to check the assistant tool configuration and server logs.",
     assistantTestUnexpected:
-      "The preview stopped unexpectedly. Try again. If it happens again, ask the demo administrator to check the server logs for this time.",
+      "The preview stopped unexpectedly. Try again. If it happens again, ask the workspace administrator to check the server logs for this time.",
     privacyDescription:
       "Your customers' conversations should be handled with care. SokoPilot is designed to use conversation and catalogue data only to support the merchant's customer service.",
     recoveryDescription:
-      "Ask the demo team for the shared access code. This temporary code is not an individual user account.",
+      "Ask your workspace administrator for an access code. This code is not an individual user account.",
     securityNote:
-      "This shared access code is for the private demo only—not a production sign-in.",
-    demoWorkspace: "Demo workspace",
+      "This shared access code does not provide individual user accounts.",
+    demoWorkspace: "SokoPilot workspace",
     navWorkspace: "WORKSPACE",
     navManage: "MANAGE",
-    workspaceName: "Demo workspace",
+    workspaceName: "SokoPilot workspace",
     workspaceType: "Fashion & beauty",
-    statusNotConnected: "Private demo",
+    statusNotConnected: "Workspace access",
     workspacePreview: "Preview workspace",
     overviewEyebrow: "YOUR SHOP, AT A GLANCE",
     overviewTitle: "A little more room to focus on your customers.",
@@ -249,7 +252,7 @@ export const messages = {
     metricResolution: "Needs your attention",
     noData: "—",
     metricUnavailable: "Available after setup",
-    currentRecords: "Current demo records",
+    currentRecords: "Current records",
     activityTitle: "Recent conversations",
     activityEmptyTitle: "Your inbox is ready when you are",
     activityEmpty:
@@ -277,7 +280,7 @@ export const messages = {
     conversationEmptyHint: "Your inbox is currently disconnected.",
     setupTitle: "A considered setup, before the first reply.",
     setupIntro:
-      "Review channel connection, assistant status, and safety boundaries before a live demo.",
+      "Review channel connection, assistant status, and safety boundaries.",
     setupChannelTitle: "WhatsApp Business",
     setupChannelBody:
       "Connect a test number to receive customer questions and send replies.",
@@ -294,9 +297,9 @@ export const messages = {
     privacyPointControl: "Keep the merchant in control of assistant actions.",
     privacyPointClear:
       "Be clear about what is configured, measured, and still a preview.",
-    recoveryTitle: "Need access to the demo?",
+    recoveryTitle: "Need workspace access?",
     recoveryAction:
-      "Reach out to the person who invited you and ask for the shared demo code.",
+      "Contact your workspace administrator for an access code.",
     previewStrip: "A clearer way to care for every customer",
     featureGrounded: "Product facts in one catalogue",
     featureControl: "Your team stays in control",
@@ -305,7 +308,7 @@ export const messages = {
     featureTitle: "A reliable source for every product conversation.",
     featureBody:
       "Keep product, variant, price, and stock details together, then bring every customer conversation to a person who can help.",
-    getStarted: "Explore the private demo",
+    getStarted: "Explore SokoPilot",
     learnMore: "How it works",
     footerTagline: "Thoughtful commerce, one conversation at a time.",
     navigationLabel: "Main navigation",
@@ -320,15 +323,15 @@ export const messages = {
     tagline: "Taarifa za bidhaa. Mazungumzo ya wateja. Sehemu moja.",
     intro:
       "Muhtasari wa bidhaa na mazungumzo ya WhatsApp kwa wafanyabiashara wa mitindo na urembo. Sasisha bei na stoku, leta maswali kwenye kikasha kimoja, na uache timu yako iwe na udhibiti.",
-    signIn: "Fungua onyesho",
+    signIn: "Fungua eneo la kazi",
     signInTitle: "Karibu SokoPilot",
     signInDescription:
-      "Weka msimbo wa pamoja wa onyesho ili kuchunguza njia tulivu zaidi ya kushughulikia maswali ya bidhaa.",
-    accessCode: "Msimbo wa ufikiaji wa onyesho",
+      "Weka msimbo wako wa ufikiaji ili kuona maswali ya wateja na taarifa za bidhaa.",
+    accessCode: "Msimbo wa ufikiaji",
     enterDemo: "Ingia kwenye eneo la kazi",
     checkingCode: "Inakagua msimbo…",
     gateNotConfigured:
-      "Ufikiaji wa onyesho bado haujawekwa. Tafadhali iombe timu ya onyesho isanidi.",
+      "Ufikiaji wa eneo la kazi haujawekwa. Wasiliana na msimamizi wa eneo hili.",
     invalidCode: "Msimbo huo hauonekani kuwa sahihi. Tafadhali jaribu tena.",
     dashboard: "Muhtasari",
     conversations: "Mazungumzo",
@@ -336,7 +339,7 @@ export const messages = {
     settings: "Mipangilio ya msaidizi",
     privacy: "Faragha",
     recovery: "Msaada wa ufikiaji",
-    signOut: "Toka kwenye onyesho",
+    signOut: "Toka",
     welcome: "Tunafurahi kukuona",
     dashboardDescription:
       "Muhtasari wa mazungumzo ya wateja na katalogi ya bidhaa zako.",
@@ -365,23 +368,23 @@ export const messages = {
     productNotFound:
       "Toleo hilo la bidhaa halijapatikana katika eneo hili la kazi.",
     databaseNotConfigured:
-      "Hifadhidata ya onyesho haijawekwa. Weka DATABASE_URL ya hifadhidata ya onyesho iliyosanidiwa.",
+      "Hifadhidata haijawekwa. Sanidi DATABASE_URL ya eneo hili la kazi.",
     demoDataNotSeeded:
-      "Eneo la mfano halijaandaliwa. Fuata mwongozo wa usanidi wa hifadhidata maalum ya onyesho.",
+      "Eneo la kazi halijaandaliwa. Kagua usanidi wa hifadhidata na mwongozo wa usanidi.",
     databaseWritesNotApproved:
-      "Uandishi kwenye hifadhidata umezimwa hadi uidhinishe wazi hifadhidata maalum ya onyesho.",
+      "Uandishi kwenye hifadhidata umezimwa hadi uidhinishe hifadhidata iliyosanidiwa.",
     demoAccessExpired:
-      "Muda wa ufikiaji wa onyesho umeisha. Fungua onyesho tena.",
+      "Muda wa ufikiaji umeisha. Ingia tena.",
     storageUnavailable:
-      "Katalogi ya onyesho haikuweza kusomwa au kuhifadhiwa. Kagua usanidi wa hifadhidata na kumbukumbu za seva.",
+      "Katalogi haikuweza kusomwa au kuhifadhiwa. Kagua usanidi wa hifadhidata na kumbukumbu za seva.",
     catalogueProducts: "Bidhaa za katalogi",
     catalogueUnavailable:
-      "Onyesho la katalogi halipatikani hadi hifadhidata isanidiwe.",
+      "Katalogi haipatikani hadi hifadhidata isanidiwe.",
     productActive: "Inatumika",
     productDraft: "Rasimu",
     productArchived: "Imehifadhiwa",
     catalogueSourceNote:
-      "Taarifa hapa zinasomwa kutoka hifadhidata ya onyesho iliyosanidiwa.",
+      "Taarifa hapa zinasomwa kutoka hifadhidata iliyosanidiwa.",
     noVariants: "Hakuna matoleo yaliyoongezwa kwa bidhaa hii.",
     defaultVariant: "Kawaida",
     noVariantDetails: "Hakuna saizi au rangi iliyobainishwa",
@@ -401,6 +404,7 @@ export const messages = {
     assistantActive: "Msaidizi anafanya kazi",
     customer: "Mteja",
     latestMessage: "Ujumbe wa karibuni",
+    imageAttachment: "Picha ya mteja",
     conversationHistory: "Historia ya mazungumzo",
     noConversationMessages: "Maudhui ya ujumbe hayakuhifadhiwa.",
     databaseSetupNeeded: "Hifadhidata inahitaji usanidi",
@@ -437,10 +441,10 @@ export const messages = {
     inboxSourceNote:
       "Ujumbe unaoingia huhifadhiwa baada ya uthibitishaji wa webhook. Ukiwashwa, Meta hutumia katalogi iliyohifadhiwa; hitilafu hurudisha mazungumzo kwa mfanyabiashara.",
     conversationNotFound:
-      "Mazungumzo hayo hayakupatikana katika eneo hili la onyesho.",
+      "Mazungumzo hayo hayakupatikana katika eneo hili la kazi.",
     invalidConversationAction:
       "Kitendo hiki cha mazungumzo si sahihi. Onyesha upya kisha ujaribu tena.",
-    demoReadiness: "Utayari wa onyesho",
+    demoReadiness: "Utayari wa huduma",
     customerOptedOut: "Mteja amejiondoa",
     assistantUnavailable: "Msaidizi hajaunganishwa",
     manualReply: "Andika jibu la WhatsApp",
@@ -453,7 +457,9 @@ export const messages = {
     whatsappSignupDescription:
       "Kwa hiari, tumia Embedded Signup salama ya Meta kuunda au kuchagua akaunti ya biashara, kushiriki akaunti ya WhatsApp Business, na kuthibitisha nambari ya simu kwa eneo hili la kazi.",
     whatsappSignupSharedWorkspaceNote:
-      "Onyesho hili linatumia eneo la kazi la pamoja. Unganisha nambari unayomiliki pekee; kila mtu mwenye ufikiaji wa onyesho anaweza kusimamia nambari na mazungumzo yaliyounganishwa.",
+      "Eneo hili la kazi linatumiwa kwa pamoja. Unganisha nambari unayomiliki pekee; washiriki wa eneo hili wanaweza kusimamia nambari na mazungumzo yaliyounganishwa.",
+    whatsappSignupAlreadyConfigured:
+      "Embedded Signup inapatikana lakini imezimwa kwa sababu vitambulisho vya WhatsApp Business au nambari iliyounganishwa tayari vimewekwa.",
     whatsappSignupPinLabel: "PIN ya uthibitishaji wa hatua mbili ya WhatsApp",
     whatsappSignupPinHint:
       "Weka PIN ya tarakimu sita ya Cloud API iliyopo, au chagua moja Meta ikikuomba. Hii si nambari ya SMS. Itatumwa kwa Meta mara moja na SokoPilot haitaihifadhi; ihifadhi mahali salama.",
@@ -509,11 +515,11 @@ export const messages = {
       "Jaribio la msaidizi halikukamilika. Kagua usanidi wa modeli kisha ujaribu tena.",
     assistantTestErrorTitle: "Jaribio halikukamilika",
     assistantTestOutputLimit:
-      "Modeli ilifikia kikomo cha jibu kabla ya kumaliza. Jaribu ujumbe mfupi au swali rahisi zaidi. Ikiendelea, mwombe msimamizi wa onyesho aongeze kikomo cha matokeo ya modeli.",
+      "Modeli ilifikia kikomo cha jibu kabla ya kumaliza. Jaribu ujumbe mfupi au swali rahisi zaidi. Ikiendelea, mwombe msimamizi wa eneo la kazi aongeze kikomo cha matokeo ya modeli.",
     assistantTestModelUnavailable:
-      "Huduma ya modeli imechelewa au haipatikani kwa sasa. Subiri kidogo kisha ujaribu tena. Ikiendelea, mwombe msimamizi wa onyesho akague hali ya huduma na kumbukumbu za seva.",
+      "Huduma ya modeli imechelewa au haipatikani kwa sasa. Subiri kidogo kisha ujaribu tena. Ikiendelea, mwombe msimamizi wa eneo la kazi akague hali ya huduma na kumbukumbu za seva.",
     assistantTestCredentialsRejected:
-      "Mtoa huduma wa modeli amekataa taarifa za kuingia au usanidi wa modeli. Mwombe msimamizi wa onyesho athibitishe META_MODEL_API_KEY na META_MODEL_NAME.",
+      "Mtoa huduma wa modeli amekataa taarifa za kuingia au usanidi wa modeli. Mwombe msimamizi wa eneo la kazi athibitishe usanidi wa modeli.",
     assistantTestRateLimited:
       "Mtoa huduma wa modeli anapunguza maombi au kikomo cha matumizi kimefikiwa. Subiri kisha ujaribu tena; ikiendelea, mwombe msimamizi akague kikomo cha matumizi.",
     assistantTestInvalidModelResponse:
@@ -525,16 +531,16 @@ export const messages = {
     privacyDescription:
       "Mazungumzo ya wateja wako yanapaswa kushughulikiwa kwa uangalifu. SokoPilot imeundwa kutumia data ya mazungumzo na katalogi kusaidia huduma kwa wateja pekee.",
     recoveryDescription:
-      "Omba msimbo wa pamoja kutoka kwa timu ya onyesho. Msimbo huu wa muda si akaunti binafsi ya mtumiaji.",
+      "Omba msimbo wa ufikiaji kutoka kwa msimamizi wa eneo lako. Msimbo huu si akaunti binafsi.",
     securityNote:
-      "Msimbo huu wa pamoja ni wa onyesho la faragha tu—si njia ya kuingia kwa uzalishaji.",
-    demoWorkspace: "Eneo la onyesho",
+      "Msimbo huu wa pamoja hautoi akaunti binafsi za watumiaji.",
+    demoWorkspace: "Eneo la SokoPilot",
     navWorkspace: "ENEO LA KAZI",
     navManage: "USIMAMIZI",
-    workspaceName: "Eneo la onyesho",
+    workspaceName: "Eneo la SokoPilot",
     workspaceType: "Mitindo na urembo",
-    statusNotConnected: "Onyesho la faragha",
-    workspacePreview: "Eneo la onyesho",
+    statusNotConnected: "Ufikiaji wa eneo la kazi",
+    workspacePreview: "Eneo la kazi",
     overviewEyebrow: "MUHTASARI WA DUKA LAKO",
     overviewTitle: "Pata nafasi zaidi ya kuwajali wateja wako.",
     overviewIntro:
@@ -545,7 +551,7 @@ export const messages = {
     metricResolution: "Yanayohitaji uangalizi",
     noData: "—",
     metricUnavailable: "Itapatikana baada ya usanidi",
-    currentRecords: "Rekodi za sasa za onyesho",
+    currentRecords: "Rekodi za sasa",
     activityTitle: "Mazungumzo ya hivi karibuni",
     activityEmptyTitle: "Kikasha chako kiko tayari",
     activityEmpty:
@@ -565,7 +571,7 @@ export const messages = {
     noProductsYet: "Tayari kwa bidhaa yako ya kwanza",
     noProductsBody:
       "Katalogi itaonekana baada ya bidhaa ya kwanza kuhifadhiwa. Sasisha bei, matoleo na stoku kwa majibu sahihi.",
-    productsEmptyLabel: "Onyesho la katalogi",
+    productsEmptyLabel: "Katalogi ya bidhaa",
     conversationEmptyLabel: "Kikasha chako",
     conversationEmptyTitle: "Kikasha tulivu kinaanzia hapa",
     conversationEmptyBody:
@@ -573,10 +579,10 @@ export const messages = {
     conversationEmptyHint: "Kikasha chako hakijaunganishwa kwa sasa.",
     setupTitle: "Usanidi makini kabla ya jibu la kwanza.",
     setupIntro:
-      "Kagua muunganisho wa njia, hali ya msaidizi na mipaka ya usalama kabla ya onyesho la moja kwa moja.",
+      "Kagua muunganisho wa njia, hali ya msaidizi na mipaka ya usalama.",
     setupChannelTitle: "WhatsApp Business",
     setupChannelBody:
-      "Unganisha nambari ya majaribio ili kupokea maswali na kutuma majibu.",
+      "Unganisha nambari ya WhatsApp Business ili kupokea maswali na kutuma majibu.",
     setupModelTitle: "Modeli ya Meta",
     setupModelBody:
       "Chagua na uthibitishe modeli halisi ya Meta itakayotumika kwenye mazungumzo.",
@@ -589,10 +595,10 @@ export const messages = {
     privacyPointData: "Hifadhi data ya biashara katika eneo la mfanyabiashara.",
     privacyPointControl: "Mfanyabiashara adhibiti vitendo vya msaidizi.",
     privacyPointClear:
-      "Eleza wazi kilichosanidiwa, kilichopimwa, na kilicho onyesho tu.",
-    recoveryTitle: "Unahitaji kuingia kwenye onyesho?",
+      "Kagua vipengele na mipaka ya huduma kabla ya kuiwasha.",
+    recoveryTitle: "Unahitaji ufikiaji wa eneo la kazi?",
     recoveryAction:
-      "Wasiliana na aliyekualika na uombe msimbo wa pamoja wa onyesho.",
+      "Wasiliana na msimamizi wa eneo lako uombe msimbo wa ufikiaji.",
     previewStrip: "Njia yenye umakini zaidi ya kumjali kila mteja",
     featureGrounded: "Taarifa za bidhaa kwenye katalogi moja",
     featureControl: "Timu yako inaendelea kuwa na udhibiti",
@@ -601,7 +607,7 @@ export const messages = {
     featureTitle: "Chanzo cha kuaminika kwa kila mazungumzo ya bidhaa.",
     featureBody:
       "Weka bidhaa, matoleo, bei na stoku pamoja, kisha peleka kila mazungumzo kwa mtu anayeweza kusaidia.",
-    getStarted: "Chunguza onyesho la faragha",
+    getStarted: "Tumia SokoPilot",
     learnMore: "Jinsi inavyofanya kazi",
     footerTagline: "Biashara yenye umakini, mazungumzo moja baada ya jingine.",
     navigationLabel: "Urambazaji mkuu",

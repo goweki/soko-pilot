@@ -126,8 +126,29 @@ function parseChanges(payload: unknown): IncomingChange[] | null {
         const type = getString(message.type);
         if (!id || !from || !type) return null;
         const text = message.text;
+        const image = message.image;
+        const interactive = message.interactive;
+        const interactiveReply = isRecord(interactive)
+          ? isRecord(interactive.button_reply)
+            ? interactive.button_reply
+            : isRecord(interactive.list_reply)
+              ? interactive.list_reply
+              : null
+          : null;
         const body =
-          type === "text" && isRecord(text) ? getString(text.body) : null;
+          type === "text" && isRecord(text)
+            ? getString(text.body)
+            : type === "image" && isRecord(image)
+              ? getString(image.caption)
+              : type === "interactive" && interactiveReply
+                ? getString(interactiveReply.id) === "request_human"
+                  ? "I would like to speak to a person."
+                  : getString(interactiveReply.id) === "product_details"
+                    ? "Please tell me more about this product."
+                    : getString(interactiveReply.id) === "resolved"
+                      ? "That helps, thank you."
+                      : getString(interactiveReply.title)
+                : null;
         messages.push({
           id,
           from,
@@ -254,8 +275,18 @@ async function persistMessage(
       .orderBy((conversation) => conversation.updatedAt.desc())
       .first();
     const automationBlockers: string[] = [];
-    if (message.type !== "text") automationBlockers.push("not-text-message");
-    if (!message.body?.trim()) automationBlockers.push("empty-message");
+    if (
+      message.type !== "text" &&
+      message.type !== "image" &&
+      message.type !== "interactive"
+    ) {
+      automationBlockers.push("unsupported-message-type");
+    }
+    if (
+      (message.type === "text" && !message.body?.trim()) ||
+      (message.type === "image" && !message.mediaId) ||
+      (message.type === "interactive" && !message.body?.trim())
+    ) automationBlockers.push("empty-message");
     if (
       connection.tokenExpiresAt &&
       Date.parse(connection.tokenExpiresAt) <= Date.now()
@@ -361,9 +392,8 @@ export async function processWhatsAppWebhook(
       messageId: message.id,
       phoneNumberId: change.phoneNumberId,
       // sender: maskPhoneNumber(message.from),
-      sender: message.from,
+      sender: maskPhoneNumber(message.from),
       type: message.type,
-      bodyPreview: message.body?.slice(0, 160) ?? null,
     });
   }
   for (const change of changes) {

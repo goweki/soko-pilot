@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
 import {
   updateConversationHandoff,
@@ -259,7 +260,9 @@ export function ConversationsWorkspace({
                         {text.latestMessage}:{" "}
                       </span>
                       {conversation.latestMessage ??
-                        text.noConversationMessages}
+                        (conversation.messages.at(-1)?.contentType === "image"
+                          ? text.imageAttachment
+                          : text.noConversationMessages)}
                     </p>
                     {conversation.latestAssistantRun && (
                       <p className="mt-2 text-xs text-muted-foreground">
@@ -305,8 +308,22 @@ export function ConversationsWorkspace({
                           className={`max-w-[90%] rounded-2xl px-3 py-2 text-sm ${message.direction === "outbound" ? "bg-primary text-primary-foreground" : "bg-card"}`}
                         >
                           <p className="whitespace-pre-wrap break-words">
-                            {message.body ?? `[${message.contentType}]`}
+                            {message.body ??
+                              (message.contentType === "image"
+                                ? text.imageAttachment
+                                : `[${message.contentType}]`)}
                           </p>
+                          {message.contentType === "image" && message.mediaId && (
+                            <Image
+                              alt={text.imageAttachment}
+                              className="mt-2 max-h-64 max-w-full rounded-lg object-contain"
+                              height={480}
+                              loading="lazy"
+                              unoptimized
+                              src={`/api/whatsapp/media/${encodeURIComponent(message.id)}`}
+                              width={640}
+                            />
+                          )}
                           <time
                             className="mt-1 block text-[10px] opacity-70"
                             dateTime={message.createdAt}
@@ -323,8 +340,7 @@ export function ConversationsWorkspace({
                 )}
 
                 {conversation.status === "handoff" &&
-                  !conversation.optedOut &&
-                  !conversation.isPresentationFixture && (
+                  !conversation.optedOut && (
                     <div className="w-full">
                       <ManualReplyForm
                         conversation={conversation}

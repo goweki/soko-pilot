@@ -38,6 +38,11 @@ async function ProtectedSettings({ params }: {
       readiness={readiness}
       assistantConfig={assistantConfig}
       embeddedSignupConfig={embeddedSignupConfig}
+      embeddedSignupDisabledByCredentials={Boolean(
+        process.env.META_WABA_ID?.trim() &&
+          process.env.META_PHONE_NUMBER_ID?.trim() &&
+          process.env.META_ACCESS_TOKEN?.trim(),
+      )}
     />
   );
 }

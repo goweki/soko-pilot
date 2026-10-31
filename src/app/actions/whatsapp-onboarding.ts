@@ -133,6 +133,13 @@ export async function finishWhatsAppEmbeddedSignup(
   if (!(await hasDemoAccess())) {
     return { status: "error", reason: "not-authorized" };
   }
+  if (
+    process.env.META_WABA_ID?.trim() &&
+    process.env.META_PHONE_NUMBER_ID?.trim() &&
+    process.env.META_ACCESS_TOKEN?.trim()
+  ) {
+    return { status: "error", reason: "not-configured" };
+  }
   if (!process.env.DATABASE_URL?.trim()) {
     return { status: "error", reason: "database-not-configured" };
   }

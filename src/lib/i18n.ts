@@ -72,8 +72,7 @@ export const messages = {
       "The workspace has not been initialized. Check the database setup and runbook.",
     databaseWritesNotApproved:
       "Database writes are disabled until the configured database is approved for writes.",
-    demoAccessExpired:
-      "Your access expired. Please sign in again.",
+    demoAccessExpired: "Your access expired. Please sign in again.",
     storageUnavailable:
       "The catalogue could not be loaded or saved. Check the database setup and server logs.",
     catalogueProducts: "Catalogue products",
@@ -82,8 +81,7 @@ export const messages = {
     productActive: "Active",
     productDraft: "Draft",
     productArchived: "Archived",
-    catalogueSourceNote:
-      "Values below are read from the configured database.",
+    catalogueSourceNote: "Values below are read from the configured database.",
     noVariants: "No variants have been added to this product.",
     defaultVariant: "Standard",
     noVariantDetails: "No size or color specified",
@@ -166,7 +164,7 @@ export const messages = {
     whatsappSignupSdkLoading: "Loading Facebook…",
     whatsappSignupLoading: "Connecting number…",
     whatsappSignupNotConfigured:
-      "Optional signup is not enabled for this deployment. An administrator must configure the Meta App ID, Graph API version, and Embedded Signup configuration ID first.",
+      "Optional signup is not enabled for this deployment. The administrator must configure the Embedded Signup configuration ID first.",
     whatsappSignupCancelled:
       "Facebook signup was cancelled. No number was connected.",
     whatsappSignupFailed:
@@ -298,8 +296,7 @@ export const messages = {
     privacyPointClear:
       "Be clear about what is configured, measured, and still a preview.",
     recoveryTitle: "Need workspace access?",
-    recoveryAction:
-      "Contact your workspace administrator for an access code.",
+    recoveryAction: "Contact your workspace administrator for an access code.",
     previewStrip: "A clearer way to care for every customer",
     featureGrounded: "Product facts in one catalogue",
     featureControl: "Your team stays in control",
@@ -373,13 +370,11 @@ export const messages = {
       "Eneo la kazi halijaandaliwa. Kagua usanidi wa hifadhidata na mwongozo wa usanidi.",
     databaseWritesNotApproved:
       "Uandishi kwenye hifadhidata umezimwa hadi uidhinishe hifadhidata iliyosanidiwa.",
-    demoAccessExpired:
-      "Muda wa ufikiaji umeisha. Ingia tena.",
+    demoAccessExpired: "Muda wa ufikiaji umeisha. Ingia tena.",
     storageUnavailable:
       "Katalogi haikuweza kusomwa au kuhifadhiwa. Kagua usanidi wa hifadhidata na kumbukumbu za seva.",
     catalogueProducts: "Bidhaa za katalogi",
-    catalogueUnavailable:
-      "Katalogi haipatikani hadi hifadhidata isanidiwe.",
+    catalogueUnavailable: "Katalogi haipatikani hadi hifadhidata isanidiwe.",
     productActive: "Inatumika",
     productDraft: "Rasimu",
     productArchived: "Imehifadhiwa",
@@ -467,7 +462,7 @@ export const messages = {
     whatsappSignupSdkLoading: "Inapakia Facebook…",
     whatsappSignupLoading: "Inaunganisha nambari…",
     whatsappSignupNotConfigured:
-      "Usajili huu wa hiari haujawashwa kwa uwekaji huu. Msimamizi lazima aweke Meta App ID, toleo la Graph API na Embedded Signup configuration ID.",
+      "Usajili huu wa hiari haujawashwa kwa uwekaji huu. Msimamizi lazima aweke Embedded Signup configuration ID.",
     whatsappSignupCancelled:
       "Usajili wa Facebook umeghairiwa. Hakuna nambari iliyounganishwa.",
     whatsappSignupFailed:
@@ -532,8 +527,7 @@ export const messages = {
       "Mazungumzo ya wateja wako yanapaswa kushughulikiwa kwa uangalifu. SokoPilot imeundwa kutumia data ya mazungumzo na katalogi kusaidia huduma kwa wateja pekee.",
     recoveryDescription:
       "Omba msimbo wa ufikiaji kutoka kwa msimamizi wa eneo lako. Msimbo huu si akaunti binafsi.",
-    securityNote:
-      "Msimbo huu wa pamoja hautoi akaunti binafsi za watumiaji.",
+    securityNote: "Msimbo huu wa pamoja hautoi akaunti binafsi za watumiaji.",
     demoWorkspace: "Eneo la SokoPilot",
     navWorkspace: "ENEO LA KAZI",
     navManage: "USIMAMIZI",
@@ -594,8 +588,7 @@ export const messages = {
     privacyTitle: "Imeundwa kwa uangalifu wa mazungumzo ya wateja.",
     privacyPointData: "Hifadhi data ya biashara katika eneo la mfanyabiashara.",
     privacyPointControl: "Mfanyabiashara adhibiti vitendo vya msaidizi.",
-    privacyPointClear:
-      "Kagua vipengele na mipaka ya huduma kabla ya kuiwasha.",
+    privacyPointClear: "Kagua vipengele na mipaka ya huduma kabla ya kuiwasha.",
     recoveryTitle: "Unahitaji ufikiaji wa eneo la kazi?",
     recoveryAction:
       "Wasiliana na msimamizi wa eneo lako uombe msimbo wa ufikiaji.",

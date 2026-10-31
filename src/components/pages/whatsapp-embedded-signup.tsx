@@ -73,7 +73,8 @@ export function WhatsAppEmbeddedSignup({
   );
   const [state, setState] = useState<SignupUiState>({ status: "idle" });
   const processing = useRef(false);
-  const alreadyConfigured = disabledByCredentials || connectedNumbers.length > 0;
+  const alreadyConfigured =
+    disabledByCredentials || connectedNumbers.length > 0;
 
   useEffect(() => {
     if (!config || alreadyConfigured) return;
@@ -191,7 +192,13 @@ export function WhatsAppEmbeddedSignup({
   }, [authorizationCode, locale, registrationPin, router, signupSession]);
 
   function startSignup() {
-    if (alreadyConfigured || !config || !window.FB || !sdkReady || registrationPin.length !== 6) {
+    if (
+      alreadyConfigured ||
+      !config ||
+      !window.FB ||
+      !sdkReady ||
+      registrationPin.length !== 6
+    ) {
       return;
     }
     processing.current = false;
@@ -235,10 +242,18 @@ export function WhatsAppEmbeddedSignup({
 
       {alreadyConfigured ? (
         <div className="mt-5 max-w-xl">
-          <Button className="pointer-events-none opacity-50" disabled size="sm" type="button">
+          <Button
+            className="pointer-events-none opacity-50"
+            disabled
+            size="sm"
+            type="button"
+          >
             {text.whatsappSignupButton}
           </Button>
-          <p className="mt-2 text-xs leading-5 text-muted-foreground" role="status">
+          <p
+            className="mt-2 text-xs leading-5 text-muted-foreground"
+            role="status"
+          >
             {text.whatsappSignupAlreadyConfigured}
           </p>
         </div>

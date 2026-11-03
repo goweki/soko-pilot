@@ -233,7 +233,7 @@ export const messages = {
     recoveryDescription:
       "Ask your workspace administrator for an access code. This code is not an individual user account.",
     securityNote:
-      "This shared access code does not provide individual user accounts.",
+      "The shared access code provides access to an individual user account.",
     demoWorkspace: "SokoPilot workspace",
     navWorkspace: "WORKSPACE",
     navManage: "MANAGE",
@@ -529,7 +529,7 @@ export const messages = {
       "Mazungumzo ya wateja wako yanapaswa kushughulikiwa kwa uangalifu. SokoPilot imeundwa kutumia data ya mazungumzo na katalogi kusaidia huduma kwa wateja pekee.",
     recoveryDescription:
       "Omba msimbo wa ufikiaji kutoka kwa msimamizi wa eneo lako. Msimbo huu si akaunti binafsi.",
-    securityNote: "Msimbo huu wa pamoja hautoi akaunti binafsi za watumiaji.",
+    securityNote: "Msimbo huu wa pamoja unatoa akaunti binafsi moja",
     demoWorkspace: "Eneo la SokoPilot",
     navWorkspace: "ENEO LA KAZI",
     navManage: "USIMAMIZI",

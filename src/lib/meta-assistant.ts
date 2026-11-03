@@ -2,6 +2,7 @@ import "server-only";
 
 import { db } from "@/prisma/db";
 import { searchDemoCatalogue } from "@/lib/catalogue";
+import { buildCatalogueEvidence } from "@/lib/catalogue-evidence";
 import { getDemoMerchantId } from "@/lib/demo-tenant";
 import { decryptWhatsAppToken } from "@/lib/whatsapp-token";
 import { downloadWhatsAppImage } from "@/lib/whatsapp-media";
@@ -175,22 +176,9 @@ async function runCatalogueSearch(
     if (!args) throw new AssistantFailure("INVALID_TOOL_ARGUMENTS");
     const result = await searchDemoCatalogue(args.query);
     if (!result.ok) throw new AssistantFailure("CATALOGUE_LOOKUP_FAILED");
-    if (!result.products.length) return JSON.stringify({ products: [] });
-    return JSON.stringify({
-      products: result.products.slice(0, 8).map((product) => ({
-        name: product.name,
-        description: product.description,
-        category: product.category,
-        variants: product.variants.map((variant) => ({
-          label: variant.label,
-          size: variant.size,
-          color: variant.color,
-          priceMinor: variant.priceMinor,
-          currency: variant.currency,
-          stockQuantity: variant.stockQuantity,
-        })),
-      })),
-    });
+    if (!result.products.length)
+      return JSON.stringify(buildCatalogueEvidence([]));
+    return JSON.stringify(buildCatalogueEvidence(result.products));
   });
 }
 
@@ -295,7 +283,7 @@ function toModelMessages(
 }
 
 export type AssistantPreviewResult =
-  | { ok: true; reply: string; handedOff: boolean }
+  | { ok: true; reply: string; handedOff: boolean; catalogueSearches: number }
   | {
       ok: false;
       error:
@@ -387,6 +375,7 @@ export async function previewMetaAssistantReply(
     );
     const availableTools = makeTools();
     let retriedForOutputLimit = false;
+    let catalogueSearches = 0;
 
     for (let round = 0; round <= MAX_TOOL_ROUNDS; round += 1) {
       let completion = await requestCompletion(
@@ -431,7 +420,7 @@ export async function previewMetaAssistantReply(
         if (reply.length > MAX_REPLY_LENGTH) {
           return failPreview("MODEL_REPLY_INVALID_LENGTH");
         }
-        return { ok: true, reply, handedOff: false };
+        return { ok: true, reply, handedOff: false, catalogueSearches };
       }
 
       if (
@@ -460,6 +449,7 @@ export async function previewMetaAssistantReply(
             ok: true,
             reply: completion.content?.trim() ?? "",
             handedOff: true,
+            catalogueSearches,
           };
         }
         if (call.name !== "search_catalogue") {
@@ -475,23 +465,10 @@ export async function previewMetaAssistantReply(
         if (!args) return failPreview("INVALID_CATALOGUE_TOOL_ARGUMENTS");
         const result = await searchDemoCatalogue(args.query);
         if (!result.ok) return { ok: false, error: "catalogue-unavailable" };
-        const content = result.products.length
-          ? JSON.stringify({
-              products: result.products.slice(0, 8).map((product) => ({
-                name: product.name,
-                description: product.description,
-                category: product.category,
-                variants: product.variants.map((variant) => ({
-                  label: variant.label,
-                  size: variant.size,
-                  color: variant.color,
-                  priceMinor: variant.priceMinor,
-                  currency: variant.currency,
-                  stockQuantity: variant.stockQuantity,
-                })),
-              })),
-            })
-          : JSON.stringify({ products: [] });
+        catalogueSearches += 1;
+        const content = JSON.stringify(
+          buildCatalogueEvidence(result.products),
+        );
         messages.push({
           role: "tool",
           tool_call_id: call.id,

@@ -16,6 +16,7 @@ import {
   MessageSquareText,
   Package,
   Plus,
+  RotateCcw,
   ShieldCheck,
   Sparkles,
   Store,
@@ -46,7 +47,7 @@ import {
 } from "./whatsapp-embedded-signup";
 
 export type DashboardSection =
-  "dashboard" | "conversations" | "products" | "settings";
+  "dashboard" | "conversations" | "products" | "recovery" | "settings";
 type PublicRoute = "home" | "privacy" | "recovery" | "sign-in";
 
 function dashboardHref(locale: Locale, section: DashboardSection): string {
@@ -85,6 +86,11 @@ const navigation: {
     key: "products",
     icon: Package,
     href: (locale) => `/${locale}/dashboard/products`,
+  },
+  {
+    key: "recovery",
+    icon: RotateCcw,
+    href: (locale) => `/${locale}/dashboard/recovery`,
   },
   {
     key: "settings",
@@ -204,7 +210,7 @@ export function DashboardShell({
                       )}
                       aria-hidden="true"
                     />
-                    {text[key]}
+                    {key === "recovery" ? text.salesRecovery : text[key]}
                   </Link>
                 );
               })}
@@ -234,7 +240,7 @@ export function DashboardShell({
                       )}
                       aria-hidden="true"
                     />
-                    {text[key]}
+                    {key === "recovery" ? text.salesRecovery : text[key]}
                   </Link>
                 );
               })}
@@ -358,7 +364,7 @@ export function DashboardShell({
                     )}
                   >
                     <Icon className="size-4" aria-hidden="true" />
-                    {text[key]}
+                    {key === "recovery" ? text.salesRecovery : text[key]}
                   </Link>
                 );
               })}

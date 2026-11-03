@@ -1,0 +1,644 @@
+[
+  {
+    "id": "table.SalesRecoveryConfig",
+    "label": "Create table \"SalesRecoveryConfig\"",
+    "summary": "Creates table \"SalesRecoveryConfig\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "SalesRecoveryConfig"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"SalesRecoveryConfig\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryConfig\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"SalesRecoveryConfig\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"SalesRecoveryConfig\"",
+        "sql": "CREATE TABLE \"public\".\"SalesRecoveryConfig\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"frequencyCapDays\" int4 DEFAULT 7 NOT NULL,\n  \"id\" text NOT NULL,\n  \"inactivityMinutes\" int4 DEFAULT 240 NOT NULL,\n  \"isEnabled\" bool DEFAULT false NOT NULL,\n  \"merchantId\" text NOT NULL,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"recovery_frequency_valid_b94a91d0\" CHECK (\"frequencyCapDays\" >= 1 AND \"frequencyCapDays\" <= 90),\n  CONSTRAINT \"recovery_inactivity_valid_d2e73fe3\" CHECK (\"inactivityMinutes\" >= 60 AND \"inactivityMinutes\" <= 1380)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"SalesRecoveryConfig\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryConfig\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"SalesRecoveryConfig\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.SalesRecoveryOpportunity",
+    "label": "Create table \"SalesRecoveryOpportunity\"",
+    "summary": "Creates table \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"SalesRecoveryOpportunity\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"SalesRecoveryOpportunity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"SalesRecoveryOpportunity\"",
+        "sql": "CREATE TABLE \"public\".\"SalesRecoveryOpportunity\" (\n  \"conversationId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"customerId\" text NOT NULL,\n  \"evidence\" text NOT NULL,\n  \"failureCode\" text,\n  \"id\" text NOT NULL,\n  \"idempotencyKey\" text NOT NULL,\n  \"lastOutboundMessageId\" text NOT NULL,\n  \"merchantId\" text NOT NULL,\n  \"providerMessageId\" text,\n  \"reason\" text DEFAULT 'unknown' NOT NULL,\n  \"reviewedAt\" timestamptz,\n  \"sentAt\" timestamptz,\n  \"status\" text DEFAULT 'pending' NOT NULL,\n  \"suggestedMessage\" text NOT NULL,\n  \"triggerMessageId\" text NOT NULL,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"SalesRecoveryOpportunity_reason_check_a3e3e1b6\" CHECK (\"reason\" IN ('buying_intent', 'price_concern', 'unavailable_item', 'undecided', 'unanswered_question', 'unknown')),\n  CONSTRAINT \"SalesRecoveryOpportunity_status_check_87bd62f0\" CHECK (\"status\" IN ('pending', 'approved', 'rejected', 'dismissed', 'sent', 'failed'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"SalesRecoveryOpportunity\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"SalesRecoveryOpportunity\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.SalesRecoveryConfig.SalesRecoveryConfig_merchantId_key",
+    "label": "Add unique constraint on \"SalesRecoveryConfig\" (merchantId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "SalesRecoveryConfig_merchantId_key",
+        "table": "SalesRecoveryConfig"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"SalesRecoveryConfig_merchantId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SalesRecoveryConfig_merchantId_key",
+          "public",
+          "\"public\".\"SalesRecoveryConfig\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"SalesRecoveryConfig_merchantId_key\" on \"SalesRecoveryConfig\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"SalesRecoveryConfig_merchantId_key\"",
+        "sql": "ALTER TABLE \"public\".\"SalesRecoveryConfig\" ADD CONSTRAINT \"SalesRecoveryConfig_merchantId_key\" UNIQUE (\"merchantId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"SalesRecoveryConfig_merchantId_key\" exists on (merchantId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "SalesRecoveryConfig_merchantId_key",
+          "public",
+          "\"public\".\"SalesRecoveryConfig\"",
+          "u",
+          "[\"merchantId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.SalesRecoveryOpportunity.SalesRecoveryOpportunity_merchantId_idempotencyKey_key",
+    "label": "Add unique constraint on \"SalesRecoveryOpportunity\" (merchantId, idempotencyKey)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "SalesRecoveryOpportunity_merchantId_idempotencyKey_key",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"SalesRecoveryOpportunity_merchantId_idempotencyKey_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_merchantId_idempotencyKey_key",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"SalesRecoveryOpportunity_merchantId_idempotencyKey_key\" on \"SalesRecoveryOpportunity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"SalesRecoveryOpportunity_merchantId_idempotencyKey_key\"",
+        "sql": "ALTER TABLE \"public\".\"SalesRecoveryOpportunity\" ADD CONSTRAINT \"SalesRecoveryOpportunity_merchantId_idempotencyKey_key\" UNIQUE (\"merchantId\", \"idempotencyKey\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"SalesRecoveryOpportunity_merchantId_idempotencyKey_key\" exists on (merchantId, idempotencyKey)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_merchantId_idempotencyKey_key",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "u",
+          "[\"merchantId\",\"idempotencyKey\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.SalesRecoveryOpportunity.SalesRecoveryOpportunity_conversationId_triggerMessageId_key",
+    "label": "Add unique constraint on \"SalesRecoveryOpportunity\" (conversationId, triggerMessageId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "SalesRecoveryOpportunity_conversationId_triggerMessageId_key",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"SalesRecoveryOpportunity_conversationId_triggerMessageId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_conversationId_triggerMessageId_key",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"SalesRecoveryOpportunity_conversationId_triggerMessageId_key\" on \"SalesRecoveryOpportunity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"SalesRecoveryOpportunity_conversationId_triggerMessageId_key\"",
+        "sql": "ALTER TABLE \"public\".\"SalesRecoveryOpportunity\" ADD CONSTRAINT \"SalesRecoveryOpportunity_conversationId_triggerMessageId_key\" UNIQUE (\"conversationId\", \"triggerMessageId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"SalesRecoveryOpportunity_conversationId_triggerMessageId_key\" exists on (conversationId, triggerMessageId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_conversationId_triggerMessageId_key",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "u",
+          "[\"conversationId\",\"triggerMessageId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.SalesRecoveryOpportunity.SalesRecoveryOpportunity_conversationId_idx_669215a6",
+    "label": "Create index \"SalesRecoveryOpportunity_conversationId_idx_669215a6\" on \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "SalesRecoveryOpportunity_conversationId_idx_669215a6",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"SalesRecoveryOpportunity_conversationId_idx_669215a6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity_conversationId_idx_669215a6\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"SalesRecoveryOpportunity_conversationId_idx_669215a6\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"SalesRecoveryOpportunity_conversationId_idx_669215a6\"",
+        "sql": "CREATE INDEX \"SalesRecoveryOpportunity_conversationId_idx_669215a6\" ON \"public\".\"SalesRecoveryOpportunity\" (\"conversationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"SalesRecoveryOpportunity_conversationId_idx_669215a6\" exists on \"SalesRecoveryOpportunity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity_conversationId_idx_669215a6\"",
+          "i",
+          "I",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "btree",
+          "[\"conversationId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.SalesRecoveryOpportunity.SalesRecoveryOpportunity_customerId_idx_b2a8a46c",
+    "label": "Create index \"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\" on \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "SalesRecoveryOpportunity_customerId_idx_b2a8a46c",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\"",
+        "sql": "CREATE INDEX \"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\" ON \"public\".\"SalesRecoveryOpportunity\" (\"customerId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\" exists on \"SalesRecoveryOpportunity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity_customerId_idx_b2a8a46c\"",
+          "i",
+          "I",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "btree",
+          "[\"customerId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.SalesRecoveryOpportunity.SalesRecoveryOpportunity_merchantId_idx_ee13c67b",
+    "label": "Create index \"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\" on \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "SalesRecoveryOpportunity_merchantId_idx_ee13c67b",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\"",
+        "sql": "CREATE INDEX \"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\" ON \"public\".\"SalesRecoveryOpportunity\" (\"merchantId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\" exists on \"SalesRecoveryOpportunity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"SalesRecoveryOpportunity_merchantId_idx_ee13c67b\"",
+          "i",
+          "I",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "btree",
+          "[\"merchantId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.SalesRecoveryOpportunity.sro_merchant_status_created_52530b35",
+    "label": "Create index \"sro_merchant_status_created_52530b35\" on \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "sro_merchant_status_created_52530b35",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"sro_merchant_status_created_52530b35\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sro_merchant_status_created_52530b35\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"sro_merchant_status_created_52530b35\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"sro_merchant_status_created_52530b35\"",
+        "sql": "CREATE INDEX \"sro_merchant_status_created_52530b35\" ON \"public\".\"SalesRecoveryOpportunity\" (\"merchantId\", \"status\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"sro_merchant_status_created_52530b35\" exists on \"SalesRecoveryOpportunity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"sro_merchant_status_created_52530b35\"",
+          "i",
+          "I",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "btree",
+          "[\"merchantId\",\"status\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.SalesRecoveryConfig.SalesRecoveryConfig_merchantId_fkey",
+    "label": "Add foreign key \"SalesRecoveryConfig_merchantId_fkey\" on \"SalesRecoveryConfig\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "SalesRecoveryConfig_merchantId_fkey",
+        "table": "SalesRecoveryConfig"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"SalesRecoveryConfig_merchantId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SalesRecoveryConfig_merchantId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryConfig\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"SalesRecoveryConfig_merchantId_fkey\" on \"SalesRecoveryConfig\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"SalesRecoveryConfig_merchantId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"SalesRecoveryConfig\"\nADD CONSTRAINT \"SalesRecoveryConfig_merchantId_fkey\"\nFOREIGN KEY (\"merchantId\")\nREFERENCES \"public\".\"Merchant\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"SalesRecoveryConfig_merchantId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "SalesRecoveryConfig_merchantId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryConfig\"",
+          "f",
+          "[\"merchantId\"]",
+          "\"public\".\"Merchant\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.SalesRecoveryOpportunity.SalesRecoveryOpportunity_merchantId_fkey",
+    "label": "Add foreign key \"SalesRecoveryOpportunity_merchantId_fkey\" on \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "SalesRecoveryOpportunity_merchantId_fkey",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"SalesRecoveryOpportunity_merchantId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_merchantId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"SalesRecoveryOpportunity_merchantId_fkey\" on \"SalesRecoveryOpportunity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"SalesRecoveryOpportunity_merchantId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"SalesRecoveryOpportunity\"\nADD CONSTRAINT \"SalesRecoveryOpportunity_merchantId_fkey\"\nFOREIGN KEY (\"merchantId\")\nREFERENCES \"public\".\"Merchant\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"SalesRecoveryOpportunity_merchantId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_merchantId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "f",
+          "[\"merchantId\"]",
+          "\"public\".\"Merchant\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.SalesRecoveryOpportunity.SalesRecoveryOpportunity_conversationId_fkey",
+    "label": "Add foreign key \"SalesRecoveryOpportunity_conversationId_fkey\" on \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "SalesRecoveryOpportunity_conversationId_fkey",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"SalesRecoveryOpportunity_conversationId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_conversationId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"SalesRecoveryOpportunity_conversationId_fkey\" on \"SalesRecoveryOpportunity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"SalesRecoveryOpportunity_conversationId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"SalesRecoveryOpportunity\"\nADD CONSTRAINT \"SalesRecoveryOpportunity_conversationId_fkey\"\nFOREIGN KEY (\"conversationId\")\nREFERENCES \"public\".\"Conversation\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"SalesRecoveryOpportunity_conversationId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_conversationId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "f",
+          "[\"conversationId\"]",
+          "\"public\".\"Conversation\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.SalesRecoveryOpportunity.SalesRecoveryOpportunity_customerId_fkey",
+    "label": "Add foreign key \"SalesRecoveryOpportunity_customerId_fkey\" on \"SalesRecoveryOpportunity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "SalesRecoveryOpportunity_customerId_fkey",
+        "table": "SalesRecoveryOpportunity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"SalesRecoveryOpportunity_customerId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_customerId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"SalesRecoveryOpportunity_customerId_fkey\" on \"SalesRecoveryOpportunity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"SalesRecoveryOpportunity_customerId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"SalesRecoveryOpportunity\"\nADD CONSTRAINT \"SalesRecoveryOpportunity_customerId_fkey\"\nFOREIGN KEY (\"customerId\")\nREFERENCES \"public\".\"Customer\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"SalesRecoveryOpportunity_customerId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "SalesRecoveryOpportunity_customerId_fkey",
+          "public",
+          "\"public\".\"SalesRecoveryOpportunity\"",
+          "f",
+          "[\"customerId\"]",
+          "\"public\".\"Customer\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]

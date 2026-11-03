@@ -125,6 +125,28 @@ enum order_payment_status {
   unpaid = "unpaid"
 }
 
+enum sales_recovery_status {
+  @@type("pg/text@1")
+
+  pending = "pending"
+  approved = "approved"
+  rejected = "rejected"
+  dismissed = "dismissed"
+  sent = "sent"
+  failed = "failed"
+}
+
+enum sales_recovery_reason {
+  @@type("pg/text@1")
+
+  buying_intent = "buying_intent"
+  price_concern = "price_concern"
+  unavailable_item = "unavailable_item"
+  undecided = "undecided"
+  unanswered_question = "unanswered_question"
+  unknown = "unknown"
+}
+
 model User {
   id              String             @id @onCreate(uuid(7))
   email           String             @unique
@@ -155,6 +177,8 @@ model Merchant {
   products            Product[]
   conversations       Conversation[]
   orders              Order[]
+  salesRecoveryOpportunities SalesRecoveryOpportunity[]
+  salesRecoveryConfig SalesRecoveryConfig?
 
   @@index([status])
 }
@@ -273,6 +297,7 @@ model Customer {
   merchant      Merchant           @relation(fields: [merchantId], references: [id], onDelete: Cascade)
   conversations Conversation[]
   orders        Order[]
+  salesRecoveryOpportunities SalesRecoveryOpportunity[]
 
   @@unique([merchantId, waId])
   @@index([merchantId, phoneNumber])
@@ -336,6 +361,7 @@ model Conversation {
   messages             Message[]
   assistantRuns        AssistantRun[]
   orders               Order[]
+  salesRecoveryOpportunities SalesRecoveryOpportunity[]
 
   @@index([merchantId, status, lastMessageAt])
   @@index([customerId, createdAt])
@@ -464,4 +490,47 @@ model OrderItem {
   @@check(expression: sql`"unitPriceMinor" >= 0`, name: "order_item_price_nonnegative")
   @@check(expression: sql`"quantity" > 0`, name: "order_item_quantity_positive")
   @@check(expression: sql`"lineTotalMinor" >= 0`, name: "order_item_total_nonnegative")
+}
+
+model SalesRecoveryOpportunity {
+  id                 String                  @id @onCreate(uuid(7))
+  merchantId         String
+  conversationId     String
+  customerId         String
+  triggerMessageId   String
+  lastOutboundMessageId String
+  reason             sales_recovery_reason  @default(unknown)
+  evidence           String
+  suggestedMessage   String
+  status             sales_recovery_status  @default(pending)
+  idempotencyKey     String
+  reviewedAt         TimestamptzString?
+  sentAt             TimestamptzString?
+  providerMessageId  String?
+  failureCode        String?
+  createdAt          TimestamptzString      @default(now())
+  updatedAt          TimestamptzString      @default(now()) @onUpdate(now())
+
+  merchant           Merchant                @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  conversation       Conversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  customer           Customer                @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([merchantId, idempotencyKey])
+  @@unique([conversationId, triggerMessageId])
+  @@index([merchantId, status, createdAt], name: "sro_merchant_status_created")
+}
+
+model SalesRecoveryConfig {
+  id                  String            @id @onCreate(uuid(7))
+  merchantId          String            @unique
+  isEnabled           Boolean           @default(false)
+  inactivityMinutes   Int               @default(240)
+  frequencyCapDays    Int               @default(7)
+  createdAt           TimestamptzString @default(now())
+  updatedAt           TimestamptzString @default(now()) @onUpdate(now())
+
+  merchant            Merchant          @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@check(expression: sql`"inactivityMinutes" >= 60 AND "inactivityMinutes" <= 1380`, name: "recovery_inactivity_valid")
+  @@check(expression: sql`"frequencyCapDays" >= 1 AND "frequencyCapDays" <= 90`, name: "recovery_frequency_valid")
 }

@@ -60,6 +60,14 @@
       "model": "ProductVariant",
       "namespace": "public"
     },
+    "SalesRecoveryConfig": {
+      "model": "SalesRecoveryConfig",
+      "namespace": "public"
+    },
+    "SalesRecoveryOpportunity": {
+      "model": "SalesRecoveryOpportunity",
+      "namespace": "public"
+    },
     "Subscription": {
       "model": "Subscription",
       "namespace": "public"
@@ -273,6 +281,64 @@
               {
                 "name": "archived",
                 "value": "archived"
+              }
+            ]
+          },
+          "sales_recovery_reason": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "buying_intent",
+                "value": "buying_intent"
+              },
+              {
+                "name": "price_concern",
+                "value": "price_concern"
+              },
+              {
+                "name": "unavailable_item",
+                "value": "unavailable_item"
+              },
+              {
+                "name": "undecided",
+                "value": "undecided"
+              },
+              {
+                "name": "unanswered_question",
+                "value": "unanswered_question"
+              },
+              {
+                "name": "unknown",
+                "value": "unknown"
+              }
+            ]
+          },
+          "sales_recovery_status": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "pending",
+                "value": "pending"
+              },
+              {
+                "name": "approved",
+                "value": "approved"
+              },
+              {
+                "name": "rejected",
+                "value": "rejected"
+              },
+              {
+                "name": "dismissed",
+                "value": "dismissed"
+              },
+              {
+                "name": "sent",
+                "value": "sent"
+              },
+              {
+                "name": "failed",
+                "value": "failed"
               }
             ]
           },
@@ -1008,6 +1074,21 @@
                   "namespace": "public"
                 }
               },
+              "salesRecoveryOpportunities": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "conversationId"
+                  ]
+                },
+                "to": {
+                  "model": "SalesRecoveryOpportunity",
+                  "namespace": "public"
+                }
+              },
               "whatsappConnection": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1162,6 +1243,21 @@
                 },
                 "to": {
                   "model": "Order",
+                  "namespace": "public"
+                }
+              },
+              "salesRecoveryOpportunities": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "customerId"
+                  ]
+                },
+                "to": {
+                  "model": "SalesRecoveryOpportunity",
                   "namespace": "public"
                 }
               }
@@ -1359,6 +1455,37 @@
                 },
                 "to": {
                   "model": "Product",
+                  "namespace": "public"
+                }
+              },
+              "salesRecoveryConfig": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "merchantId"
+                  ]
+                },
+                "to": {
+                  "model": "SalesRecoveryConfig",
+                  "namespace": "public"
+                }
+              },
+              "salesRecoveryOpportunities": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "merchantId"
+                  ]
+                },
+                "to": {
+                  "model": "SalesRecoveryOpportunity",
                   "namespace": "public"
                 }
               },
@@ -2547,6 +2674,346 @@
               },
               "namespaceId": "public",
               "table": "ProductVariant"
+            }
+          },
+          "SalesRecoveryConfig": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "frequencyCapDays": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "inactivityMinutes": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "isEnabled": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "merchantId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "merchant": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "merchantId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Merchant",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "frequencyCapDays": {
+                  "column": "frequencyCapDays"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "inactivityMinutes": {
+                  "column": "inactivityMinutes"
+                },
+                "isEnabled": {
+                  "column": "isEnabled"
+                },
+                "merchantId": {
+                  "column": "merchantId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "SalesRecoveryConfig"
+            }
+          },
+          "SalesRecoveryOpportunity": {
+            "fields": {
+              "conversationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "customerId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "evidence": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "failureCode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "idempotencyKey": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastOutboundMessageId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "merchantId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "providerMessageId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "reason": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "sales_recovery_reason",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "reviewedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "sentAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "sales_recovery_status",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "suggestedMessage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "triggerMessageId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "conversation": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "conversationId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Conversation",
+                  "namespace": "public"
+                }
+              },
+              "customer": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "customerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Customer",
+                  "namespace": "public"
+                }
+              },
+              "merchant": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "merchantId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Merchant",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "conversationId": {
+                  "column": "conversationId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "customerId": {
+                  "column": "customerId"
+                },
+                "evidence": {
+                  "column": "evidence"
+                },
+                "failureCode": {
+                  "column": "failureCode"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "idempotencyKey": {
+                  "column": "idempotencyKey"
+                },
+                "lastOutboundMessageId": {
+                  "column": "lastOutboundMessageId"
+                },
+                "merchantId": {
+                  "column": "merchantId"
+                },
+                "providerMessageId": {
+                  "column": "providerMessageId"
+                },
+                "reason": {
+                  "column": "reason"
+                },
+                "reviewedAt": {
+                  "column": "reviewedAt"
+                },
+                "sentAt": {
+                  "column": "sentAt"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "suggestedMessage": {
+                  "column": "suggestedMessage"
+                },
+                "triggerMessageId": {
+                  "column": "triggerMessageId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "SalesRecoveryOpportunity"
             }
           },
           "Subscription": {
@@ -5140,6 +5607,360 @@
                 }
               ]
             },
+            "SalesRecoveryConfig": {
+              "checks": [
+                {
+                  "expression": "\"frequencyCapDays\" >= 1 AND \"frequencyCapDays\" <= 90",
+                  "name": "recovery_frequency_valid_b94a91d0",
+                  "prefix": "recovery_frequency_valid"
+                },
+                {
+                  "expression": "\"inactivityMinutes\" >= 60 AND \"inactivityMinutes\" <= 1380",
+                  "name": "recovery_inactivity_valid_d2e73fe3",
+                  "prefix": "recovery_inactivity_valid"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "frequencyCapDays": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 7
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "inactivityMinutes": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 240
+                  },
+                  "nullable": false
+                },
+                "isEnabled": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "merchantId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "unique": [
+                      "merchantId"
+                    ]
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "merchantId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "SalesRecoveryConfig"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Merchant"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "merchantId"
+                  ]
+                }
+              ]
+            },
+            "SalesRecoveryOpportunity": {
+              "checks": [
+                {
+                  "expression": "\"reason\" IN ('buying_intent', 'price_concern', 'unavailable_item', 'undecided', 'unanswered_question', 'unknown')",
+                  "name": "SalesRecoveryOpportunity_reason_check_a3e3e1b6",
+                  "prefix": "SalesRecoveryOpportunity_reason_check"
+                },
+                {
+                  "expression": "\"status\" IN ('pending', 'approved', 'rejected', 'dismissed', 'sent', 'failed')",
+                  "name": "SalesRecoveryOpportunity_status_check_87bd62f0",
+                  "prefix": "SalesRecoveryOpportunity_status_check"
+                }
+              ],
+              "columns": {
+                "conversationId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "customerId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "evidence": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "failureCode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "idempotencyKey": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "lastOutboundMessageId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "merchantId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "providerMessageId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "reason": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "unknown"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "sales_recovery_reason",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "reviewedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "sentAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "pending"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "sales_recovery_status",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "suggestedMessage": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "triggerMessageId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "SalesRecoveryOpportunity_merchantId_idx_ee13c67b"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "merchantId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "SalesRecoveryOpportunity"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Merchant"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "SalesRecoveryOpportunity_conversationId_idx_669215a6"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "conversationId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "SalesRecoveryOpportunity"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Conversation"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "SalesRecoveryOpportunity_customerId_idx_b2a8a46c"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "customerId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "SalesRecoveryOpportunity"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Customer"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "conversationId"
+                  ],
+                  "name": "SalesRecoveryOpportunity_conversationId_idx_669215a6",
+                  "prefix": "SalesRecoveryOpportunity_conversationId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "customerId"
+                  ],
+                  "name": "SalesRecoveryOpportunity_customerId_idx_b2a8a46c",
+                  "prefix": "SalesRecoveryOpportunity_customerId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "merchantId"
+                  ],
+                  "name": "SalesRecoveryOpportunity_merchantId_idx_ee13c67b",
+                  "prefix": "SalesRecoveryOpportunity_merchantId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "merchantId",
+                    "status",
+                    "createdAt"
+                  ],
+                  "name": "sro_merchant_status_created_52530b35",
+                  "prefix": "sro_merchant_status_created",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "merchantId",
+                    "idempotencyKey"
+                  ]
+                },
+                {
+                  "columns": [
+                    "conversationId",
+                    "triggerMessageId"
+                  ]
+                }
+              ]
+            },
             "Subscription": {
               "checks": [
                 {
@@ -5755,6 +6576,28 @@
                 "archived"
               ]
             },
+            "sales_recovery_reason": {
+              "kind": "valueSet",
+              "values": [
+                "buying_intent",
+                "price_concern",
+                "unavailable_item",
+                "undecided",
+                "unanswered_question",
+                "unknown"
+              ]
+            },
+            "sales_recovery_status": {
+              "kind": "valueSet",
+              "values": [
+                "pending",
+                "approved",
+                "rejected",
+                "dismissed",
+                "sent",
+                "failed"
+              ]
+            },
             "subscription_status": {
               "kind": "valueSet",
               "values": [
@@ -5797,10 +6640,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "f0bce2a4a2d1b937366fceb4ffa5aac8d64e089813276f4b7760630d7dbe14dd"
+    "storageHash": "5c1ed61ccdd860c7987a2fb260a2df6fd176137b724981e5c256a66fb4819f08"
   },
   "execution": {
-    "executionHash": "d1eee4c0355bf6a9cffa658f8c6d1852d7ba7961ffcd7e5ba916af49aa676e9d",
+    "executionHash": "23f9116824e8c6ec6bd5d893a7b4544f05bac7559965aaa1e150fa997519d7d1",
     "mutations": {
       "defaults": [
         {
@@ -6063,6 +6906,50 @@
           },
           "ref": {
             "entry": "ProductVariant",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv7",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "SalesRecoveryConfig",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onUpdate": {
+            "id": "timestamptzStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "SalesRecoveryConfig",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv7",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "SalesRecoveryOpportunity",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onUpdate": {
+            "id": "timestamptzStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "SalesRecoveryOpportunity",
             "field": "updatedAt",
             "namespace": "public"
           }

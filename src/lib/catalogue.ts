@@ -5,6 +5,7 @@ import {
   getDemoMerchantId,
   demoDatabaseWritesEnabled,
 } from "@/lib/demo-tenant";
+import { rankCatalogueProducts } from "@/lib/catalogue-evidence";
 
 export type CatalogueVariant = {
   id: string;
@@ -95,32 +96,13 @@ export async function searchDemoCatalogue(query: string) {
   const result = await listDemoCatalogue();
   if (!result.ok) return result;
 
-  const terms = normalizedQuery.split(/\s+/);
-  const products = result.products
+  const activeProducts = result.products
     .filter((product) => product.status === "active")
-    .map((product) => {
-      const activeVariants = product.variants.filter(
-        (variant) => variant.isActive,
-      );
-      const searchableText = [
-        product.name,
-        product.description ?? "",
-        product.category ?? "",
-        ...activeVariants.flatMap((variant) => [
-          variant.label ?? "",
-          variant.size ?? "",
-          variant.color ?? "",
-        ]),
-      ]
-        .join(" ")
-        .toLocaleLowerCase();
-      return {
-        product: { ...product, variants: activeVariants },
-        matched: terms.every((term) => searchableText.includes(term)),
-      };
-    })
-    .filter(({ matched }) => matched)
-    .map(({ product }) => product);
+    .map((product) => ({
+      ...product,
+      variants: product.variants.filter((variant) => variant.isActive),
+    }));
+  const products = rankCatalogueProducts(activeProducts, normalizedQuery);
 
   return { ok: true as const, products };
 }

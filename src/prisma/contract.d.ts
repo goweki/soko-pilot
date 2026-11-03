@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'f0bce2a4a2d1b937366fceb4ffa5aac8d64e089813276f4b7760630d7dbe14dd'>;
+  StorageHashBase<'5c1ed61ccdd860c7987a2fb260a2df6fd176137b724981e5c256a66fb4819f08'>;
 export type ExecutionHash =
-  ExecutionHashBase<'d1eee4c0355bf6a9cffa658f8c6d1852d7ba7961ffcd7e5ba916af49aa676e9d'>;
+  ExecutionHashBase<'23f9116824e8c6ec6bd5d893a7b4544f05bac7559965aaa1e150fa997519d7d1'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -306,6 +306,28 @@ type FieldTypeOverrides = {
           readonly input: 'draft' | 'active' | 'archived';
         };
       };
+      readonly SalesRecoveryOpportunity: {
+        readonly reason: {
+          readonly output:
+            | 'buying_intent'
+            | 'price_concern'
+            | 'unavailable_item'
+            | 'undecided'
+            | 'unanswered_question'
+            | 'unknown';
+          readonly input:
+            | 'buying_intent'
+            | 'price_concern'
+            | 'unavailable_item'
+            | 'undecided'
+            | 'unanswered_question'
+            | 'unknown';
+        };
+        readonly status: {
+          readonly output: 'pending' | 'approved' | 'rejected' | 'dismissed' | 'sent' | 'failed';
+          readonly input: 'pending' | 'approved' | 'rejected' | 'dismissed' | 'sent' | 'failed';
+        };
+      };
       readonly Subscription: {
         readonly status: {
           readonly output: 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
@@ -405,6 +427,28 @@ type ColumnTypeOverrides = {
       readonly status: {
         readonly output: 'draft' | 'active' | 'archived';
         readonly input: 'draft' | 'active' | 'archived';
+      };
+    };
+    readonly SalesRecoveryOpportunity: {
+      readonly reason: {
+        readonly output:
+          | 'buying_intent'
+          | 'price_concern'
+          | 'unavailable_item'
+          | 'undecided'
+          | 'unanswered_question'
+          | 'unknown';
+        readonly input:
+          | 'buying_intent'
+          | 'price_concern'
+          | 'unavailable_item'
+          | 'undecided'
+          | 'unanswered_question'
+          | 'unknown';
+      };
+      readonly status: {
+        readonly output: 'pending' | 'approved' | 'rejected' | 'dismissed' | 'sent' | 'failed';
+        readonly input: 'pending' | 'approved' | 'rejected' | 'dismissed' | 'sent' | 'failed';
       };
     };
     readonly Subscription: {
@@ -509,9 +553,16 @@ export namespace Models {
     merchant: public_Merchant;
     messages: public_Message[];
     orders: public_Order[];
+    salesRecoveryOpportunities: public_SalesRecoveryOpportunity[];
     whatsappConnection: public_WhatsAppConnection;
     readonly [RelationKeys]?:
-      'assistantRuns' | 'customer' | 'merchant' | 'messages' | 'orders' | 'whatsappConnection';
+      | 'assistantRuns'
+      | 'customer'
+      | 'merchant'
+      | 'messages'
+      | 'orders'
+      | 'salesRecoveryOpportunities'
+      | 'whatsappConnection';
   };
   export type public_Customer = {
     createdAt: FieldOutputTypes['public']['Customer']['createdAt'];
@@ -525,7 +576,9 @@ export namespace Models {
     conversations: public_Conversation[];
     merchant: public_Merchant;
     orders: public_Order[];
-    readonly [RelationKeys]?: 'conversations' | 'merchant' | 'orders';
+    salesRecoveryOpportunities: public_SalesRecoveryOpportunity[];
+    readonly [RelationKeys]?:
+      'conversations' | 'merchant' | 'orders' | 'salesRecoveryOpportunities';
   };
   export type public_Merchant = {
     businessName: FieldOutputTypes['public']['Merchant']['businessName'];
@@ -543,6 +596,8 @@ export namespace Models {
     orders: public_Order[];
     owner: public_User;
     products: public_Product[];
+    salesRecoveryConfig: public_SalesRecoveryConfig | null;
+    salesRecoveryOpportunities: public_SalesRecoveryOpportunity[];
     subscriptions: public_Subscription[];
     whatsappConnections: public_WhatsAppConnection[];
     readonly [RelationKeys]?:
@@ -552,6 +607,8 @@ export namespace Models {
       | 'orders'
       | 'owner'
       | 'products'
+      | 'salesRecoveryConfig'
+      | 'salesRecoveryOpportunities'
       | 'subscriptions'
       | 'whatsappConnections';
   };
@@ -667,6 +724,40 @@ export namespace Models {
     product: public_Product;
     readonly [RelationKeys]?: 'orderItems' | 'product';
   };
+  export type public_SalesRecoveryConfig = {
+    createdAt: FieldOutputTypes['public']['SalesRecoveryConfig']['createdAt'];
+    frequencyCapDays: FieldOutputTypes['public']['SalesRecoveryConfig']['frequencyCapDays'];
+    id: FieldOutputTypes['public']['SalesRecoveryConfig']['id'];
+    inactivityMinutes: FieldOutputTypes['public']['SalesRecoveryConfig']['inactivityMinutes'];
+    isEnabled: FieldOutputTypes['public']['SalesRecoveryConfig']['isEnabled'];
+    merchantId: FieldOutputTypes['public']['SalesRecoveryConfig']['merchantId'];
+    updatedAt: FieldOutputTypes['public']['SalesRecoveryConfig']['updatedAt'];
+    merchant: public_Merchant;
+    readonly [RelationKeys]?: 'merchant';
+  };
+  export type public_SalesRecoveryOpportunity = {
+    conversationId: FieldOutputTypes['public']['SalesRecoveryOpportunity']['conversationId'];
+    createdAt: FieldOutputTypes['public']['SalesRecoveryOpportunity']['createdAt'];
+    customerId: FieldOutputTypes['public']['SalesRecoveryOpportunity']['customerId'];
+    evidence: FieldOutputTypes['public']['SalesRecoveryOpportunity']['evidence'];
+    failureCode: FieldOutputTypes['public']['SalesRecoveryOpportunity']['failureCode'];
+    id: FieldOutputTypes['public']['SalesRecoveryOpportunity']['id'];
+    idempotencyKey: FieldOutputTypes['public']['SalesRecoveryOpportunity']['idempotencyKey'];
+    lastOutboundMessageId: FieldOutputTypes['public']['SalesRecoveryOpportunity']['lastOutboundMessageId'];
+    merchantId: FieldOutputTypes['public']['SalesRecoveryOpportunity']['merchantId'];
+    providerMessageId: FieldOutputTypes['public']['SalesRecoveryOpportunity']['providerMessageId'];
+    reason: FieldOutputTypes['public']['SalesRecoveryOpportunity']['reason'];
+    reviewedAt: FieldOutputTypes['public']['SalesRecoveryOpportunity']['reviewedAt'];
+    sentAt: FieldOutputTypes['public']['SalesRecoveryOpportunity']['sentAt'];
+    status: FieldOutputTypes['public']['SalesRecoveryOpportunity']['status'];
+    suggestedMessage: FieldOutputTypes['public']['SalesRecoveryOpportunity']['suggestedMessage'];
+    triggerMessageId: FieldOutputTypes['public']['SalesRecoveryOpportunity']['triggerMessageId'];
+    updatedAt: FieldOutputTypes['public']['SalesRecoveryOpportunity']['updatedAt'];
+    conversation: public_Conversation;
+    customer: public_Customer;
+    merchant: public_Merchant;
+    readonly [RelationKeys]?: 'conversation' | 'customer' | 'merchant';
+  };
   export type public_Subscription = {
     cancelAtPeriodEnd: FieldOutputTypes['public']['Subscription']['cancelAtPeriodEnd'];
     canceledAt: FieldOutputTypes['public']['Subscription']['canceledAt'];
@@ -746,6 +837,8 @@ export declare const models: {
     PlanEntitlement: Models.public_PlanEntitlement;
     Product: Models.public_Product;
     ProductVariant: Models.public_ProductVariant;
+    SalesRecoveryConfig: Models.public_SalesRecoveryConfig;
+    SalesRecoveryOpportunity: Models.public_SalesRecoveryOpportunity;
     Subscription: Models.public_Subscription;
     User: Models.public_User;
     WebhookEvent: Models.public_WebhookEvent;
@@ -2251,6 +2344,268 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly SalesRecoveryConfig: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly frequencyCapDays: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 7>;
+                  };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly inactivityMinutes: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 240>;
+                  };
+                  readonly many: false;
+                };
+                readonly isEnabled: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly merchantId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['merchantId'] }];
+              indexes: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'SalesRecoveryConfig';
+                    readonly columns: readonly ['merchantId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Merchant';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly SalesRecoveryOpportunity: {
+              columns: {
+                readonly conversationId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly customerId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly evidence: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly failureCode: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly idempotencyKey: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly lastOutboundMessageId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly merchantId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly providerMessageId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly reason: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'unknown'>;
+                  };
+                  readonly many: false;
+                };
+                readonly reviewedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly sentAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'pending'>;
+                  };
+                  readonly many: false;
+                };
+                readonly suggestedMessage: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly triggerMessageId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [
+                { readonly columns: readonly ['merchantId', 'idempotencyKey'] },
+                { readonly columns: readonly ['conversationId', 'triggerMessageId'] },
+              ];
+              indexes: readonly [
+                {
+                  readonly name: 'SalesRecoveryOpportunity_conversationId_idx_669215a6';
+                  readonly prefix: 'SalesRecoveryOpportunity_conversationId_idx';
+                  readonly columns: readonly ['conversationId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'SalesRecoveryOpportunity_customerId_idx_b2a8a46c';
+                  readonly prefix: 'SalesRecoveryOpportunity_customerId_idx';
+                  readonly columns: readonly ['customerId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'SalesRecoveryOpportunity_merchantId_idx_ee13c67b';
+                  readonly prefix: 'SalesRecoveryOpportunity_merchantId_idx';
+                  readonly columns: readonly ['merchantId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'sro_merchant_status_created_52530b35';
+                  readonly prefix: 'sro_merchant_status_created';
+                  readonly columns: readonly ['merchantId', 'status', 'createdAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'SalesRecoveryOpportunity';
+                    readonly columns: readonly ['merchantId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Merchant';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'SalesRecoveryOpportunity';
+                    readonly columns: readonly ['conversationId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Conversation';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'SalesRecoveryOpportunity';
+                    readonly columns: readonly ['customerId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Customer';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Subscription: {
               columns: {
                 readonly cancelAtPeriodEnd: {
@@ -2729,6 +3084,28 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['draft', 'active', 'archived'];
             };
+            readonly sales_recovery_reason: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'buying_intent',
+                'price_concern',
+                'unavailable_item',
+                'undecided',
+                'unanswered_question',
+                'unknown',
+              ];
+            };
+            readonly sales_recovery_status: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'pending',
+                'approved',
+                'rejected',
+                'dismissed',
+                'sent',
+                'failed',
+              ];
+            };
             readonly subscription_status: {
               readonly kind: 'valueSet';
               readonly values: readonly ['trialing', 'active', 'past_due', 'canceled', 'expired'];
@@ -2790,6 +3167,14 @@ type ContractBase = Omit<
     readonly ProductVariant: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'ProductVariant';
+    };
+    readonly SalesRecoveryConfig: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'SalesRecoveryConfig';
+    };
+    readonly SalesRecoveryOpportunity: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'SalesRecoveryOpportunity';
     };
     readonly Subscription: {
       readonly namespace: 'public' & NamespaceId;
@@ -3222,6 +3607,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['conversationId'];
                 };
               };
+              readonly salesRecoveryOpportunities: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'SalesRecoveryOpportunity';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['conversationId'];
+                };
+              };
               readonly whatsappConnection: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3323,6 +3719,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Order';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['customerId'];
+                };
+              };
+              readonly salesRecoveryOpportunities: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'SalesRecoveryOpportunity';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -3450,6 +3857,29 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Product';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['merchantId'];
+                };
+              };
+              readonly salesRecoveryConfig: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'SalesRecoveryConfig';
+                };
+                readonly cardinality: '1:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['merchantId'];
+                };
+              };
+              readonly salesRecoveryOpportunities: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'SalesRecoveryOpportunity';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -4191,6 +4621,216 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly SalesRecoveryConfig: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly frequencyCapDays: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly inactivityMinutes: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly isEnabled: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly merchantId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly merchant: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Merchant';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['merchantId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'SalesRecoveryConfig';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly frequencyCapDays: { readonly column: 'frequencyCapDays' };
+                readonly id: { readonly column: 'id' };
+                readonly inactivityMinutes: { readonly column: 'inactivityMinutes' };
+                readonly isEnabled: { readonly column: 'isEnabled' };
+                readonly merchantId: { readonly column: 'merchantId' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly SalesRecoveryOpportunity: {
+            readonly fields: {
+              readonly conversationId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly customerId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly evidence: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly failureCode: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly idempotencyKey: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly lastOutboundMessageId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly merchantId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly providerMessageId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly reason: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly reviewedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly sentAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly suggestedMessage: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly triggerMessageId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly conversation: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Conversation';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['conversationId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly customer: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Customer';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['customerId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly merchant: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Merchant';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['merchantId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'SalesRecoveryOpportunity';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly conversationId: { readonly column: 'conversationId' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly customerId: { readonly column: 'customerId' };
+                readonly evidence: { readonly column: 'evidence' };
+                readonly failureCode: { readonly column: 'failureCode' };
+                readonly id: { readonly column: 'id' };
+                readonly idempotencyKey: { readonly column: 'idempotencyKey' };
+                readonly lastOutboundMessageId: { readonly column: 'lastOutboundMessageId' };
+                readonly merchantId: { readonly column: 'merchantId' };
+                readonly providerMessageId: { readonly column: 'providerMessageId' };
+                readonly reason: { readonly column: 'reason' };
+                readonly reviewedAt: { readonly column: 'reviewedAt' };
+                readonly sentAt: { readonly column: 'sentAt' };
+                readonly status: { readonly column: 'status' };
+                readonly suggestedMessage: { readonly column: 'suggestedMessage' };
+                readonly triggerMessageId: { readonly column: 'triggerMessageId' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
           readonly Subscription: {
             readonly fields: {
               readonly cancelAtPeriodEnd: {
@@ -4672,6 +5312,28 @@ type ContractBase = Omit<
               { readonly name: 'archived'; readonly value: 'archived' },
             ];
           };
+          readonly sales_recovery_reason: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'buying_intent'; readonly value: 'buying_intent' },
+              { readonly name: 'price_concern'; readonly value: 'price_concern' },
+              { readonly name: 'unavailable_item'; readonly value: 'unavailable_item' },
+              { readonly name: 'undecided'; readonly value: 'undecided' },
+              { readonly name: 'unanswered_question'; readonly value: 'unanswered_question' },
+              { readonly name: 'unknown'; readonly value: 'unknown' },
+            ];
+          };
+          readonly sales_recovery_status: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'pending'; readonly value: 'pending' },
+              { readonly name: 'approved'; readonly value: 'approved' },
+              { readonly name: 'rejected'; readonly value: 'rejected' },
+              { readonly name: 'dismissed'; readonly value: 'dismissed' },
+              { readonly name: 'sent'; readonly value: 'sent' },
+              { readonly name: 'failed'; readonly value: 'failed' },
+            ];
+          };
           readonly subscription_status: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
@@ -4766,6 +5428,22 @@ type ContractBase = Omit<
             { readonly name: 'draft'; readonly value: 'draft' },
             { readonly name: 'active'; readonly value: 'active' },
             { readonly name: 'archived'; readonly value: 'archived' },
+          ];
+          readonly sales_recovery_reason: readonly [
+            { readonly name: 'buying_intent'; readonly value: 'buying_intent' },
+            { readonly name: 'price_concern'; readonly value: 'price_concern' },
+            { readonly name: 'unavailable_item'; readonly value: 'unavailable_item' },
+            { readonly name: 'undecided'; readonly value: 'undecided' },
+            { readonly name: 'unanswered_question'; readonly value: 'unanswered_question' },
+            { readonly name: 'unknown'; readonly value: 'unknown' },
+          ];
+          readonly sales_recovery_status: readonly [
+            { readonly name: 'pending'; readonly value: 'pending' },
+            { readonly name: 'approved'; readonly value: 'approved' },
+            { readonly name: 'rejected'; readonly value: 'rejected' },
+            { readonly name: 'dismissed'; readonly value: 'dismissed' },
+            { readonly name: 'sent'; readonly value: 'sent' },
+            { readonly name: 'failed'; readonly value: 'failed' },
           ];
           readonly subscription_status: readonly [
             { readonly name: 'trialing'; readonly value: 'trialing' },
@@ -5015,6 +5693,38 @@ type ContractBase = Omit<
           readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'ProductVariant';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv7'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'SalesRecoveryConfig';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'SalesRecoveryConfig';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv7'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'SalesRecoveryOpportunity';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'SalesRecoveryOpportunity';
             readonly field: 'updatedAt';
             readonly namespace: 'public';
           };

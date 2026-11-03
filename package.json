@@ -12,6 +12,7 @@
     "start": "next start -p ${PORT:-3000}",
     "postinstall": "prisma contract emit",
     "eval:assistant": "node --conditions=react-server --import tsx src/scripts/run-assistant-evaluation.ts",
+    "test:coverage": "node --import tsx --experimental-test-coverage --test src/lib/*.test.ts",
     "test": "node --import tsx --test src/lib/*.test.ts",
     "test:ci": "node --import tsx --test src/lib/*.test.ts",
     "prepare": "husky install || true",

@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildRecoveryIdempotencyKey,
   createRecoveryCandidate,
   isRecoveryEligible,
+  isWithinFrequencyCap,
   type RecoveryMessage,
 } from "./sales-recovery";
 
@@ -64,6 +66,19 @@ test("recovery classifies price concern and Swahili buying intent", () => {
     messages[1],
   ]);
   assert.equal(swahili?.reason, "buying_intent");
+});
+
+test("frequency cap blocks repeat recovery inside the window and allows it after", () => {
+  const nowMs = Date.parse("2026-11-10T12:00:00.000Z");
+  assert.equal(isWithinFrequencyCap("2026-11-09T12:00:00.000Z", nowMs, 7), true);
+  assert.equal(isWithinFrequencyCap("2026-11-03T12:00:00.000Z", nowMs, 7), true);
+  assert.equal(isWithinFrequencyCap("2026-11-03T11:59:59.000Z", nowMs, 7), false);
+  assert.equal(isWithinFrequencyCap(null, nowMs, 7), false);
+  assert.equal(isWithinFrequencyCap("not-a-date", nowMs, 7), false);
+  assert.equal(
+    buildRecoveryIdempotencyKey("conv-1", "msg-1"),
+    "conv-1:msg-1",
+  );
 });
 
 test("non-sales conversation does not generate a recovery candidate", () => {

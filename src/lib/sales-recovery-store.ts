@@ -3,8 +3,10 @@ import "server-only";
 import { db } from "@/prisma/db";
 import { demoDatabaseWritesEnabled, getDemoMerchantId } from "@/lib/demo-tenant";
 import {
+  buildRecoveryIdempotencyKey,
   createRecoveryCandidate,
   isRecoveryEligible,
+  isWithinFrequencyCap,
   type RecoveryMessage,
 } from "@/lib/sales-recovery";
 
@@ -103,10 +105,11 @@ export async function sweepSalesRecovery(now = Date.now()) {
       db.orm.public.SalesRecoveryOpportunity.where({ merchantId, status: "sent" }).all(),
     ]);
 
-    const frequencyWindow = now - config.frequencyCapDays * 24 * 60 * 60 * 1000;
     const recentlyContactedCustomers = new Set(
       recentSent
-        .filter((item) => item.sentAt && Date.parse(item.sentAt) >= frequencyWindow)
+        .filter((item) =>
+          isWithinFrequencyCap(item.sentAt, now, config.frequencyCapDays),
+        )
         .map((item) => item.customerId),
     );
     let created = 0;
@@ -132,7 +135,10 @@ export async function sweepSalesRecovery(now = Date.now()) {
 
       const candidate = createRecoveryCandidate(messages);
       if (!candidate) continue;
-      const idempotencyKey = `${conversation.id}:${candidate.triggerMessageId}`;
+      const idempotencyKey = buildRecoveryIdempotencyKey(
+        conversation.id,
+        candidate.triggerMessageId,
+      );
       const existing = await db.orm.public.SalesRecoveryOpportunity.first({
         conversationId: conversation.id,
         triggerMessageId: candidate.triggerMessageId,

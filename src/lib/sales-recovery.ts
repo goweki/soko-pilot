@@ -79,6 +79,24 @@ export function isRecoveryEligible(input: {
   );
 }
 
+export function buildRecoveryIdempotencyKey(
+  conversationId: string,
+  triggerMessageId: string,
+): string {
+  return `${conversationId}:${triggerMessageId}`;
+}
+
+export function isWithinFrequencyCap(
+  sentAt: string | null | undefined,
+  now: number,
+  frequencyCapDays: number,
+): boolean {
+  if (!sentAt) return false;
+  const sentTime = Date.parse(sentAt);
+  if (!Number.isFinite(sentTime)) return false;
+  return sentTime >= now - frequencyCapDays * 24 * 60 * 60 * 1000;
+}
+
 export function createRecoveryCandidate(
   messages: RecoveryMessage[],
 ): RecoveryCandidate | null {

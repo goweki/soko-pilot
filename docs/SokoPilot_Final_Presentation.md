@@ -39,7 +39,7 @@
 ## 5. Sales Recovery: the next major capability — Built (prototype, off by default)
 
 - **Detect:** open conversation, last word was the shop's, quiet for 4+ hours, earlier buying/price/undecided signal, no opt-out, no pending order.
-- **Review:** evidence-backed queue at Dashboard → Sales recovery; hourly sweep (Vercel Cron), frequency cap, one opportunity per triggering message.
+- **Review:** evidence-backed queue at Dashboard → Sales recovery; daily sweep (Vercel Cron), frequency cap, one opportunity per triggering message.
 - **Approve:** eligibility is re-checked at send time (still open, inside WhatsApp's 24h window, nothing newer sent); the send is claimed before it happens so it cannot duplicate.
 - **Audit:** every opportunity records its reason, evidence, reviewer outcome, and provider message ID.
 

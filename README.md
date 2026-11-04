@@ -8,7 +8,11 @@ The workspace interface is available in English and Kiswahili. The shared access
 
 ## Preview the app
 
-Open [soko-pilot.vercel.app](https://soko-pilot.vercel.app) and enter the workspace access code supplied by the operator.
+Open [soko-pilot.vercel.app](https://soko-pilot.vercel.app) and enter the workspace access code below.
+
+```
+aihackerthon
+```
 
 For a local preview, follow **Run locally** below. The app needs a PostgreSQL database with the SokoPilot schema and workspace records. It does not display fallback catalogue or conversation data when the database is missing.
 
